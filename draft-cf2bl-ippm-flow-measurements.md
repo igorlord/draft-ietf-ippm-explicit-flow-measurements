@@ -1,7 +1,7 @@
 ---
 title: Packet Loss Signaling for Encrypted Protocols
 abbrev: loss-bits
-docname: draft-xxx-ippm-flow-measurements-latest
+docname: draft-cf2bl-ippm-flow-measurements-latest
 date: {DATE}
 category: info
 
