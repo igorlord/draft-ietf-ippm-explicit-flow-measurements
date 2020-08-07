@@ -1,10 +1,13 @@
-# Flow Measurements by a Passive Observer
+# Explicit Flow Measurements Techniques
 
-This is the working area for the individual Internet-Draft, "Flow Measurements by a Passive Observer".
+This is the working area for the individual Internet-Draft, "Explicit Flow
+Measurements Techniques".  The draft describes a number of techniques that can
+be used to supply explicit flow measurements using a very limited number of bits
+dedicated to the measurements.
 
-* [Editor's Copy](https://igorlord.github.io/draft-cf2bl-ippm-flow-measurements/#go.draft-cf2bl-ippm-flow-measurements.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-cf2bl-ippm-flow-measurements)
-* [Compare Editor's Copy to Individual Draft](https://igorlord.github.io/draft-cf2bl-ippm-flow-measurements/#go.draft-cf2bl-ippm-flow-measurements.diff)
+* [Editor's Copy](https://igorlord.github.io/draft-cf2bl-ippm-explicit-flow-measurements/#go.draft-cf2bl-ippm-explicit-flow-measurements.html)
+* [Individual Draft](https://tools.ietf.org/html/draft-cf2bl-ippm-explicit-flow-measurements)
+* [Compare Editor's Copy to Individual Draft](https://igorlord.github.io/draft-cf2bl-ippm-explicit-flow-measurements/#go.draft-cf2bl-ippm-explicit-flow-measurements.diff)
 
 ## Building the Draft
 
@@ -21,4 +24,4 @@ This requires that you have the necessary software installed.  See
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/igorlord/draft-cf2bl-ippm-flow-measurements/blob/master/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/igorlord/draft-cf2bl-ippm-explicit-flow-measurements/blob/master/CONTRIBUTING.md).

@@ -1,7 +1,7 @@
 ---
-title: Packet Loss Signaling for Encrypted Protocols
+title: Explicit Flow Measurements Techniques
 abbrev: loss-bits
-docname: draft-cf2bl-ippm-flow-measurements-latest
+docname: draft-cf2bl-ippm-explicit-flow-measurements-latest
 date: {DATE}
 category: info
 
