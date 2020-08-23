@@ -5,9 +5,9 @@ Measurements Techniques".  The draft describes a number of techniques that can
 be used to supply explicit flow measurements using a very limited number of bits
 dedicated to the measurements.
 
-* [Editor's Copy](https://igorlord.github.io/draft-cf2bl-ippm-explicit-flow-measurements/#go.draft-cf2bl-ippm-explicit-flow-measurements.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-cf2bl-ippm-explicit-flow-measurements)
-* [Compare Editor's Copy to Individual Draft](https://igorlord.github.io/draft-cf2bl-ippm-explicit-flow-measurements/#go.draft-cf2bl-ippm-explicit-flow-measurements.diff)
+* [Editor's Copy](https://igorlord.github.io/draft-mdt-ippm-explicit-flow-measurements/#go.draft-mdt-ippm-explicit-flow-measurements.html)
+* [Individual Draft](https://tools.ietf.org/html/draft-mdt-ippm-explicit-flow-measurements)
+* [Compare Editor's Copy to Individual Draft](https://igorlord.github.io/draft-mdt-ippm-explicit-flow-measurements/#go.draft-mdt-ippm-explicit-flow-measurements.diff)
 
 ## Building the Draft
 
@@ -24,4 +24,4 @@ This requires that you have the necessary software installed.  See
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/igorlord/draft-cf2bl-ippm-explicit-flow-measurements/blob/master/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/igorlord/draft-mdt-ippm-explicit-flow-measurements/blob/master/CONTRIBUTING.md).
