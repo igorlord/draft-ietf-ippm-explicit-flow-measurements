@@ -208,8 +208,9 @@ The latency spin bit is a single bit signal that toggles once per RTT,
 enabling latency monitoring of a connection-oriented communication
 from intermediate observation points.
 
-A spin period is a set of packets with the same spin bit value sent during one
-RTT time interval.
+A "spin period" is a set of packets with the same spin bit value sent during one
+RTT time interval. A "spin period value" is the value of the spin bit shared by
+all packets in a spin period.
 
 The client and server maintain an internal per-connection spin value (i.e. 0 or
 1) used to set the spin bit on outgoing packets. Both endpoints initialize the
@@ -254,7 +255,7 @@ is set only once per round trip.
 
 When the delay bit is used, a single packet with a second marked bit (the delay
 bit) bounces between a client and a server during the entire connection
-lifetime.  This single packet is called Delay Sample.
+lifetime.  This single packet is called "delay sample".
 
 An observer placed at an intermediate point, tracking the delay sample and the
 relative timestamp in every spin period, can measure the round trip delay of
@@ -368,15 +369,15 @@ Reflection is the process that enables the bouncing of the delay
 sample between a client and a server.  The behavior of the two endpoints
 is slightly different.
 
-* Server side reflection: when a packet with the delay bit set to 1 arrives, the
-   server marks the first packet in the opposite direction as the delay sample,
-   if the outgoing packet has the same spin bit value as the delay sample.
-   Otherwise, the delay sample is ignored.
+* Server side reflection: when a delay sample arrives, the server marks the
+   first packet in the opposite direction as the delay sample, if the outgoing
+   packet has the same spin bit value as the delay sample.  Otherwise, the delay
+   sample is ignored.
 
-* Client side reflection: when a packet with delay bit set to 1 arrives, the
-   client marks the first packet in the opposite direction as the delay sample,
-   if the outgoing packet has the opposite spin bit value then the delay sample.
-   Otherwise, the delay sample is ignored.
+* Client side reflection: when a delay sample arrives, the client marks the
+   first packet in the opposite direction as the delay sample, if the outgoing
+   packet has the opposite spin bit value then the delay sample.  Otherwise, the
+   delay sample is ignored.
 
 In both cases, if the outgoing delay sample is being transmitted with a delay
 greater than a predetermined threshold after the reception of the incoming delay
