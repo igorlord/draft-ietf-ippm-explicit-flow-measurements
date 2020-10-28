@@ -265,7 +265,7 @@ An observer placed at an intermediate point, observing a single direction of
 traffic, tracking the delay sample and the relative timestamp in every spin
 period, can measure the round trip delay of the connection.
 
-The delay bit lifetime is comprised of two phases: initialization and
+The delay sample lifetime is comprised of two phases: initialization and
 reflection.  The initialization is the generation of the delay sample, while the
 reflection realizes the bounce behavior of this single packet between the two
 endpoints.
@@ -328,7 +328,7 @@ the spin bit and the second one is the delay bit.
 ~~~~
 {: title="Spin bit and Delay bit"}
 
-### Generation phase
+### Generation Phase
 
 Only client is actively involved in the generation phase.
 
@@ -338,9 +338,8 @@ marking period.  Only this packet is marked with the delay bit set to 1 for this
 round trip period; the other ones will carry the spin bit, while the delay bit
 will be set to 0.
 
-The server initialized the delay bit to 0 at the beginning of the connection,
-and its only only task during the connection is described in
-{{reflection-phase}}.
+The server initializes the delay bit to 0 at the beginning of the connection,
+and its only task during the connection is described in {{reflection-phase}}.
 
 In absence of network impairments, the delay sample should bounce between client
 and server continuously, for the entire duration of the connection.  That is
@@ -355,19 +354,19 @@ To deal with these problems, the algorithm provides a procedure named "recovery
 process" to regenerate the delay sample and to inform a possible observer of the
 problem so the measurement can be restarted.
 
-#### The recovery process
+#### The Recovery Process
 
-Absent packet loss or reordering, every spin period ends with a delay sample.
-If that does not happen and a spin period terminates without a delay sample, the
-client waits a further spin period; then, it creates a new delay sample by
-setting the delay bit to 1 on the first outgoing packet of the subsequent
-period,
+Absent packet loss or reordering, every spin period ends with a delay sample
+inside. If that does not happen and a spin period terminates without a delay
+sample inside, the client waits a further spin period; then, it creates a new
+delay sample by setting the delay bit to 1 on the first outgoing packet of the
+subsequent period.
 
 The spin period with all delay bits set to 0 informs observers that there was a
 problem and delay measurements for this flow should be reset till the next delay
 sample is received.
 
-### Reflection phase   {#reflection-phase}
+### Reflection Phase   {#reflection-phase}
 
 Reflection is the process that enables the bouncing of the delay
 sample between a client and a server.  The behavior of the two endpoints
@@ -396,13 +395,13 @@ measurements that would overestimate the delay due to lack of traffic on the
 endpoints.  Hence, the maximum estimation error would amount to twice the
 threshold (e.g. 2ms) per measurement.
 
-### Two bits delay measurement: Spin Bit + Delay Bit
+### Two Bits Delay Measurement: Spin Bit + Delay Bit
 
 When the Delay Bit is used, a passive observer can use delay samples directly
 and avoid inherent ambiguities in the calculation of the RTT in spin bit
 analysis, such as heuristic validation of the goodness of an edge signal.
 
-#### RTT measurement
+#### RTT Measurement
 
 The delay sample generation process ensures that only one packet marked with the
 delay bit set to 1 runs back and forth between two endpoints per round trip
@@ -413,7 +412,8 @@ direction.
 To ensure a valid measurement, the observer must identify spin periods in the
 packet flow and assign delay samples to spin periods. If a spin period is
 missing a delay sample, the measurement needs to be restarted from the
-subsequent delay sample.
+subsequent delay sample. So a measurement, to be valid, must take into account
+delay samples belonging to adjacent spin periods.
 
 
 ~~~~
@@ -436,7 +436,7 @@ subsequent delay sample.
 {: title="Round-trip time (both direction)"}
 
 
-#### Half-RTT measurement
+#### Half-RTT Measurement
 
 An observer that is able to observe both forward and return traffic directions
 can use the delay samples to measure "upstream" and "downstream" RTT components,
@@ -447,12 +447,14 @@ observed in the opposite direction.
 As with RTT measurement, the observer must identify spin periods in the packet
 flow and assign delay samples to spin periods. If a spin period is missing a
 delay sample, the measurement needs to be restarted from the subsequent delay
-sample.
+sample. So a measurement, to be valid, must take into account delay samples
+belonging to adjacent periods, for the upstream component, or to the same period
+for the downstream component.
 
 Note that upstream and downstream sections of paths between the endpoints and
-the observer, i.e. observer-to-client vs client-to-observer and observer-to-server
-vs server-to-observer, may have different delay characteristics due to the
-difference in network congestion and other factors.
+the observer, i.e. observer-to-client vs client-to-observer and
+observer-to-server vs server-to-observer, may have different delay
+characteristics due to the difference in network congestion and other factors.
 
 ~~~~
            =======================>
@@ -474,7 +476,7 @@ difference in network congestion and other factors.
 {: title="Half Round-trip time (both direction)"}
 
 
-#### Intra-domain RTT measurement
+#### Intra-Domain RTT Measurement
 
 Intra-domain RTT is the portion of the entire RTT used by a flow to traverse the
 network of a provider.  To measure intra-domain RTT, two observers capable of
@@ -505,7 +507,7 @@ between the two computed upstream (or downstream) RTT components.
 {: title="Intra-domain Round-trip time (client-observer: upstream)"}
 
 
-### Observer's algorithm and Edge Rejection Interval
+### Observer's Algorithm and Edge Rejection Interval
 
 To provide a formal description of the observer behavior, we define a "matching
 delay sample" to be a delay sample with the spin bit value that matched the spin
@@ -516,8 +518,8 @@ detected in the previous period, then the two delay samples can be used to
 calculate RTT measurement.
 
 If the observer can observe both forward and return traffic flows, and it is
-able to determine, by observing the spin bit, which direction contains the
-client and the server:
+able to determine which direction contains the client and the server (e.g. by
+observing the spin bit or connection handshake):
 
 * If matching delay samples have been detected in both directions in the current
   spin period, they can be used to measure the observer-server half-RTT.
@@ -534,11 +536,11 @@ and will decrease the amount of usable delay samples available to the observer.
 
 To implement spurious edge rejection, every time a spin bit edge is detected,
 the observer starts a new spin period and begins a time interval during which it
-rejects spin edges.  This guarantees protection against spurious edges due to
-packets that have been reordered by less than the time interval.  The mechanism
-only works for intervals smaller than the RTT of the observed connection; if RTT
-is smaller than the edge rejection interval, the observer cannot measure the
-RTT.
+rejects spin edges (e.g. 5ms).  This guarantees protection against spurious
+edges due to packets that have been reordered by less than the time interval.
+The mechanism only works for intervals smaller than the RTT of the observed
+connection; if RTT is smaller than the edge rejection interval, the observer
+cannot measure the RTT.
 
 # Loss Bits
 
@@ -558,13 +560,12 @@ bits -- the only packets whose loss can be measured.
 * R: the "Reflection square signal" bit is used in combination with Q bit to
   measure end-to-end loss. See {{rtlossbit}}.
 
-Loss measurements enabled by T, Q, and L the bits can be implemented by those
-loss bits alone (T bit requires a working Spin Bit). Two-bit combinations Q+L
-and Q+R enable additional measurement opportunities discussed below.
+Loss measurements enabled by T, Q, and L bits can be implemented by those loss
+bits alone (T bit requires a working Spin Bit). Two-bit combinations Q+L and Q+R
+enable additional measurement opportunities discussed below.
 
-Each endpoint maintains appropriate counters independently and
-separately for each separately identifiable flow (each sub-flow for
-multipath connections).
+Each endpoint maintains appropriate counters independently and separately for
+each separately identifiable flow (each sub-flow for multipath connections).
 
 Since loss is reported independently for each flow, all bits (except for L bit)
 require a certain minimum number of packets to be exchanged per flow before any
@@ -614,10 +615,10 @@ allow an observer to distinguish between trains belonging to different phases
 
 ### Round Trip Packet Loss Measurement
 
-Since the measurements are performed on a portion of the traffic
-exchanged between the client and the server, the observer calculates the end-
-to-end Round Trip Packet Loss (RTPL) that, statistically, will correspond to
-the loss rate experienced by the connection along the entire network path.
+Since the measurements are performed on a portion of the traffic exchanged
+between the client and the server, the observer calculates the end-to-end Round
+Trip Packet Loss (RTPL) that, statistically, will correspond to the loss rate
+experienced by the connection along the entire network path.
 
 ~~~~
            =======================|======================>
@@ -684,7 +685,7 @@ the Intra-domain RTPL measurement in a way similar to RTT measurement.
 ~~~~
 {: title="Intra-domain Round-trip packet loss (observer-server)"}
 
-### Setting the round Trip loss bit on Outgoing Packets  {#tbit-details}
+### Setting the Round Trip Loss Bit on Outgoing Packets  {#tbit-details}
 
 The round Trip loss signal requires a working Spin-bit signal to separate trains
 of marked packets (packets with T bit set to 1).  A "pause" of at least one
@@ -722,13 +723,17 @@ according to the algorithm:
     serves as a separator between the reflected packet train and a new packet
     train.
 
+The generation token counter should be capped to limit the effects of any sudden
+change in speed, event that could lead an endpoint to have difficulty reflecting
+collected packets. The most conservative value is `1`.
+
 A server maintains a "marking counter" that starts at zero and is incremented
 every time a marked packet arrives. When the server transmits a packet and the
 "marking counter" is positive, the server marks the packet and decrements the
 "marking counter". If the "marking counter" is zero, the outgoing packet is
 transmitted unmarked.
 
-### Observer's logic for round trip loss signal
+### Observer's Logic for Round Trip Loss Signal
 
 The on-path observer counts marked packets and separates different trains by
 detecting spin-bit periods (at least one) with no marked packets.  The Round
@@ -760,8 +765,7 @@ The observer can only detect loss of marked packets that occurs after its
 initial observation of the Generation phase and before its subsequent
 observation of the Reflection phase. Hence, if the loss occurs on the path that
 sends packets at a lower rate (typically ACKs in such asymmetric scenarios),
-`2/6` (`1/3`) of the packets will be sampled for loss detection (i.e. loss of
-any of the other `2/3` of the packets on that path would be missed).
+`2/6` (`1/3`) of the packets will be sampled for loss detection.
 
 If the loss occurs on the path that sends packets at a higher rate,
 `lowPacketRate/(3*highPacketRate)` of the packets will be sampled for loss
@@ -811,7 +815,7 @@ some flows.
 
 The sender must keep the value of N constant for a given flow.
 
-### Upstream loss {#upstreamloss}
+### Upstream Loss {#upstreamloss}
 
 Blocks of N (Q Block length) consecutive packets are sent with the same
 value of the Q bit, followed by another block of N packets with an
@@ -846,15 +850,15 @@ blur the edges of the square signal, as explained in {{endmarkingblock}}.
 Packet reordering can produce spurious edges in the square signal. To address
 this, the observer should look for packets with the current Q bit value up to X
 packets past the first packet with a reverse Q bit value. The value of X, a
-"Marking Block Threshold", should be less than `N/2` and, in practice, can be
-set to `N/2-1`.
+"Marking Block Threshold", should be less than `N/2`.
 
 ## L Bit -- Loss Event Bit {#lossbit}
 
 The Loss Event bit uses an Unreported Loss counter maintained by the protocol
 that implements the marking mechanism. To use the Loss Event bit, the protocol
 must allow the sender to identify lost packets. This is true of protocols such
-as TCP, SCTP, and QUIC and is not true of protocols such as UDP and IP/IPv6.
+as QUIC, partially true for TCP and SCTP (ACK losses not detected) and is not
+true of protocols such as UDP and IP/IPv6.
 
 The Unreported Loss counter is initialized to 0, and L bit of every outgoing
 packet indicates whether the Unreported Loss counter is positive (L=1 if the
@@ -1008,11 +1012,15 @@ The parameter `avg(p)` is the average number of packets in a marking
 period computed considering all the Q Blocks received since the
 beginning of the current R Block.
 
-Looking at the R-bit, observation points have an indication of
-losses experienced by the entire unobserved channel plus those occurred
-in the path from the sender up to them.
+To ensure a proper computation of the M value, endpoints implementing the R bit
+must identify the boundaries of incoming Q Blocks. The same approach described
+in {#endmarkingblock} should be used.
 
-Since the Q Block is send in one direction, and the corresponding reflected R
+Looking at the R-bit, unidirectional observation points have an indication of
+losses experienced by the entire unobserved channel plus those occurred in the
+path from the sender up to them.
+
+Since the Q Block is sent in one direction, and the corresponding reflected R
 Block is sent in the opposite direction, the reflected R signal is transmitted
 with the packet rate of the slowest direction. Namely, if the observed direction
 is the slowest, there can be multiple Q Blocks transmitted in the unobserved
@@ -1023,13 +1031,12 @@ for a newly-completed Q Block.
 
 ### R+Q Bits -- Using R and Q Bits for Passive Loss Measurement
 
-Since both square and Reflection square bits are toggled at most every
-N packets (except for the first transition of the R-bit as explained
-before), an on-path observer can count the number of packets
-of each marking block and, knowing the value of N, can estimate the
-amount of loss experienced by the connection.  An observe can calculate
-different measurements depending on whether it is able to observe a single
-direction of the traffic or both directions.
+Since both sQuare and Reflection square bits are toggled at most every N packets
+(except for the first transition of the R-bit as explained before), an on-path
+observer can count the number of packets of each marking block and, knowing the
+value of N, can estimate the amount of loss experienced by the connection.  An
+observer can calculate different measurements depending on whether it is able to
+observe a single direction of the traffic or both directions.
 
 Single directional observer:
 
@@ -1056,7 +1063,7 @@ direction, plus):
    receiver (applicable to both directions)
 
 
-#### Three-quarters connection loss  {#tqloss}
+#### Three-Quarters Connection Loss  {#tqloss}
 
 Except for the very first block in which there is nothing to reflect
 (a complete Q Block has not been yet received), packets are
@@ -1090,7 +1097,7 @@ same R value (`t`) divided by `N` (`tqloss=1-avg(t)/N`).
 The following metrics derive from this last metric and the upstream
 loss produced by the Q Bit.
 
-#### End-To-End loss in the opposite direction
+#### End-To-End Loss in the Opposite Direction
 
 End-to-end loss in the unobserved direction (`eloss_unobserved`) relates to the
 "three-quarters" connection loss (`tqloss`) and upstream loss in the observed
@@ -1115,7 +1122,7 @@ direction (`uloss`) as `(1-eloss_unobserved)(1-uloss)=1-tqloss`.  Hence,
 {: title="End-To-End loss in the opposite direction"}
 
 
-#### Half round-trip loss
+#### Half Round-Trip Loss
 
 If the observer is able to observe both directions of traffic, it is able to
 calculate two "half round-trip" loss measurements -- loss from the observer to
@@ -1146,7 +1153,7 @@ direction as `(1-uloss)(1-hrtloss)=1-tqloss_opposite`.  Hence,
 {: title="Half Round-trip loss (both direction)"}
 
 
-#### Downstream loss
+#### Downstream Loss
 
 If the observer is able to observe both directions of traffic, it is able to
 calculate two downstream loss measurements using either end-to-end loss and
@@ -1173,7 +1180,7 @@ For the latter, `dloss=(hrtloss-uloss_opposite)/(1-uloss_opposite)`.
 {: title="Downstream loss"}
 
 
-### Enhancement of R Block length computation
+### Enhancement of R Block Length Computation
 
 The use of the rounding function used in the M computation introduces errors
 that can be minimized by storing the rounding applied each time M is computed,
@@ -1183,7 +1190,7 @@ This can be achieved introducing the new `r_avg` parameter in the computation of
 M.  The new formula is `Mr=avg(p)+r_avg; M=round(Mr); r_avg=Mr-M` where the
 initial value of `r_avg` is equal to 0.
 
-### Improved resilience to packet reordering
+### Improved Resilience to Packet Reordering
 
 When a protocol implementing the marking mechanism is able to detect when
 packets are received out of order, it can improve resilience to packet
@@ -1262,10 +1269,11 @@ measurement fidelity and delay.
  +-------------+-+-----------+-----------+-+------------+-----------+
 
  *   All protocols
- \#   Protocols employing loss detection
- $   Require a working Spin Bit.
- !   Metric relative to the opposite channel.
- x2  Same metric for both directions.
+ \#   Protocols employing loss detection (with or w/o ACK loss
+     detection)
+ $   Require a working spin bit
+ !   Metric relative to the opposite channel
+ x2  Same metric for both directions
  ppa Packets-Per-Ack
  Q|L See Q if Upstream loss is significant; L otherwise
 ~~~~
@@ -1330,7 +1338,7 @@ ready to ignore flows with delay and loss information more resembling noise
 than the expected signal.
 
 
-# Examples of application
+# Examples of Application
 
 ## QUIC
 
