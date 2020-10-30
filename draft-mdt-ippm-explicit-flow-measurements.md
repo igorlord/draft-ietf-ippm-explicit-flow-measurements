@@ -159,18 +159,18 @@ encrypted portion of a header belonging to any protocol layer, e.g. IP (see
 UDP surplus space (see {{UDP-OPTIONS}} and {{UDP-SURPLUS}}), reserved bits in a
 QUIC v1 header (see {{QUIC-TRANSPORT}}).
 
-The loss signal is not designed for use in automated control of the network in
-environments where loss bits are set by untrusted hosts, Instead, the signal is
-to be used for troubleshooting individual flows as well as for monitoring the
+The measurements are not designed for use in automated control of the network in
+environments where signal bits are set by untrusted hosts. Instead, the signal
+is to be used for troubleshooting individual flows as well as for monitoring the
 network by aggregating information from multiple flows and raising operator
 alarms if aggregate statistics indicate a potential problem.
 
-Note that spin bit, delay bit and loss bits explained in this
-document are inspired by {{AltMark}}.  This is also mentioned
-in {{SPIN-BIT}}, {{?I-D.trammell-tsvwg-spin}} and {{?I-D.trammell-ippm-spin}}.
+The spin bit, delay bit and loss bits explained in this document are inspired by
+{{AltMark}}, {{SPIN-BIT}}, {{?I-D.trammell-tsvwg-spin}} and
+{{?I-D.trammell-ippm-spin}}.
 
-Additional details about the Performance Measurements for
-QUIC are also described in the paper {{ANRW19-PM-QUIC}}.
+Additional details about the Performance Measurements for QUIC are described in
+the paper {{ANRW19-PM-QUIC}}.
 
 # Notational Conventions    {#conventions}
 
@@ -412,8 +412,8 @@ direction.
 To ensure a valid measurement, the observer must identify spin periods in the
 packet flow and assign delay samples to spin periods. If a spin period is
 missing a delay sample, the measurement needs to be restarted from the
-subsequent delay sample. So a measurement, to be valid, must take into account
-delay samples belonging to adjacent spin periods.
+subsequent delay sample. Hence, measurements must take into account delay
+samples belonging to adjacent spin periods.
 
 
 ~~~~
@@ -723,9 +723,10 @@ according to the algorithm:
     serves as a separator between the reflected packet train and a new packet
     train.
 
-The generation token counter should be capped to limit the effects of any sudden
-change in speed, event that could lead an endpoint to have difficulty reflecting
-collected packets. The most conservative value is `1`.
+The generation token counter should be capped to limit the effects of a
+subsequent sudden reduction in the other endpoint's packet rate that could
+prevent that endpoint from reflecting collected packets. The most conservative
+cap value is `1`.
 
 A server maintains a "marking counter" that starts at zero and is incremented
 every time a marked packet arrives. When the server transmits a packet and the
@@ -852,13 +853,19 @@ this, the observer should look for packets with the current Q bit value up to X
 packets past the first packet with a reverse Q bit value. The value of X, a
 "Marking Block Threshold", should be less than `N/2`.
 
+The choice of X represents a trade-off between resiliency to reordering and
+resiliency to loss. A very large Marking Block Threshold will be able to
+reconstruct Q Blocks despite a significant amount of reordring, but it may
+erroneously coalesce packets from multiple Q Blocks into fewer Q Blocks, if loss
+exceeds 50% for some Q Blocks.
+
 ## L Bit -- Loss Event Bit {#lossbit}
 
 The Loss Event bit uses an Unreported Loss counter maintained by the protocol
 that implements the marking mechanism. To use the Loss Event bit, the protocol
 must allow the sender to identify lost packets. This is true of protocols such
-as QUIC, partially true for TCP and SCTP (ACK losses not detected) and is not
-true of protocols such as UDP and IP/IPv6.
+as QUIC, partially true for TCP and SCTP (losses of pure ACKs are not detected)
+and is not true of protocols such as UDP and IP/IPv6.
 
 The Unreported Loss counter is initialized to 0, and L bit of every outgoing
 packet indicates whether the Unreported Loss counter is positive (L=1 if the
@@ -909,7 +916,7 @@ observing random single instances of L bit set to 1 indicates random single
 packet loss, while observing blocks of packets with L bit set to 1 indicates
 loss affecting entire blocks of packets.
 
-## L+Q Bits -- Upstream, Downstream, End-to-End, and Observer Loss Measurements
+## L+Q Bits -- Upstream, Downstream, and End-to-End Loss Measurements
 
 Combining L and Q bits allows a passive observer watching a single direction of
 traffic to accurately measure:
@@ -920,9 +927,6 @@ traffic to accurately measure:
 
 *  end-to-end loss: sender-to-receiver loss on the observed path (see
    {{endtoendloss}}) with loss profile characterization (see {{loss-profile}})
-
-*  observer loss: loss in sender's measurement infrastructure (see
-   {{observerloss}})
 
 #### Correlating End-to-End and Upstream Loss   {#loss-correlation}
 
@@ -948,7 +952,15 @@ If the calculated upstream loss rate exceeds the end-to-end loss rate calculated
 in {{endtoendloss}}, then either the Q Period is too short for the amount of
 packet reordering or there is observer loss, described in {{observerloss}}. If
 this happens, the observer should adjust the calculated upstream loss rate to
-match end-to-end loss rate.
+match end-to-end loss rate, unless the following applies.
+
+In case of a protocol like TCP and SCTP that does not track losses of pure ACK
+packets, observing a direction of traffic dominated by pure ACK packets could
+result in measured upstream loss that is higher than measured end-to-end loss,
+if said pure ACK packets are lost upstream. Hence, if the measurement is applied
+to such protocols, and the observer can confirm that pure ACK packets dominate
+the observed traffic direction, the observer should adjust the calculated
+end-to-end loss rate to match upstream loss rate.
 
 #### Downstream Loss   {#downstreamloss}
 
@@ -972,8 +984,8 @@ the L bit value of 1, and the observer loss would affect all packets equally
 (see {{endtoendloss}}).
 
 The need to adjust the upstream loss rate down to match end-to-end loss rate as
-described in {{loss-correlation}} is a strong indication of the observer loss,
-whose magnitude is between the amount of such adjustment and the entirety of the
+described in {{loss-correlation}} is an indication of the observer loss, whose
+magnitude is between the amount of such adjustment and the entirety of the
 upstream loss measured in {{upstreamloss}}. Alternatively, a high apparent
 upstream loss rate could be an indication of significant packet reordering,
 possibly due to packets belonging to a single flow being multiplexed over
@@ -1247,10 +1259,10 @@ measurement fidelity and delay.
  |T: Round Trip|$| RT        | x2        | | Rate by    | ~6 RTT    |
  |   Loss Bit  |1|           | Half RT   |*| sampling   +-----------+
  |             | |           |           | | 1/3 to 1/(3*ppa) of    |
- |             | |           |           | | Pkts over 2 RTT        |
+ |             | |           |           | | pkts over 2 RTT        |
  +-------------+-+-----------+-----------+-+------------+-----------+
- |Q: Square Bit|1| Upstream  | x2        |*| Rate over  | N Pkts    |
- |             | |           |           | | N Pkts     | (e.g. 64) |
+ |Q: Square Bit|1| Upstream  | x2        |*| Rate over  | N pkts    |
+ |             | |           |           | | N pkts     | (e.g. 64) |
  |             | |           |           | | (e.g. 64)  |           |
  +-------------+-+-----------+-----------+-+------------+-----------+
  |L: Loss Event|1| E2E       | x2        |#| Loss shape | Min: RTT  |
@@ -1259,17 +1271,16 @@ measurement fidelity and delay.
  |QL: Square + |2| Upstream  | x2        | | -> see Q   | Up: see Q |
  |    Loss Ev. | | Downstream| x2        |#| -> see Q|L | Others:   |
  |    Bits     | | E2E       | x2        | | -> see L   |     see L |
- |             | | Observer  | x2        | | -> see Q   |           |
  +-------------+-+-----------+-----------+-+------------+-----------+
  |QR: Square + |2| Upstream  | x2        | | Rate over  | Up: see Q |
- |    Ref. Sq. | | 3/4 RT    | x2        | | N*ppa Pkts | Others:   |
+ |    Ref. Sq. | | 3/4 RT    | x2        | | N*ppa pkts | Others:   |
  |    Bits     | | !E2E      | E2E       |*| (see Q bit |  N*ppa pk |
  |             | |           | Downstream| |   for N)   |   (see Q  |
  |             | |           | Half RT   | |            |    for N) |
  +-------------+-+-----------+-----------+-+------------+-----------+
 
  *   All protocols
- \#   Protocols employing loss detection (with or w/o ACK loss
+ #   Protocols employing loss detection (w/ or w/o pure ACK loss
      detection)
  $   Require a working spin bit
  !   Metric relative to the opposite channel
