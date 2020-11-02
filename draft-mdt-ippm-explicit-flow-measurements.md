@@ -178,11 +178,12 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
 interpreted as described in {{!RFC2119}}.
 
-# Delay Bits
+# Latency Bits
 
-This section introduces bits that can be used for delay measurements.  Whenever
-this section of the specification refers to packets, it is referring only to
-packets with protocol headers that include the delay bits.
+This section introduces bits that can be used for round trip latecy
+measurements.  Whenever this section of the specification refers to packets, it
+is referring only to packets with protocol headers that include the latency
+bits.
 
 {{QUIC-TRANSPORT}} introduces an explicit per-flow transport-layer signal for
 hybrid measurement of RTT.  This signal consists of a spin bit that toggles once
