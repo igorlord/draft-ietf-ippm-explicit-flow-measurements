@@ -180,7 +180,7 @@ interpreted as described in {{!RFC2119}}.
 
 # Latency Bits
 
-This section introduces bits that can be used for round trip latecy
+This section introduces bits that can be used for round trip latency
 measurements.  Whenever this section of the specification refers to packets, it
 is referring only to packets with protocol headers that include the latency
 bits.
@@ -191,10 +191,9 @@ per RTT.  {{SPIN-BIT}} discusses an additional two-bit Valid Edge Counter (VEC)
 to compensate for loss and reordering of the spin bit and increase fidelity of
 the signal in less than ideal network conditions.
 
-This document introduces an additional single-bit delay signal that can be used
-together with the spin bit by passive observers to measure the RTT of a network
-flow, avoiding the spin bit ambiguities that arise as soon as network conditions
-deteriorate.
+This document introduces a stand-alone single-bit delay signal that can be used
+by passive observers to measure the RTT of a network flow, avoiding the spin bit
+ambiguities that arise as soon as network conditions deteriorate.
 
 
 ## Spin Bit   {#spinbit}
@@ -241,103 +240,91 @@ arise as explained in {{delaybit}}.
 
 ## Delay Bit {#delaybit}
 
-The delay bit, different from a two-bit VEC, has been designed to overcome
-accuracy limitations experienced by the spin bit under difficult network
-conditions:
+The delay bit has been designed to overcome accuracy limitations experienced by
+the spin bit under difficult network conditions:
 
-* packet reordering leads to generation of spurious edges and errors
-   in delay estimation;
+* packet reordering leads to generation of spurious edges and errors in delay
+  estimation;
 
-* loss of edges causes wrong estimation of spin periods and therefore
-   wrong RTT measurements;
+* loss of edges causes wrong estimation of spin periods and therefore wrong RTT
+  measurements;
 
-* application-limited senders cause the spin bit to measure the
-   application delays instead of network delays.
+* application-limited senders cause the spin bit to measure the application
+  delays instead of network delays.
 
-If enabled, delay bit has to be used in addition to the spin bit. Unlike the
-spin bit, which is set in every packet transmitted on the network, the delay bit
-is set only once per round trip.
+Unlike the spin bit, which is set in every packet transmitted on the network,
+the delay bit is set only once per round trip.
 
-When the delay bit is used, a single packet with a second marked bit (the delay
-bit) bounces between a client and a server during the entire connection
-lifetime.  This single packet is called "delay sample".
+When the delay bit is used, a single packet with a marked bit (the delay bit)
+bounces between a client and a server during the entire connection lifetime.
+This single packet is called "delay sample".
 
 An observer placed at an intermediate point, observing a single direction of
-traffic, tracking the delay sample and the relative timestamp in every spin
-period, can measure the round trip delay of the connection.
+traffic, tracking the delay sample and the relative timestamp, can measure the
+round trip delay of the connection.
 
 The delay sample lifetime is comprised of two phases: initialization and
 reflection.  The initialization is the generation of the delay sample, while the
 reflection realizes the bounce behavior of this single packet between the two
 endpoints.
 
-The next figure describes the Delay bit mechanism: the first bit is
-the spin bit and the second one is the delay bit.
+The next figure describes the elementary Delay bit mechanism.
 
 ~~~~
-      +--------+   --  --  --  --  --   +--------+
-      |        |       ----------->     |        |
-      | Client |                        | Server |
-      |        |      <-----------      |        |
-      +--------+   --  --  --  --  --   +--------+
+      +--------+   -   -   -   -   -   +--------+
+      |        |      ----------->     |        |
+      | Client |                       | Server |
+      |        |     <-----------      |        |
+      +--------+   -   -   -   -   -   +--------+
 
       (a) No traffic at beginning.
 
-      +--------+   00  00  01  --  --   +--------+
-      |        |       ----------->     |        |
-      | Client |                        | Server |
-      |        |      <-----------      |        |
-      +--------+   --  --  --  --  --   +--------+
+      +--------+   0   0   1   -   -   +--------+
+      |        |      ----------->     |        |
+      | Client |                       | Server |
+      |        |     <-----------      |        |
+      +--------+   -   -   -   -   -   +--------+
 
        (b) The Client starts sending data and
         sets the first packet as Delay Sample.
 
-      +--------+   00  00  00  00  00   +--------+
-      |        |       ----------->     |        |
-      | Client |                        | Server |
-      |        |      <-----------      |        |
-      +--------+   --  --  01  00  00   +--------+
+      +--------+   0   0   0   0   0   +--------+
+      |        |      ----------->     |        |
+      | Client |                       | Server |
+      |        |     <-----------      |        |
+      +--------+   -   -   -   1   0   +--------+
 
        (c) The Server starts sending data
         and reflects the Delay Sample.
 
-      +--------+   10  10  11  00  00   +--------+
-      |        |       ----------->     |        |
-      | Client |                        | Server |
-      |        |      <-----------      |        |
-      +--------+   00  00  00  00  00   +--------+
+      +--------+   0   1   0   0   0   +--------+
+      |        |      ----------->     |        |
+      | Client |                       | Server |
+      |        |     <-----------      |        |
+      +--------+   0   0   0   0   0   +--------+
 
-      (d) The Client inverts the spin bit and
-       reflects the Delay Sample.
+      (d) The Client reflects the Delay Sample.
 
-      +--------+   10  10  10  10  10   +--------+
-      |        |       ----------->     |        |
-      | Client |                        | Server |
-      |        |      <-----------      |        |
-      +--------+   00  00  11  10  10   +--------+
+      +--------+   0   0   0   0   0   +--------+
+      |        |      ----------->     |        |
+      | Client |                       | Server |
+      |        |     <-----------      |        |
+      +--------+   0   0   0   1   0   +--------+
 
-      (e) The Server reflects the Delay Sample.
-
-      +--------+   00  00  01  10  10   +--------+
-      |        |       ----------->     |        |
-      | Client |                        | Server |
-      |        |      <-----------      |        |
-      +--------+   10  10  10  10  10   +--------+
-
-      (f) The client reverts the spin
-       bit and reflects the Delay Sample.
+      (e) The Server reflects the Delay Sample
+       and so on.
 ~~~~
-{: title="Spin bit and Delay bit"}
+{: title="Delay bit mechanism"}
 
 ### Generation Phase
 
-Only client is actively involved in the generation phase.
+Only client is actively involved in the generation phase. It maintains an
+internal per-flow timestamp variable (`ds_time`) updated every time a delay
+sample is transmitted.
 
-When connection starts and spin bit is set to 0, the client initializes the
-delay bit of the first packet to 1, so it becomes the delay sample for that
-marking period.  Only this packet is marked with the delay bit set to 1 for this
-round trip period; the other ones will carry the spin bit, while the delay bit
-will be set to 0.
+When connection starts, the client generates a new delay sample initializing the
+delay bit of the first outgoing packet to 1.  Then it updates the `ds_time`
+variable with the timestamp of its transmission.
 
 The server initializes the delay bit to 0 at the beginning of the connection,
 and its only task during the connection is described in {{reflection-phase}}.
@@ -349,58 +336,64 @@ highly unlikely for two reasons:
 1. the packet carrying the delay bit might be lost;
 
 2. an endpoint could stop or delay sending packets because the application is
-limiting the amount of traffic transmitted;
+   limiting the amount of traffic transmitted;
 
-To deal with these problems, the algorithm provides a procedure named "recovery
-process" to regenerate the delay sample and to inform a possible observer of the
-problem so the measurement can be restarted.
-
-#### The Recovery Process
-
-Absent packet loss or reordering, every spin period ends with a delay sample
-inside. If that does not happen and a spin period terminates without a delay
-sample inside, the client waits a further spin period; then, it creates a new
-delay sample by setting the delay bit to 1 on the first outgoing packet of the
-subsequent period.
-
-The spin period with all delay bits set to 0 informs observers that there was a
-problem and delay measurements for this flow should be reset till the next delay
-sample is received.
+To deal with these problems, the client generates a new delay sample if more
+than a predetermined time (`T_Max`) has elapsed since the last delay sample
+transmission (including reflections). Note that `T_Max` should be greater than
+the max measurable RTT on the network. See {{tmax-selection}} for details.
 
 ### Reflection Phase   {#reflection-phase}
 
-Reflection is the process that enables the bouncing of the delay
-sample between a client and a server.  The behavior of the two endpoints
-is slightly different.
+Reflection is the process that enables the bouncing of the delay sample between
+a client and a server.  The behavior of the two endpoints is almost the same.
 
 * Server side reflection: when a delay sample arrives, the server marks the
-   first packet in the opposite direction as the delay sample, if the outgoing
-   packet has the same spin bit value as the delay sample.  Otherwise, the delay
-   sample is ignored.
+  first packet in the opposite direction as the delay sample.
 
 * Client side reflection: when a delay sample arrives, the client marks the
-   first packet in the opposite direction as the delay sample, if the outgoing
-   packet has the opposite spin bit value then the delay sample.  Otherwise, the
-   delay sample is ignored.
+  first packet in the opposite direction as the delay sample. It also updates
+  the `ds_time` variable when the outgoing delay sample is actually forwarded.
 
 In both cases, if the outgoing delay sample is being transmitted with a delay
 greater than a predetermined threshold after the reception of the incoming delay
 sample (1ms by default), the delay sample is not reflected, and the outgoing
 delay bit is kept at 0.
 
-Note that reflection takes place for the delay sample regardless of its position
-within the spin period, as long as it stays within its original spin period.
+By doing so, the algorithm can reject measurements that would overestimate the
+delay due to lack of traffic on the endpoints.  Hence, the maximum estimation
+error would amount to twice the threshold (e.g. 2ms) per measurement.
 
-A time threshold for the retransmission of the delay sample is used to eliminate
-measurements that would overestimate the delay due to lack of traffic on the
-endpoints.  Hence, the maximum estimation error would amount to twice the
-threshold (e.g. 2ms) per measurement.
+### T_Max Selection {#tmax-selection}
 
-### Two Bits Delay Measurement: Spin Bit + Delay Bit
+The internal `ds_time` variable allows a client to identify delay sample losses.
+Considering that a lost delay sample is regenerated at the end of an explicit
+time (`T_Max`) since the last generation, this same value can be used by an
+observer to reject a measure and start a new one.
+
+In other words, if the difference in time between two delay samples is greater
+or equal than `T_Max`, then these cannot be used to produce a delay measure.
+Therefore the value of `T_Max` must also be known to the on-path network probes.
+
+There are two alternatives to select the `T_Max` value so that both client and
+observers know it. The first one requires that `T_Max` is known a priori and
+therefore set within the protocol specifications that implements the marking
+mechanism (e.g. 1 second which usually is greater than the max expectable RTT).
+The second alternative requires a dynamic mechanism able to adapt the duration
+of the `T_Max` to the delay of the connection.
+
+For instance, client and observers could use the connection RTT as a basis for
+calculating an effective `T_Max`. They should use a predetermined initial value
+of `T_Max` (e.g. 1 second) and then, when the first valid RTT is measured,
+change `T_Max` accordingly. Therefore, the selected `T_Max` should be large
+enough to absorb any possible variations in the connection delay (e.g. three
+times the computed RTT).
+
+### Delay Measurement using Delay Bit
 
 When the Delay Bit is used, a passive observer can use delay samples directly
-and avoid inherent ambiguities in the calculation of the RTT in spin bit
-analysis, such as heuristic validation of the goodness of an edge signal.
+and avoid inherent ambiguities in the calculation of the RTT as can be seen in
+spin bit analysis.
 
 #### RTT Measurement
 
@@ -410,12 +403,8 @@ time.  To determine the RTT measurement of a flow, an on-path passive observer
 computes the time difference between two delay samples observed in a single
 direction.
 
-To ensure a valid measurement, the observer must identify spin periods in the
-packet flow and assign delay samples to spin periods. If a spin period is
-missing a delay sample, the measurement needs to be restarted from the
-subsequent delay sample. Hence, measurements must take into account delay
-samples belonging to adjacent spin periods.
-
+To ensure a valid measurement, the observer must verify that the distance in
+time between the two samples taken into account is less than `T_Max`.
 
 ~~~~
            =======================|======================>
@@ -436,21 +425,16 @@ samples belonging to adjacent spin periods.
 ~~~~
 {: title="Round-trip time (both direction)"}
 
-
 #### Half-RTT Measurement
 
 An observer that is able to observe both forward and return traffic directions
 can use the delay samples to measure "upstream" and "downstream" RTT components,
 also known as the half-RTT measurements. It does this by measuring the time
-between a delay sample observed in one direction and the reflected delay sample
+between a delay sample observed in one direction and the delay sample previously
 observed in the opposite direction.
 
-As with RTT measurement, the observer must identify spin periods in the packet
-flow and assign delay samples to spin periods. If a spin period is missing a
-delay sample, the measurement needs to be restarted from the subsequent delay
-sample. So a measurement, to be valid, must take into account delay samples
-belonging to adjacent periods, for the upstream component, or to the same period
-for the downstream component.
+As with RTT measurement, the observer must verify that the distance in time
+between the two samples taken into account is less than `T_Max`.
 
 Note that upstream and downstream sections of paths between the endpoints and
 the observer, i.e. observer-to-client vs client-to-observer and
@@ -475,7 +459,6 @@ characteristics due to the difference in network congestion and other factors.
                   (b) observer-server half-RTT
 ~~~~
 {: title="Half Round-trip time (both direction)"}
-
 
 #### Intra-Domain RTT Measurement
 
@@ -507,41 +490,27 @@ between the two computed upstream (or downstream) RTT components.
 ~~~~
 {: title="Intra-domain Round-trip time (client-observer: upstream)"}
 
+### Observer's Algorithm
 
-### Observer's Algorithm and Edge Rejection Interval
+An on-path observer maintains an internal per-flow variable to keep track of
+time at which the last delay sample has been observed.
 
-To provide a formal description of the observer behavior, we define a "matching
-delay sample" to be a delay sample with the spin bit value that matched the spin
-bit value of then-current spin period.
+A unidirectional observer, upon detecting a delay sample:
 
-Upon detecting a matching delay sample, if a matching delay sample was also
-detected in the previous period, then the two delay samples can be used to
-calculate RTT measurement.
+* if a delay sample was also detected previously in the same direction and the
+  distance in time between them is less than `T_Max - K`, then the two delay
+  samples can be used to calculate RTT measurement. `K` is a protection
+  threshold to absorb differences in `T_Max` computation and delay variations
+  between two consecutive delay samples (e.g. `K = 10% T_Max`).
 
 If the observer can observe both forward and return traffic flows, and it is
 able to determine which direction contains the client and the server (e.g. by
-observing the spin bit or connection handshake):
+observing the connection handshake), upon detecting a delay sample:
 
-* If matching delay samples have been detected in both directions in the current
-  spin period, they can be used to measure the observer-server half-RTT.
-
-* If a matching delay sample has been detected in client-to-observer direction,
-  AND a matching delay sample had been detected in observer-to-client direction
-  in the previous spin period, they can be used to measure the observer-client
-  half-RTT.
-
-The described observer behavior depends on the ability to accurately identify
-current spin periods and to reject spurious spin edges, caused by packet
-reordering. Failure to do so will lead to many missed measurement opportunities
-and will decrease the amount of usable delay samples available to the observer.
-
-To implement spurious edge rejection, every time a spin bit edge is detected,
-the observer starts a new spin period and begins a time interval during which it
-rejects spin edges (e.g. 5ms).  This guarantees protection against spurious
-edges due to packets that have been reordered by less than the time interval.
-The mechanism only works for intervals smaller than the RTT of the observed
-connection; if RTT is smaller than the edge rejection interval, the observer
-cannot measure the RTT.
+* if a delay sample was also detected in the opposite direction and the distance
+  in time between them is less than `T_Max - K`, then the two delay samples can
+  be used to measure the observer-client half-RTT or the observer-server
+  half-RTT, according to the direction of the last delay sample observed.
 
 # Loss Bits
 
@@ -1221,9 +1190,8 @@ following Q Block have been received.
 
 This section summarizes the marking methods described in this draft.
 
-For the Delay measurement, it is possible to use the spin bit alone or
-combined with the delay bit. A unidirectional or bidirectional
-observer can be used.
+For the Delay measurement, it is possible to use the spin bit and/or the delay
+bit. A unidirectional or bidirectional observer can be used.
 
 ~~~~
  +------------------+----+-------------------------+---------------+
@@ -1236,8 +1204,8 @@ observer can be used.
  |S: Spin Bit       | 1  | RTT        | x2         | lower         |
  |                  |    |            | Half RTT   |               |
  +------------------+----+------------+------------+---------------+
- |SD: Spin Bit +    | 2  | RTT        | x2         | higher        |
- |    Delay Bit     |    |            | Half RTT   |               |
+ |D: Delay Bit      | 1  | RTT        | x2         | higher        |
+ |                  |    |            | Half RTT   |               |
  +------------------+----+------------+------------+---------------+
 
  x2 Same metric for both directions.
@@ -1354,23 +1322,22 @@ than the expected signal.
 
 ## QUIC
 
-The binding of the delay bit signal to QUIC is partially described in
-{{QUIC-TRANSPORT}}, which adds the spin bit to the first byte
-of the short packet header, leaving two reserved bits for future
-experiments.
+The binding of a delay signal to QUIC is partially described in
+{{QUIC-TRANSPORT}}, which adds the spin bit to the first byte of the short
+packet header, leaving two reserved bits for future experiments.
 
 To implement the additional signals discussed in this document, the
 first byte of the short packet header can be modified as follows:
 
-*  the delay bit (D) can be placed in the first reserved bit (i.e.
-   the fourth most significant bit _0x10_) while the loss bit (L) in the
-   second reserved bit (i.e. the fifth most significant bit _0x08_);
-   the proposed scheme is:
+*  the delay bit (D) can be placed in the first reserved bit (i.e. the fourth
+   most significant bit _0x10_) while the round trip loss bit (T) in the second
+   reserved bit (i.e. the fifth most significant bit _0x08_); the proposed
+   scheme is:
 
 ~~~~
           0 1 2 3 4 5 6 7
          +-+-+-+-+-+-+-+-+
-         |0|1|S|D|L|K|P|P|
+         |0|1|S|D|T|K|P|P|
          +-+-+-+-+-+-+-+-+
 ~~~~
 {: title="Scheme 1"}
@@ -1394,12 +1361,31 @@ first byte of the short packet header can be modified as follows:
 ~~~~
 {: title="Scheme 2B"}
 
+A further option would be to substitute the spin bit with the delay bit leaving
+the two reserved bits for loss detection. The proposed schemes are:
+
+~~~~
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|D|Q|L|K|P|P|
+         +-+-+-+-+-+-+-+-+
+~~~~
+{: title="Scheme 3A"}
+
+~~~~
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|D|Q|R|K|P|P|
+         +-+-+-+-+-+-+-+-+
+~~~~
+{: title="Scheme 3B"}
+
 ## TCP
 
-The signals can be added to TCP by defining bit 4 of byte 13 of the
-TCP header to carry the spin bit, and eventually bits 5 and 6 to carry
-additional information, like the delay bit and the round-trip loss
-bit, or a two bits loss signal (QL or QR).
+The signals can be added to TCP by defining bit 4 of byte 13 of the TCP header
+to carry the spin bit or the delay bit, and eventually bits 5 and 6 to carry
+additional information, like the round-trip loss bit, or a two bits loss signal
+(QL or QR).
 
 # Security Considerations
 
