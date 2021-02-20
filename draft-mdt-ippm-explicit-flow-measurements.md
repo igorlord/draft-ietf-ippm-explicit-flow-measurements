@@ -512,6 +512,17 @@ observing the connection handshake), upon detecting a delay sample:
   be used to measure the observer-client half-RTT or the observer-server
   half-RTT, according to the direction of the last delay sample observed.
 
+### Two Bits Delay Measurement: Spin Bit + Delay Bit
+
+It is worth mentioning that the Delay Bit can be used alone or in combination 
+with the Spin Bit to have an improved resilience to the impairments. When the 
+Delay Bit is used, a passive observer can use delay samples together with the 
+Spin Bit signal.
+
+The same measurements described above are applicable if the Delay Bit is used 
+in addition to the Spin Bit and the Observer's Algorithm could also be further 
+simplified.
+
 # Loss Bits
 
 This section introduces bits that can be used for loss measurements.
@@ -1194,19 +1205,22 @@ For the Delay measurement, it is possible to use the spin bit and/or the delay
 bit. A unidirectional or bidirectional observer can be used.
 
 ~~~~
- +------------------+----+-------------------------+---------------+
- | Method           |# of|        Available        |               |
- |                  |bits|      Delay Metrics      |  Impairments  |
- |                  |    +------------+------------+  Resiliency   |
- |                  |    |   UNIDIR   |   BIDIR    |               |
- |                  |    |  Observer  |  Observer  |               |
- +------------------+----+------------+------------+---------------+
- |S: Spin Bit       | 1  | RTT        | x2         | lower         |
- |                  |    |            | Half RTT   |               |
- +------------------+----+------------+------------+---------------+
- |D: Delay Bit      | 1  | RTT        | x2         | higher        |
- |                  |    |            | Half RTT   |               |
- +------------------+----+------------+------------+---------------+
++------------------+----+-------------------------+---------------+
+| Method           |# of|        Available        |               |
+|                  |bits|      Delay Metrics      |  Impairments  |
+|                  |    +------------+------------+  Resiliency   |
+|                  |    |   UNIDIR   |   BIDIR    |               |
+|                  |    |  Observer  |  Observer  |               |
++------------------+----+------------+------------+---------------+
+|S: Spin Bit       | 1  | RTT        | x2         | lower         |
+|                  |    |            | Half RTT   |               |
++------------------+----+------------+------------+---------------+
+|D: Delay Bit      | 1  | RTT        | x2         | medium        |
+|                  |    |            | Half RTT   |               |
++------------------+----+------------+------------+---------------+
+|SD: Spin Bit +    | 2  | RTT        | x2         | higher        |
+|    Delay Bit     |    |            | Half RTT   |               |
++------------------+----+------------+------------+---------------+
 
  x2 Same metric for both directions.
 ~~~~
