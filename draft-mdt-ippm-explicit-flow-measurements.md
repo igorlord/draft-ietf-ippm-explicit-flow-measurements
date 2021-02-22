@@ -376,18 +376,30 @@ or equal than `T_Max`, then these cannot be used to produce a delay measure.
 Therefore the value of `T_Max` must also be known to the on-path network probes.
 
 There are two alternatives to select the `T_Max` value so that both client and
-observers know it. The first one requires that `T_Max` is known a priori and
-therefore set within the protocol specifications that implements the marking
-mechanism (e.g. 1 second which usually is greater than the max expectable RTT).
-The second alternative requires a dynamic mechanism able to adapt the duration
-of the `T_Max` to the delay of the connection.
+observers know it. The first one requires that `T_Max` is known a priori
+(`T_Max_p`) and therefore set within the protocol specifications that implements
+the marking mechanism (e.g. 1 second which usually is greater than the max
+expectable RTT). The second alternative requires a dynamic mechanism able to
+adapt the duration of the `T_Max` to the delay of the connection (`T_Max_c`).
 
 For instance, client and observers could use the connection RTT as a basis for
 calculating an effective `T_Max`. They should use a predetermined initial value
-of `T_Max` (e.g. 1 second) and then, when the first valid RTT is measured,
-change `T_Max` accordingly. Therefore, the selected `T_Max` should be large
-enough to absorb any possible variations in the connection delay (e.g. three
-times the computed RTT).
+so that `T_Max = T_Max_p` (e.g. 1 second) and then, when a valid RTT is
+measured, change `T_Max` accordingly so that `T_Max = T_Max_c`. In any case, the
+selected `T_Max` should be large enough to absorb any possible variations in the
+connection delay.
+
+`T_Max_c` could be computed as two times the measured `RTT` plus a fixed amount
+of time (`100ms`) to prevent low `T_Max` values ​​in case of very small RTTs.
+The resulting formula is: `T_Max_c = 2RTT + 100ms`. If `T_Max_c` is greater than
+`T_Max_p` then `T_Max_c` is forced to `T_Max_p` value.
+
+Note that the observer's `T_Max` should always be less than or equal to the
+client's `T_Max` to avoid considering as a valid measurement what is actually
+the client's `T_Max`. To obtain this result, the client waits for two
+consecutive incoming samples and computes the two related RTTs. Then it takes
+the largest of them as the basis of the `T_Max_c` formula. At this point,
+observers have already measured a valid RTT and then computed their `T_Max_c`.
 
 ### Delay Measurement using Delay Bit
 
@@ -514,14 +526,15 @@ observing the connection handshake), upon detecting a delay sample:
 
 ### Two Bits Delay Measurement: Spin Bit + Delay Bit
 
-It is worth mentioning that the Delay Bit can be used alone or in combination 
-with the Spin Bit to have an improved resilience to the impairments. When the 
-Delay Bit is used, a passive observer can use delay samples together with the 
-Spin Bit signal.
+Spin and Delay bit algorithms work independently. If both marking methods are
+used in the same connection, observers can choose the best measurement between
+the two available:
 
-The same measurements described above are applicable if the Delay Bit is used 
-in addition to the Spin Bit and the Observer's Algorithm could also be further 
-simplified.
+* when a precise measurement can be produced using the delay bit, observers
+  choose it;
+  
+* when a delay bit measurement is not available, observers choose the
+  approximate spin bit one.
 
 # Loss Bits
 
@@ -1205,24 +1218,26 @@ For the Delay measurement, it is possible to use the spin bit and/or the delay
 bit. A unidirectional or bidirectional observer can be used.
 
 ~~~~
-+------------------+----+-------------------------+---------------+
-| Method           |# of|        Available        |               |
-|                  |bits|      Delay Metrics      |  Impairments  |
-|                  |    +------------+------------+  Resiliency   |
-|                  |    |   UNIDIR   |   BIDIR    |               |
-|                  |    |  Observer  |  Observer  |               |
-+------------------+----+------------+------------+---------------+
-|S: Spin Bit       | 1  | RTT        | x2         | lower         |
-|                  |    |            | Half RTT   |               |
-+------------------+----+------------+------------+---------------+
-|D: Delay Bit      | 1  | RTT        | x2         | medium        |
-|                  |    |            | Half RTT   |               |
-+------------------+----+------------+------------+---------------+
-|SD: Spin Bit +    | 2  | RTT        | x2         | higher        |
-|    Delay Bit     |    |            | Half RTT   |               |
-+------------------+----+------------+------------+---------------+
+ +------------------+----+-------------------------+---------------+
+ | Method           |# of|        Available        |               |
+ |                  |bits|      Delay Metrics      |  Impairments  |
+ |                  |    +------------+------------+  Resiliency   |
+ |                  |    |   UNIDIR   |   BIDIR    |               |
+ |                  |    |  Observer  |  Observer  |               |
+ +------------------+----+------------+------------+---------------+
+ |S: Spin Bit       | 1  | RTT        | x2         | low           |
+ |                  |    |            | Half RTT   |               |
+ +------------------+----+------------+------------+---------------+
+ |D: Delay Bit      | 1  | RTT        | x2         | high          |
+ |                  |    |            | Half RTT   |               |
+ +------------------+----+------------+------------+---------------+
+ |SD: Spin Bit &    | 2  | RTT        | x2         | high          |
+ |    Delay Bit *   |    |            | Half RTT   |               |
+ +------------------+----+------------+------------+---------------+
 
- x2 Same metric for both directions.
+ x2 Same metric for both directions
+ *  Both algorithms work independtly; an observer could use
+    approximate spin bit measures when delay bit ones aren't available
 ~~~~
 {: #fig_summary_D title="Delay Comparison"}
 
@@ -1397,9 +1412,9 @@ the two reserved bits for loss detection. The proposed schemes are:
 ## TCP
 
 The signals can be added to TCP by defining bit 4 of byte 13 of the TCP header
-to carry the spin bit or the delay bit, and eventually bits 5 and 6 to carry
-additional information, like the round-trip loss bit, or a two bits loss signal
-(QL or QR).
+to carry the spin bit or the delay bit, and possibly bits 5 and 6 to carry
+additional information, like the delay bit and the round-trip loss bit (DT), or
+a two bits loss signal (QL or QR).
 
 # Security Considerations
 
