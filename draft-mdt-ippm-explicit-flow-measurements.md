@@ -27,7 +27,7 @@ author:
   -
     ins: M. Cociglio
     name: Mauro Cociglio
-    org: Telecom Italia
+    org: Telecom Italia - TIM
     street: Via Reiss Romoli, 274
     city: Torino
     code: 10148
@@ -55,7 +55,7 @@ author:
   -
     ins: F. Bulgarella
     name: Fabio Bulgarella
-    org: Telecom Italia
+    org: Telecom Italia - TIM
     street: Via Reiss Romoli, 274
     city: Torino
     code: 10148
@@ -69,7 +69,11 @@ author:
   -
     ins: M. Nilo
     name: Massimo Nilo
-    org: Telecom Italia
+    org: Telecom Italia - TIM
+    street: Via Reiss Romoli, 274
+    city: Torino
+    code: 10148
+    country: Italy
     email: massimo.nilo@telecomitalia.it
   -
     ins: R.Sisto
@@ -1282,8 +1286,8 @@ bit. A unidirectional or bidirectional observer can be used.
  x2 Same metric for both directions
  *  Both algorithms work independtly; an observer could use
     approximate spin bit measures when delay bit ones aren't available
- ^  Masked metric (real value computable only knowing the
-    Additional Delay)
+ ^  Masked metric (real value can be calculated only by those who know 
+    the Additional Delay)
 ~~~~
 {: #fig_summary_D title="Delay Comparison"}
 
