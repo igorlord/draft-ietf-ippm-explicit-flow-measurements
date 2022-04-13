@@ -635,9 +635,7 @@ measurements can be called Round Trip losses.
 
 Since packet rates in two directions may be different, the number of marked
 packets in the train is determined by the direction with the lowest packet rate.
-See {{tbit-details}} for details on packet generation and for a mechanism to
-allow an observer to distinguish between trains belonging to different phases
-(Generation and Reflection).
+See {{tbit-details}} for details on packet generation.
 
 ### Round Trip Packet Loss Measurement
 
@@ -718,13 +716,16 @@ of marked packets (packets with T bit set to 1).  A "pause" of at least one
 empty spin-bit period between each phase of the algorithm serves as such
 separator for the on-path observer.
 
+The client maintains a "generation token" count that is set to zero at the
+beginning of the session and is incremented every time a packet is received
+(marked or unmarked). It also maintains a "reflection counter" that starts at
+zero at the beginning of the session.
+
 The client is in charge of launching trains of marked packets and does so
 according to the algorithm:
 
 1.  Generation Phase. The client starts generating marked packets for two
-    consecutive spin-bit periods; it maintains a "generation token" count that
-    is reset to zero at the beginning of the algorithm phase and is incremented
-    every time a packet arrives. When the client transmits a packet and a
+    consecutive spin-bit periods; when the client transmits a packet and a
     "generation token" is available, the client marks the packet and retires a
     "generation token". If no token is available, the outgoing packet is
     transmitted unmarked.  At the end of the first spin-bit period spent in
@@ -760,6 +761,14 @@ every time a marked packet arrives. When the server transmits a packet and the
 "marking counter". If the "marking counter" is zero, the outgoing packet is
 transmitted unmarked.
 
+Note that a generation phase 2-RTT long (two spin periods) is a tradeoff between
+the percentage of marked packets (i.e. the percentage of traffic monitored) and
+the measurement delay. Using this value the algorithm produces a measurement
+every approximately 6-RTT (`2` generation, `~2` reflection, `2` pauses) marking
+`~1/3` of packets exchanged in the slower direction (see {{tbit-losscov}}).
+Choosing a generation phase 1-RTT long we would have measures every 4-RTT,
+monitoring just `~1/4` of packets in the slower direction.
+
 ### Observer's Logic for Round Trip Loss Signal
 
 The on-path observer counts marked packets and separates different trains by
@@ -781,7 +790,7 @@ is the spin bit, second one is the loss bit):
 
 Note that 5 marked packets have been generated of which 4 have been reflected.
 
-### Loss Coverage and Signal Timing
+### Loss Coverage and Signal Timing {#tbit-losscov}
 
 A cycle of the round Trip loss signaling algorithm contains 2 RTTs of Generation
 phase, 2 RTTs of Reflection phase, and two Pause phases at least 1 RTT in
@@ -1030,7 +1039,6 @@ varies according to these rules:
 *  if, before transmission of the block is terminated, the reception
    of at least one further Q Block is completed, the size of the block
    is updated to the average size of the further received Q Blocks.
-   Implementation details follow.
 
 The Reflection square value is initialized to 0 and is applied to the
 R-bit of every outgoing packet.  The Reflection square value is
@@ -1050,9 +1058,13 @@ The parameter `avg(p)` is the average number of packets in a marking
 period computed considering all the Q Blocks received since the
 beginning of the current R Block.
 
+The transmission of a R Block is considered completed (and the signal toggled)
+when the number of packets transmitted in that block is greater or equal to the
+latest computed M value.
+
 To ensure a proper computation of the M value, endpoints implementing the R bit
 must identify the boundaries of incoming Q Blocks. The same approach described
-in {#endmarkingblock} should be used.
+in {{endmarkingblock}} should be used.
 
 Looking at the R-bit, unidirectional observation points have an indication of
 losses experienced by the entire unobserved channel plus those occurred in the
