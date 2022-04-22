@@ -27,7 +27,7 @@ author:
   -
     ins: M. Cociglio
     name: Mauro Cociglio
-    org: Telecom Italia
+    org: Telecom Italia - TIM
     street: Via Reiss Romoli, 274
     city: Torino
     code: 10148
@@ -55,7 +55,7 @@ author:
   -
     ins: F. Bulgarella
     name: Fabio Bulgarella
-    org: Telecom Italia
+    org: Telecom Italia - TIM
     street: Via Reiss Romoli, 274
     city: Torino
     code: 10148
@@ -69,7 +69,11 @@ author:
   -
     ins: M. Nilo
     name: Massimo Nilo
-    org: Telecom Italia
+    org: Telecom Italia - TIM
+    street: Via Reiss Romoli, 274
+    city: Torino
+    code: 10148
+    country: Italy
     email: massimo.nilo@telecomitalia.it
   -
     ins: R.Sisto
@@ -93,8 +97,8 @@ normative:
   IPM-Methods: RFC7799
 
 informative:
-  QUIC-TRANSPORT: I-D.ietf-quic-transport
-  TRANSPORT-ENCRYPT: I-D.ietf-tsvwg-transport-encrypt
+  QUIC-TRANSPORT: RFC9000
+  RFC9065: RFC9065
   SPIN-BIT: I-D.trammell-quic-spin
   UDP-OPTIONS: I-D.ietf-tsvwg-udp-options
   UDP-SURPLUS: I-D.herbert-udp-space-hdr
@@ -132,7 +136,7 @@ path by moving the passive observer around.
 
 With encrypted protocols, the equivalent transport headers are encrypted and
 passive packet loss and delay observations are not possible, as described in
-{{TRANSPORT-ENCRYPT}}.
+{{RFC9065}}.
 
 Measuring TCP loss and delay between similar endpoints cannot be relied upon to
 evaluate encrypted protocol loss and delay. Different protocols could be routed
@@ -143,8 +147,10 @@ packet loss and delay experienced by encrypted protocol users directly.
 This document defines Explicit Flow Measurement Techniques. These hybrid
 measurement path signals (see {{IPM-Methods}}) are to be embedded into a
 transport layer protocol and are explicitly intended for exposing RTT and loss
-rate information to on-path measurement devices.  These measurement mechanisms
-are applicable to any transport-layer protocol, and, as an example, the document
+rate information to on-path measurement devices. They are designed to facilitate
+network operations and management and are "beneficial" for maintaining the
+quality of service (see {{RFC9065}}). These measurement mechanisms are
+applicable to any transport-layer protocol, and, as an example, the document
 describes QUIC and TCP bindings.
 
 The Explicit Flow Measurement Techniques described in this document can be used
@@ -154,10 +160,11 @@ technique uses a small number of bits and exposes a specific measurement.
 Following the recommendation in {{!RFC8558}} of making path signals explicit,
 this document proposes adding a small number of dedicated measurement bits to
 the clear portion of the protocol headers. These bits can be added to an
-encrypted portion of a header belonging to any protocol layer, e.g. IP (see
+unencrypted portion of a header belonging to any protocol layer, e.g. IP (see
 {{IP}}) and IPv6 (see {{IPv6}}) headers or extensions, such as {{IPv6AltMark}},
 UDP surplus space (see {{UDP-OPTIONS}} and {{UDP-SURPLUS}}), reserved bits in a
-QUIC v1 header (see {{QUIC-TRANSPORT}}).
+QUIC v1 header, as already done with the latency spin bit (see
+{{QUIC-TRANSPORT}}).
 
 The measurements are not designed for use in automated control of the network in
 environments where signal bits are set by untrusted hosts. Instead, the signal
@@ -536,6 +543,31 @@ the two available:
 * when a delay bit measurement is not available, observers choose the
   approximate spin bit one.
 
+### Hidden Delay Bit -- Delay Bit with Privacy Protection
+
+Theoretically, delay measurements can be used to roughly evaluate the distance
+of the client from the server (using the RTT) or from any intermediate observer
+(using the client-observer half-RTT). To protect users privacy, the algorithm of
+the delay bit can be slightly modified to mask the RTT of the connection to an
+intermediate observer. This result can be achieved using a simple expedient
+which consists in delaying the client-side reflection of the delay sample by a
+predetermined time value. This would lead an intermediate observer to inevitably
+measure a delay greater than the real one.
+
+The Additional Delay should be randomly selected by the client and kept constant
+for a certain amount of time across multiple connections. This ensures that the
+client-server jitter remains the same as if no Additional Delay had been
+inserted. For instance, a new Additional Delay value could be generated whenever
+the client's IP address changes.
+
+Using this technique, despite the Additional Delay introduced, it is still
+possible to correctly measure the right component of RTT (observer-server) and
+all the intra-domain measurements used to distribute the delay in the network.
+Furthermore, differently from the Delay Bit, the hidden Delay Bit makes the use
+of the client reflection threshold (1ms) redundant. Removing this threshold
+leads to the further advantage of increasing the number of valid measurements
+produced by the algorithm.
+
 # Loss Bits
 
 This section introduces bits that can be used for loss measurements.
@@ -603,9 +635,7 @@ measurements can be called Round Trip losses.
 
 Since packet rates in two directions may be different, the number of marked
 packets in the train is determined by the direction with the lowest packet rate.
-See {{tbit-details}} for details on packet generation and for a mechanism to
-allow an observer to distinguish between trains belonging to different phases
-(Generation and Reflection).
+See {{tbit-details}} for details on packet generation.
 
 ### Round Trip Packet Loss Measurement
 
@@ -686,13 +716,16 @@ of marked packets (packets with T bit set to 1).  A "pause" of at least one
 empty spin-bit period between each phase of the algorithm serves as such
 separator for the on-path observer.
 
+The client maintains a "generation token" count that is set to zero at the
+beginning of the session and is incremented every time a packet is received
+(marked or unmarked). It also maintains a "reflection counter" that starts at
+zero at the beginning of the session.
+
 The client is in charge of launching trains of marked packets and does so
 according to the algorithm:
 
 1.  Generation Phase. The client starts generating marked packets for two
-    consecutive spin-bit periods; it maintains a "generation token" count that
-    is reset to zero at the beginning of the algorithm phase and is incremented
-    every time a packet arrives. When the client transmits a packet and a
+    consecutive spin-bit periods; when the client transmits a packet and a
     "generation token" is available, the client marks the packet and retires a
     "generation token". If no token is available, the outgoing packet is
     transmitted unmarked.  At the end of the first spin-bit period spent in
@@ -728,6 +761,14 @@ every time a marked packet arrives. When the server transmits a packet and the
 "marking counter". If the "marking counter" is zero, the outgoing packet is
 transmitted unmarked.
 
+Note that a generation phase 2-RTT long (two spin periods) is a tradeoff between
+the percentage of marked packets (i.e. the percentage of traffic monitored) and
+the measurement delay. Using this value the algorithm produces a measurement
+every approximately 6-RTT (`2` generation, `~2` reflection, `2` pauses) marking
+`~1/3` of packets exchanged in the slower direction (see {{tbit-losscov}}).
+Choosing a generation phase 1-RTT long we would have measures every 4-RTT,
+monitoring just `~1/4` of packets in the slower direction.
+
 ### Observer's Logic for Round Trip Loss Signal
 
 The on-path observer counts marked packets and separates different trains by
@@ -749,7 +790,7 @@ is the spin bit, second one is the loss bit):
 
 Note that 5 marked packets have been generated of which 4 have been reflected.
 
-### Loss Coverage and Signal Timing
+### Loss Coverage and Signal Timing {#tbit-losscov}
 
 A cycle of the round Trip loss signaling algorithm contains 2 RTTs of Generation
 phase, 2 RTTs of Reflection phase, and two Pause phases at least 1 RTT in
@@ -998,7 +1039,6 @@ varies according to these rules:
 *  if, before transmission of the block is terminated, the reception
    of at least one further Q Block is completed, the size of the block
    is updated to the average size of the further received Q Blocks.
-   Implementation details follow.
 
 The Reflection square value is initialized to 0 and is applied to the
 R-bit of every outgoing packet.  The Reflection square value is
@@ -1018,9 +1058,13 @@ The parameter `avg(p)` is the average number of packets in a marking
 period computed considering all the Q Blocks received since the
 beginning of the current R Block.
 
+The transmission of a R Block is considered completed (and the signal toggled)
+when the number of packets transmitted in that block is greater or equal to the
+latest computed M value.
+
 To ensure a proper computation of the M value, endpoints implementing the R bit
 must identify the boundaries of incoming Q Blocks. The same approach described
-in {#endmarkingblock} should be used.
+in {{endmarkingblock}} should be used.
 
 Looking at the R-bit, unidirectional observation points have an indication of
 losses experienced by the entire unobserved channel plus those occurred in the
@@ -1210,6 +1254,21 @@ detected.  This can be done if and only if the transmission of the
 current reflection block is in progress and no packets of the
 following Q Block have been received.
 
+## Improved Q and R Bits Resilience to Burst Losses
+
+Burst losses can affect Q and R measurements accuracy. Generally, burst losses
+can be absorbed and correctly measured if smaller than the established Q Block
+length. On the other hand, entire periods might be wiped out if the burst sizes
+become too large thus making the observer completely unaware of their loss.
+
+To improve burst loss resilience, an observer might consider a received Q or R
+Block larger than the selected Q Block length as a burst loss event. Then
+compute the loss as three times Q Block length minus the measured block length.
+By doing so, an observer can detect burst losses of less than two blocks (e.g.,
+less than 128 packets for Q Block length of 64 packets). A burst loss equal or
+greater than two consecutive periods would still remain unnoticed by the
+observer (or underestimated if a period longer than Q Block length were formed).
+
 # Summary of Delay and Loss Marking Methods
 
 This section summarizes the marking methods described in this draft.
@@ -1218,26 +1277,32 @@ For the Delay measurement, it is possible to use the spin bit and/or the delay
 bit. A unidirectional or bidirectional observer can be used.
 
 ~~~~
- +------------------+----+-------------------------+---------------+
- | Method           |# of|        Available        |               |
- |                  |bits|      Delay Metrics      |  Impairments  |
- |                  |    +------------+------------+  Resiliency   |
- |                  |    |   UNIDIR   |   BIDIR    |               |
- |                  |    |  Observer  |  Observer  |               |
- +------------------+----+------------+------------+---------------+
- |S: Spin Bit       | 1  | RTT        | x2         | low           |
- |                  |    |            | Half RTT   |               |
- +------------------+----+------------+------------+---------------+
- |D: Delay Bit      | 1  | RTT        | x2         | high          |
- |                  |    |            | Half RTT   |               |
- +------------------+----+------------+------------+---------------+
- |SD: Spin Bit &    | 2  | RTT        | x2         | high          |
- |    Delay Bit *   |    |            | Half RTT   |               |
- +------------------+----+------------+------------+---------------+
+ +---------------+----+------------------------+--------------------+
+ | Method        |# of|        Available       |             | # of |
+ |               |bits|      Delay Metrics     | Impairments | meas.|
+ |               |    +------------+-----------+ Resiliency  |      |
+ |               |    |   UNIDIR   |   BIDIR   |             |      |
+ |               |    |  Observer  |  Observer |             |      |
+ +---------------+----+------------+-----------+-------------+------+
+ |S: Spin Bit    | 1  | RTT        | x2        | low         | very |
+ |               |    |            | Half RTT  |             | high |
+ +---------------+----+------------+-----------+-------------+------+
+ |D: Delay Bit   | 1  | RTT        | x2        | high        |medium|
+ |               |    |            | Half RTT  |             |      |
+ +---------------+----+------------+-----------+-------------+------+
+ |D^: Hidden     | 1  | RTT^       | x2        | high        | high |
+ |    Delay Bit  |    |            | Left Half^|             |      |
+ |               |    |            | Right Half|             |      |
+ +---------------+----+------------+-----------+-------------+------+
+ |SD: Spin Bit & | 2  | RTT        | x2        | high        | very |
+ |    Delay Bit *|    |            | Half RTT  |             | high |
+ +---------------+----+------------+-----------+-------------+------+
 
  x2 Same metric for both directions
  *  Both algorithms work independtly; an observer could use
     approximate spin bit measures when delay bit ones aren't available
+ ^  Masked metric (real value can be calculated only by those who know 
+    the Additional Delay)
 ~~~~
 {: #fig_summary_D title="Delay Comparison"}
 
@@ -1390,22 +1455,23 @@ first byte of the short packet header can be modified as follows:
 ~~~~
 {: title="Scheme 2B"}
 
-A further option would be to substitute the spin bit with the delay bit leaving
-the two reserved bits for loss detection. The proposed schemes are:
+A further option would be to substitute the spin bit with the delay bit (or
+hidden delay bit) leaving the two reserved bits for loss detection. The proposed
+schemes are:
 
 ~~~~
-          0 1 2 3 4 5 6 7
-         +-+-+-+-+-+-+-+-+
-         |0|1|D|Q|L|K|P|P|
-         +-+-+-+-+-+-+-+-+
+          0 1 2 3 4 5 6 7          0 1 2  3 4 5 6 7
+         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
+         |0|1|D|Q|L|K|P|P|   OR   |0|1|D^|Q|L|K|P|P|
+         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
 ~~~~
 {: title="Scheme 3A"}
 
 ~~~~
-          0 1 2 3 4 5 6 7
-         +-+-+-+-+-+-+-+-+
-         |0|1|D|Q|R|K|P|P|
-         +-+-+-+-+-+-+-+-+
+          0 1 2 3 4 5 6 7          0 1 2  3 4 5 6 7
+         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
+         |0|1|D|Q|R|K|P|P|   OR   |0|1|D^|Q|R|K|P|P|
+         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
 ~~~~
 {: title="Scheme 3B"}
 
