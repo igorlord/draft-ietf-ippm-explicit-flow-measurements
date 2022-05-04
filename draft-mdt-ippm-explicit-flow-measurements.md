@@ -163,7 +163,7 @@ the clear portion of the protocol headers. These bits can be added to an
 unencrypted portion of a header belonging to any protocol layer, e.g. IP (see
 {{IP}}) and IPv6 (see {{IPv6}}) headers or extensions, such as {{IPv6AltMark}},
 UDP surplus space (see {{UDP-OPTIONS}} and {{UDP-SURPLUS}}), reserved bits in a
-QUIC v1 header, as already done with the latency spin bit (see
+QUIC v1 header, as already done with the latency Spin bit (see
 {{QUIC-TRANSPORT}}).
 
 The measurements are not designed for use in automated control of the network in
@@ -172,7 +172,7 @@ is to be used for troubleshooting individual flows as well as for monitoring the
 network by aggregating information from multiple flows and raising operator
 alarms if aggregate statistics indicate a potential problem.
 
-The spin bit, delay bit and loss bits explained in this document are inspired by
+The Spin bit, Delay bit and loss bits explained in this document are inspired by
 {{AltMark}}, {{SPIN-BIT}}, {{?I-D.trammell-tsvwg-spin}} and
 {{?I-D.trammell-ippm-spin}}.
 
@@ -193,34 +193,34 @@ is referring only to packets with protocol headers that include the latency
 bits.
 
 {{QUIC-TRANSPORT}} introduces an explicit per-flow transport-layer signal for
-hybrid measurement of RTT.  This signal consists of a spin bit that toggles once
+hybrid measurement of RTT.  This signal consists of a Spin bit that toggles once
 per RTT.  {{SPIN-BIT}} discusses an additional two-bit Valid Edge Counter (VEC)
-to compensate for loss and reordering of the spin bit and increase fidelity of
+to compensate for loss and reordering of the Spin bit and increase fidelity of
 the signal in less than ideal network conditions.
 
 This document introduces a stand-alone single-bit delay signal that can be used
-by passive observers to measure the RTT of a network flow, avoiding the spin bit
+by passive observers to measure the RTT of a network flow, avoiding the Spin bit
 ambiguities that arise as soon as network conditions deteriorate.
 
 
 ## Spin Bit   {#spinbit}
 
-This section is a small recap of the spin bit working mechanism. For a
+This section is a small recap of the Spin bit working mechanism. For a
 comprehensive explanation of the algorithm, please see {{SPIN-BIT}}.
 
-The spin bit is an alternate marking {{AltMark}} generated signal, where the
+The Spin bit is an alternate marking {{AltMark}} generated signal, where the
 size of the alternation changes with the flight size each RTT.
 
-The latency spin bit is a single bit signal that toggles once per RTT,
+The latency Spin bit is a single bit signal that toggles once per RTT,
 enabling latency monitoring of a connection-oriented communication
 from intermediate observation points.
 
-A "spin period" is a set of packets with the same spin bit value sent during one
-RTT time interval. A "spin period value" is the value of the spin bit shared by
+A "spin period" is a set of packets with the same Spin bit value sent during one
+RTT time interval. A "spin period value" is the value of the Spin bit shared by
 all packets in a spin period.
 
 The client and server maintain an internal per-connection spin value (i.e. 0 or
-1) used to set the spin bit on outgoing packets. Both endpoints initialize the
+1) used to set the Spin bit on outgoing packets. Both endpoints initialize the
 spin value to 0 when a new connection starts. Then:
 
 * when the client receives a packet with the packet number larger than any
@@ -242,13 +242,13 @@ Spin bit enables round trip latency measurement by observing a single direction
 of the traffic flow.
 
 Note that packet reordering can cause spurious edges that require heuristics to
-correct. The spin bit performance deteriorates as soon as network impairments
+correct. The Spin bit performance deteriorates as soon as network impairments
 arise as explained in {{delaybit}}.
 
 ## Delay Bit {#delaybit}
 
-The delay bit has been designed to overcome accuracy limitations experienced by
-the spin bit under difficult network conditions:
+The Delay bit has been designed to overcome accuracy limitations experienced by
+the Spin bit under difficult network conditions:
 
 * packet reordering leads to generation of spurious edges and errors in delay
   estimation;
@@ -256,13 +256,13 @@ the spin bit under difficult network conditions:
 * loss of edges causes wrong estimation of spin periods and therefore wrong RTT
   measurements;
 
-* application-limited senders cause the spin bit to measure the application
+* application-limited senders cause the Spin bit to measure the application
   delays instead of network delays.
 
-Unlike the spin bit, which is set in every packet transmitted on the network,
-the delay bit is set only once per round trip.
+Unlike the Spin bit, which is set in every packet transmitted on the network,
+the Delay bit is set only once per round trip.
 
-When the delay bit is used, a single packet with a marked bit (the delay bit)
+When the Delay bit is used, a single packet with a marked bit (the Delay bit)
 bounces between a client and a server during the entire connection lifetime.
 This single packet is called "delay sample".
 
@@ -330,17 +330,17 @@ internal per-flow timestamp variable (`ds_time`) updated every time a delay
 sample is transmitted.
 
 When connection starts, the client generates a new delay sample initializing the
-delay bit of the first outgoing packet to 1.  Then it updates the `ds_time`
+Delay bit of the first outgoing packet to 1.  Then it updates the `ds_time`
 variable with the timestamp of its transmission.
 
-The server initializes the delay bit to 0 at the beginning of the connection,
+The server initializes the Delay bit to 0 at the beginning of the connection,
 and its only task during the connection is described in {{reflection-phase}}.
 
 In absence of network impairments, the delay sample should bounce between client
 and server continuously, for the entire duration of the connection.  That is
 highly unlikely for two reasons:
 
-1. the packet carrying the delay bit might be lost;
+1. the packet carrying the Delay bit might be lost;
 
 2. an endpoint could stop or delay sending packets because the application is
    limiting the amount of traffic transmitted;
@@ -365,7 +365,7 @@ a client and a server.  The behavior of the two endpoints is almost the same.
 In both cases, if the outgoing delay sample is being transmitted with a delay
 greater than a predetermined threshold after the reception of the incoming delay
 sample (1ms by default), the delay sample is not reflected, and the outgoing
-delay bit is kept at 0.
+Delay bit is kept at 0.
 
 By doing so, the algorithm can reject measurements that would overestimate the
 delay due to lack of traffic on the endpoints.  Hence, the maximum estimation
@@ -397,7 +397,7 @@ selected `T_Max` should be large enough to absorb any possible variations in the
 connection delay.
 
 `T_Max_c` could be computed as two times the measured `RTT` plus a fixed amount
-of time (`100ms`) to prevent low `T_Max` values ​​in case of very small RTTs.
+of time (`100ms`) to prevent low `T_Max` values in case of very small RTTs.
 The resulting formula is: `T_Max_c = 2RTT + 100ms`. If `T_Max_c` is greater than
 `T_Max_p` then `T_Max_c` is forced to `T_Max_p` value.
 
@@ -410,14 +410,14 @@ observers have already measured a valid RTT and then computed their `T_Max_c`.
 
 ### Delay Measurement using Delay Bit
 
-When the Delay Bit is used, a passive observer can use delay samples directly
+When the Delay bit is used, a passive observer can use delay samples directly
 and avoid inherent ambiguities in the calculation of the RTT as can be seen in
-spin bit analysis.
+Spin bit analysis.
 
 #### RTT Measurement
 
 The delay sample generation process ensures that only one packet marked with the
-delay bit set to 1 runs back and forth between two endpoints per round trip
+Delay bit set to 1 runs back and forth between two endpoints per round trip
 time.  To determine the RTT measurement of a flow, an on-path passive observer
 computes the time difference between two delay samples observed in a single
 direction.
@@ -537,33 +537,33 @@ Spin and Delay bit algorithms work independently. If both marking methods are
 used in the same connection, observers can choose the best measurement between
 the two available:
 
-* when a precise measurement can be produced using the delay bit, observers
+* when a precise measurement can be produced using the Delay bit, observers
   choose it;
-  
-* when a delay bit measurement is not available, observers choose the
-  approximate spin bit one.
+
+* when a Delay bit measurement is not available, observers choose the
+  approximate Spin bit one.
 
 ### Hidden Delay Bit -- Delay Bit with Privacy Protection
 
 Theoretically, delay measurements can be used to roughly evaluate the distance
 of the client from the server (using the RTT) or from any intermediate observer
-(using the client-observer half-RTT). To protect users privacy, the algorithm of
-the delay bit can be slightly modified to mask the RTT of the connection to an
-intermediate observer. This result can be achieved using a simple expedient
-which consists in delaying the client-side reflection of the delay sample by a
-predetermined time value. This would lead an intermediate observer to inevitably
-measure a delay greater than the real one.
+(using the client-observer half-RTT). To protect users' privacy, the Delay bit
+algorithm can be slightly modified to mask the RTT of the connection to an
+intermediate observer. This result can be achieved by, for example, delaying the
+client-side reflection of the delay sample by a fixed randomly chosen time
+value. This would lead an intermediate observer to measure a delay greater than
+the real one.
 
-The Additional Delay should be randomly selected by the client and kept constant
-for a certain amount of time across multiple connections. This ensures that the
-client-server jitter remains the same as if no Additional Delay had been
-inserted. For instance, a new Additional Delay value could be generated whenever
-the client's IP address changes.
+This Additional Delay should be randomly selected by the client and kept
+constant for a certain amount of time across multiple connections. This ensures
+that the client-server jitter remains the same as if no Additional Delay had
+been inserted. For example, a new Additional Delay value could be generated
+whenever the client's IP address changes.
 
 Using this technique, despite the Additional Delay introduced, it is still
 possible to correctly measure the right component of RTT (observer-server) and
 all the intra-domain measurements used to distribute the delay in the network.
-Furthermore, differently from the Delay Bit, the hidden Delay Bit makes the use
+Furthermore, differently from the Delay bit, the hidden Delay bit makes the use
 of the client reflection threshold (1ms) redundant. Removing this threshold
 leads to the further advantage of increasing the number of valid measurements
 produced by the algorithm.
@@ -587,7 +587,7 @@ bits -- the only packets whose loss can be measured.
   measure end-to-end loss. See {{rtlossbit}}.
 
 Loss measurements enabled by T, Q, and L bits can be implemented by those loss
-bits alone (T bit requires a working Spin Bit). Two-bit combinations Q+L and Q+R
+bits alone (T bit requires a working Spin bit). Two-bit combinations Q+L and Q+R
 enable additional measurement opportunities discussed below.
 
 Each endpoint maintains appropriate counters independently and separately for
@@ -718,8 +718,8 @@ separator for the on-path observer.
 
 The client maintains a "generation token" count that is set to zero at the
 beginning of the session and is incremented every time a packet is received
-(marked or unmarked). It also maintains a "reflection counter" that starts at
-zero at the beginning of the session.
+(marked or unmarked). The client also maintains a "reflection counter" that
+starts at zero at the beginning of the session.
 
 The client is in charge of launching trains of marked packets and does so
 according to the algorithm:
@@ -733,7 +733,7 @@ according to the algorithm:
     marked packets that will be reflected later;
 
 2.  Pause Phase. When the generation is completed, the client pauses till it has
-    observed one entire spin bit period with no marked packets.  That spin bit
+    observed one entire Spin bit period with no marked packets.  That Spin bit
     period is used by the observer as a separator between generated and
     reflected packets.  During this marking pause, all the outgoing packets are
     transmitted with T bit set to 0.  The reflection counter is still
@@ -761,13 +761,14 @@ every time a marked packet arrives. When the server transmits a packet and the
 "marking counter". If the "marking counter" is zero, the outgoing packet is
 transmitted unmarked.
 
-Note that a generation phase 2-RTT long (two spin periods) is a tradeoff between
-the percentage of marked packets (i.e. the percentage of traffic monitored) and
-the measurement delay. Using this value the algorithm produces a measurement
-every approximately 6-RTT (`2` generation, `~2` reflection, `2` pauses) marking
-`~1/3` of packets exchanged in the slower direction (see {{tbit-losscov}}).
-Choosing a generation phase 1-RTT long we would have measures every 4-RTT,
-monitoring just `~1/4` of packets in the slower direction.
+Note that a choice of 2-RTT (two spin periods) for the generation phase is a
+tradeoff between the percentage of marked packets (i.e. the percentage of
+traffic monitored) and the measurement delay. Using this value the algorithm
+produces a measurement approximately every 6-RTT (`2` generation, `~2`
+reflection, `2` pauses), marking `~1/3` of packets exchanged in the slower
+direction (see {{tbit-losscov}}). Choosing a generation phase of 1-RTT, we would
+produce measurements every 4-RTT, monitoring just `~1/4` of packets in the
+slower direction.
 
 ### Observer's Logic for Round Trip Loss Signal
 
@@ -777,7 +778,7 @@ Trip Packet Loss (RTPL) is the difference between the size of the Generation
 train and the Reflection train.
 
 In the following example, packets are represented by two bits (first one
-is the spin bit, second one is the loss bit):
+is the Spin bit, second one is the round Trip loss bit):
 
 ~~~~
         Generation          Pause           Reflection       Pause
@@ -963,7 +964,7 @@ traffic to accurately measure:
 *  end-to-end loss: sender-to-receiver loss on the observed path (see
    {{endtoendloss}}) with loss profile characterization (see {{loss-profile}})
 
-#### Correlating End-to-End and Upstream Loss   {#loss-correlation}
+### Correlating End-to-End and Upstream Loss   {#loss-correlation}
 
 Upstream loss is calculated by observing packets that did not suffer the
 upstream loss ({{upstreamloss}}). End-to-end loss, however, is calculated by
@@ -997,14 +998,14 @@ to such protocols, and the observer can confirm that pure ACK packets dominate
 the observed traffic direction, the observer should adjust the calculated
 end-to-end loss rate to match upstream loss rate.
 
-#### Downstream Loss   {#downstreamloss}
+### Downstream Loss   {#downstreamloss}
 
 Because downstream loss affects only those packets that did not suffer upstream
 loss, the end-to-end loss rate (`eloss`) relates to the upstream loss rate
 (`uloss`) and downstream loss rate (`dloss`) as `(1-uloss)(1-dloss)=1-eloss`.
 Hence, `dloss=(eloss-uloss)/(1-uloss)`.
 
-#### Observer Loss   {#observerloss}
+### Observer Loss   {#observerloss}
 
 A typical deployment of a passive observation system includes a network tap
 device that mirrors network packets of interest to a device that performs
@@ -1145,7 +1146,7 @@ same R value (`t`) divided by `N` (`tqloss=1-avg(t)/N`).
 {: title="Three-quarters connection loss"}
 
 The following metrics derive from this last metric and the upstream
-loss produced by the Q Bit.
+loss produced by the Q bit.
 
 #### End-To-End Loss in the Opposite Direction
 
@@ -1258,22 +1259,23 @@ following Q Block have been received.
 
 Burst losses can affect Q and R measurements accuracy. Generally, burst losses
 can be absorbed and correctly measured if smaller than the established Q Block
-length. On the other hand, entire periods might be wiped out if the burst sizes
-become too large thus making the observer completely unaware of their loss.
+length. If entire Q Block length of packets get lost in a burst, however, the
+observer may be left completely unaware of the loss.
 
-To improve burst loss resilience, an observer might consider a received Q or R
-Block larger than the selected Q Block length as a burst loss event. Then
-compute the loss as three times Q Block length minus the measured block length.
-By doing so, an observer can detect burst losses of less than two blocks (e.g.,
-less than 128 packets for Q Block length of 64 packets). A burst loss equal or
-greater than two consecutive periods would still remain unnoticed by the
-observer (or underestimated if a period longer than Q Block length were formed).
+To improve burst loss resilience, an observer may consider a received Q or R
+Block larger than the selected Q Block length as an indication of a burst loss
+event. The observer would then compute the loss as three times Q Block length
+minus the measured block length. By doing so, the observer can detect burst
+losses of less than two blocks (e.g., less than 128 packets for Q Block length
+of 64 packets). A burst loss of two or more consecutive periods would still
+remain unnoticed by the observer (or underestimated if a period longer than Q
+Block length were formed).
 
 # Summary of Delay and Loss Marking Methods
 
 This section summarizes the marking methods described in this draft.
 
-For the Delay measurement, it is possible to use the spin bit and/or the delay
+For the Delay measurement, it is possible to use the Spin bit and/or the delay
 bit. A unidirectional or bidirectional observer can be used.
 
 ~~~~
@@ -1299,10 +1301,10 @@ bit. A unidirectional or bidirectional observer can be used.
  +---------------+----+------------+-----------+-------------+------+
 
  x2 Same metric for both directions
- *  Both algorithms work independtly; an observer could use
-    approximate spin bit measures when delay bit ones aren't available
- ^  Masked metric (real value can be calculated only by those who know 
-    the Additional Delay)
+ *  Both bit work independtly; an observer could use less accurate
+    Spin bit measurements when Delay bit ones are unavailable
+ ^  Masked metric (real value can be calculated only by those who
+    know the Additional Delay)
 ~~~~
 {: #fig_summary_D title="Delay Comparison"}
 
@@ -1345,7 +1347,7 @@ measurement fidelity and delay.
  *   All protocols
  #   Protocols employing loss detection (w/ or w/o pure ACK loss
      detection)
- $   Require a working spin bit
+ $   Require a working Spin bit
  !   Metric relative to the opposite channel
  x2  Same metric for both directions
  ppa Packets-Per-Ack
@@ -1417,13 +1419,13 @@ than the expected signal.
 ## QUIC
 
 The binding of a delay signal to QUIC is partially described in
-{{QUIC-TRANSPORT}}, which adds the spin bit to the first byte of the short
+{{QUIC-TRANSPORT}}, which adds the Spin bit to the first byte of the short
 packet header, leaving two reserved bits for future experiments.
 
 To implement the additional signals discussed in this document, the
 first byte of the short packet header can be modified as follows:
 
-*  the delay bit (D) can be placed in the first reserved bit (i.e. the fourth
+*  the Delay bit (D) can be placed in the first reserved bit (i.e. the fourth
    most significant bit _0x10_) while the round trip loss bit (T) in the second
    reserved bit (i.e. the fifth most significant bit _0x08_); the proposed
    scheme is:
@@ -1455,9 +1457,9 @@ first byte of the short packet header can be modified as follows:
 ~~~~
 {: title="Scheme 2B"}
 
-A further option would be to substitute the spin bit with the delay bit (or
-hidden delay bit) leaving the two reserved bits for loss detection. The proposed
-schemes are:
+A further option would be to substitute the Spin bit with the Delay bit (or
+hidden Delay bit), leaving the two reserved bits for loss detection. The
+proposed schemes are:
 
 ~~~~
           0 1 2 3 4 5 6 7          0 1 2  3 4 5 6 7
@@ -1478,8 +1480,8 @@ schemes are:
 ## TCP
 
 The signals can be added to TCP by defining bit 4 of byte 13 of the TCP header
-to carry the spin bit or the delay bit, and possibly bits 5 and 6 to carry
-additional information, like the delay bit and the round-trip loss bit (DT), or
+to carry the Spin bit or the Delay bit, and possibly bits 5 and 6 to carry
+additional information, like the Delay bit and the round-trip loss bit (DT), or
 a two bits loss signal (QL or QR).
 
 # Security Considerations
@@ -1516,7 +1518,7 @@ shorten the current Q Block by the number of skipped packets numbers. For exampl
 skipping a single packet number will invert the square signal one outgoing
 packet sooner.
 
-Similar considerations apply to the R Bit, although a shortened R Block along
+Similar considerations apply to the R bit, although a shortened R Block along
 with a matching skip in packet numbers does not necessarily imply a lost
 packet, since it could be due to a lost packet on the reverse path along with a
 deliberately skipped packet by the sender.
