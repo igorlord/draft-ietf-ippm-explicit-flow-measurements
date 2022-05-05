@@ -99,6 +99,7 @@ normative:
 
 informative:
   QUIC-TRANSPORT: RFC9000
+  QUIC-TLS: RFC9001
   RFC9065: RFC9065
   SPIN-BIT: I-D.ietf-quic-manageability
   UDP-OPTIONS: I-D.ietf-tsvwg-udp-options
@@ -1511,9 +1512,9 @@ The described techniques can generally apply to different communication
 protocols operating in different security environments. An implementation of
 these techniques for a particular protocol must consider specifics of the
 protocol and its expected operating environment. For example, security
-considerations for QUIC, discussed in RFC9000 and RFC9001, consider a
-possibility of active and passive attackers in the network as well as attacks
-on specific QUIC mechanisms.
+considerations for QUIC, discussed in {{QUIC-TRANSPORT}} and {{QUIC-TLS}},
+consider a possibility of active and passive attackers in the network as well
+as attacks on specific QUIC mechanisms.
 
 ## Optimistic ACK Attack
 
