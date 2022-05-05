@@ -1,7 +1,7 @@
 ---
 title: Explicit Flow Measurements Techniques
 abbrev: Delay and Loss bits
-docname: draft-mdt-ippm-explicit-flow-measurements-latest
+docname: draft-ietf-ippm-explicit-flow-measurements-latest
 date: {DATE}
 category: info
 
@@ -9,6 +9,7 @@ ipr: trust200902
 area: Transport
 workgroup: IPPM
 keyword: Internet-Draft
+submissionType: IETF
 
 stand_alone: yes
 pi:
