@@ -1507,11 +1507,13 @@ observing congestion controller response.
 Hence, loss bits do not provide a viable new mechanism to attack data integrity
 and secrecy.
 
-Since the mechanisms here described can generally be applicable to different
-client-server protocols, more security aspects must be treated based on the
-specific application. As an example for QUIC, security considerations are
-discussed in RFC9000 and RFC9001, generally considering active or passive
-attackers in the network as well as attacks on specific QUIC mechanisms.
+The described techniques can generally apply to different communication
+protocols operating in different security environments. An implementation of
+these techniques for a particular protocol must consider specifics of the
+protocol and its expected operating environment. For example, security
+considerations for QUIC, discussed in RFC9000 and RFC9001, consider a
+possibility of active and passive attackers in the network as well as attacks
+on specific QUIC mechanisms.
 
 ## Optimistic ACK Attack
 
@@ -1568,5 +1570,5 @@ The following people provided valuable contributions to this document:
 # Acknowledgements
 
 The authors would like to thank the QUIC WG for their contributions, Christian
-Huitema for implementing Q and L bits in his picoquic stack and Ike Kunze for
+Huitema for implementing Q and L bits in his picoquic stack, and Ike Kunze for
 providing constructive reviews and helpful suggestions.
