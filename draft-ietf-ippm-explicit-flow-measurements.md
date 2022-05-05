@@ -100,12 +100,12 @@ normative:
 informative:
   QUIC-TRANSPORT: RFC9000
   RFC9065: RFC9065
-  SPIN-BIT: I-D.trammell-quic-spin
+  SPIN-BIT: I-D.ietf-quic-manageability
   UDP-OPTIONS: I-D.ietf-tsvwg-udp-options
   UDP-SURPLUS: I-D.herbert-udp-space-hdr
   ACCURATE: I-D.ietf-tcpm-accurate-ecn
   IPv6AltMark: I-D.ietf-6man-ipv6-alt-mark
-  AltMark: RFC8321
+  AltMark: I-D.ietf-ippm-rfc8321bis
   ANRW19-PM-QUIC: DOI.10.1145/3340301.3341127
 
 --- abstract
@@ -179,12 +179,6 @@ The Spin bit, Delay bit and loss bits explained in this document are inspired by
 
 Additional details about the Performance Measurements for QUIC are described in
 the paper {{ANRW19-PM-QUIC}}.
-
-# Notational Conventions    {#conventions}
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
-"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
-interpreted as described in {{!RFC2119}}.
 
 # Latency Bits
 
@@ -344,7 +338,7 @@ highly unlikely for two reasons:
 1. the packet carrying the Delay bit might be lost;
 
 2. an endpoint could stop or delay sending packets because the application is
-   limiting the amount of traffic transmitted;
+   limiting the amount of traffic transmitted.
 
 To deal with these problems, the client generates a new delay sample if more
 than a predetermined time (`T_Max`) has elapsed since the last delay sample
@@ -607,18 +601,18 @@ on-path observer, observing either direction, can count and compare the number
 of marked packets seen during the two reflections, estimating the loss rate
 experienced by the connection. The overall exchange comprises:
 
-*  The client selects, generates and consequently transmits
+*  the client selects, generates and consequently transmits
    a first train of packets, by setting the T bit to 1;
 
-*  The server, upon receiving each packet included in the first train, reflects
+*  the server, upon receiving each packet included in the first train, reflects
    to the client a respective second train of packets of the same size as the
    first train received, by setting the T bit to 1;
 
-*  The client, upon receiving each packet included in the second train, reflects
+*  the client, upon receiving each packet included in the second train, reflects
    to the server a respective third train of packets of the same size as the
    second train received, by setting the T bit to 1;
 
-*  The server, upon receiving each packet included in the third train, finally
+*  the server, upon receiving each packet included in the third train, finally
    reflects to the client a respective fourth train of packets of the same size
    as the third train received, by setting the T bit to 1.
 
@@ -937,7 +931,7 @@ The value of the Unreported Loss counter is incremented for every packet that
 the protocol declares lost, using whatever loss detection machinery the protocol
 employs. If the protocol is able to rescind the loss determination later, a
 positive Unreported Loss counter may be decremented due to the rescission, but
-it SHOULD NOT become negative due to the rescission.
+it should not become negative due to the rescission.
 
 This loss signaling is similar to loss signaling in {{ConEx}}, except the Loss
 Event bit is reporting the exact number of lost packets, whereas Echo Loss bit
@@ -1058,10 +1052,10 @@ packets are transmitted in blocks of fixed size, the number of packets in
 Reflection square signal blocks (also an alternate marking signal) varies
 according to these rules:
 
-*  When the transmission of a new block starts, its size is set equal
+*  when the transmission of a new block starts, its size is set equal
    to the size of the last Q Block whose reception has been completed;
 
-*  If, before transmission of the block is terminated, the reception
+*  if, before transmission of the block is terminated, the reception
    of at least one further Q Block is completed, the size of the block
    is updated to be the average size of the further received Q Blocks.
 
@@ -1078,8 +1072,8 @@ The M value is then updated every time a completed Q Block in the
 incoming square signal is received, following this formula:
 `M=round(avg(p))`.
 
-The parameter `avg(p)` is the average number of packets in a marking
-period computed, based on all the Q Blocks received since the
+The parameter `avg(p)`, the average number of packets in a marking
+period, is computed based on all the Q Blocks received since the
 beginning of the current R Block.
 
 The transmission of an R Block is considered complete (and the signal toggled)
@@ -1129,7 +1123,7 @@ progress and no packets of the following Q Block have been received.
 #### Improved Resilience to Burst Losses  {#Rburst}
 
 Burst losses can affect R measurements accuracy similarly to how they affect Q
-measurements accuracy. Therefore, recommendations in section {#Rburst} apply
+measurements accuracy. Therefore, recommendations in section {{Qburst}} apply
 equally to improving burst loss resilience for R measurements.
 
 
@@ -1356,7 +1350,7 @@ bit. A unidirectional or bidirectional observer can be used.
  +---------------+----+------------+-----------+-------------+------+
 
  x2 Same metric for both directions
- *  Both bit work independtly; an observer could use less accurate
+ *  Both bits work independently; an observer could use less accurate
     Spin bit measurements when Delay bit ones are unavailable
  ^  Masked metric (real value can be calculated only by those who
     know the Additional Delay)
@@ -1513,6 +1507,12 @@ observing congestion controller response.
 Hence, loss bits do not provide a viable new mechanism to attack data integrity
 and secrecy.
 
+Since the mechanisms here described can generally be applicable to different
+client-server protocols, more security aspects must be treated based on the
+specific application. As an example for QUIC, security considerations are
+discussed in RFC9000 and RFC9001, generally considering active or passive
+attackers in the network as well as attacks on specific QUIC mechanisms.
+
 ## Optimistic ACK Attack
 
 A defense against an Optimistic ACK Attack, described in {{QUIC-TRANSPORT}},
@@ -1555,10 +1555,6 @@ destination or with a different Connection ID.
 
 This document makes no request of IANA.
 
-# Change Log
-
-TBD
-
 # Contributors
 The following people provided valuable contributions to this document:
 
@@ -1571,4 +1567,6 @@ The following people provided valuable contributions to this document:
 
 # Acknowledgements
 
-TBD
+The authors would like to thank the QUIC WG for their contributions, Christian
+Huitema for implementing Q and L bits in his picoquic stack and Ike Kunze for
+providing constructive reviews and helpful suggestions.
