@@ -1,12 +1,12 @@
 # Explicit Flow Measurements Techniques
 
-This is the working area for the individual Internet-Draft, "Explicit Flow
+This is the working area for the IETF [IPPM Working Group](https://datatracker.ietf.org/wg/ippm/documents/) Internet-Draft, "Explicit Flow
 Measurements Techniques".  The draft describes a number of techniques that can
 be used to supply explicit flow measurements using a very limited number of bits
 dedicated to the measurements.
 
 * [Editor's Copy](https://igorlord.github.io/draft-ietf-ippm-explicit-flow-measurements/#go.draft-ietf-ippm-explicit-flow-measurements.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-ietf-ippm-explicit-flow-measurements)
+* [Working Group Draft](https://tools.ietf.org/html/draft-ietf-ippm-explicit-flow-measurements)
 * [Compare Editor's Copy to Individual Draft](https://igorlord.github.io/draft-ietf-ippm-explicit-flow-measurements/#go.draft-ietf-ippm-explicit-flow-measurements.diff)
 
 ## Building the Draft
