@@ -34,7 +34,7 @@ author:
     city: Torino
     code: 10148
     country: Italy
-    email: mauro.cociglio@telecomitalia.it
+    email: mauro.cociglio@outlook.com
   -
     ins: A. Ferrieux
     name: Alexandre Ferrieux
@@ -64,11 +64,6 @@ author:
     country: Italy
     email: fabio.bulgarella@guest.telecomitalia.it
   -
-    ins: I. Hamchaoui
-    name: Isabelle Hamchaoui
-    org: Orange Labs
-    email: isabelle.hamchaoui@orange.com
-  -
     ins: M. Nilo
     name: Massimo Nilo
     org: Telecom Italia - TIM
@@ -77,6 +72,11 @@ author:
     code: 10148
     country: Italy
     email: massimo.nilo@telecomitalia.it
+  -
+    ins: I. Hamchaoui
+    name: Isabelle Hamchaoui
+    org: Orange Labs
+    email: isabelle.hamchaoui@orange.com
   -
     ins: R.Sisto
     name: Riccardo Sisto
@@ -540,31 +540,6 @@ the two available:
 * when a Delay bit measurement is not available, observers choose the
   approximate Spin bit one.
 
-### Hidden Delay Bit -- Delay Bit with Privacy Protection
-
-Theoretically, delay measurements can be used to roughly evaluate the distance
-of the client from the server (using the RTT) or from any intermediate observer
-(using the client-observer half-RTT). To protect users' privacy, the Delay bit
-algorithm can be slightly modified to mask the RTT of the connection to an
-intermediate observer. This result can be achieved by, for example, delaying the
-client-side reflection of the delay sample by a fixed randomly chosen time
-value. This would lead an intermediate observer to measure a delay greater than
-the real one.
-
-This Additional Delay should be randomly selected by the client and kept
-constant for a certain amount of time across multiple connections. This ensures
-that the client-server jitter remains the same as if no Additional Delay had
-been inserted. For example, a new Additional Delay value could be generated
-whenever the client's IP address changes.
-
-Using this technique, despite the Additional Delay introduced, it is still
-possible to correctly measure the right component of RTT (observer-server) and
-all the intra-domain measurements used to distribute the delay in the network.
-Furthermore, differently from the Delay bit, the hidden Delay bit makes the use
-of the client reflection threshold (1ms) redundant. Removing this threshold
-leads to the further advantage of increasing the number of valid measurements
-produced by the algorithm.
-
 # Loss Bits
 
 This section introduces bits that can be used for loss measurements.
@@ -821,6 +796,14 @@ Observation points can estimate upstream losses by watching a single direction
 of the traffic flow and counting the number of packets in each observed Q Block,
 as described in {{upstreamloss}}.
 
+Note that, {{AltMark}} describes in detail the alternate marking option based on
+fixed timer for the block length, since it was considered more advantageous in
+that context.
+
+On the other hand, this draft chooses the option based on a fixed number of
+packets for each block. This approach avoids the endpoints reporting the number
+of marked packets per block to the probes. In this way, each probe can measure
+packet loss autonomously.
 
 ### Q Block Length Selection
 
@@ -1343,10 +1326,6 @@ bit. A unidirectional or bidirectional observer can be used.
  |D: Delay Bit   | 1  | RTT        | x2        | high        |medium|
  |               |    |            | Half RTT  |             |      |
  +---------------+----+------------+-----------+-------------+------+
- |D^: Hidden     | 1  | RTT^       | x2        | high        | high |
- |    Delay Bit  |    |            | Left Half^|             |      |
- |               |    |            | Right Half|             |      |
- +---------------+----+------------+-----------+-------------+------+
  |SD: Spin Bit & | 2  | RTT        | x2        | high        | very |
  |    Delay Bit *|    |            | Half RTT  |             | high |
  +---------------+----+------------+-----------+-------------+------+
@@ -1354,8 +1333,6 @@ bit. A unidirectional or bidirectional observer can be used.
  x2 Same metric for both directions
  *  Both bits work independently; an observer could use less accurate
     Spin bit measurements when Delay bit ones are unavailable
- ^  Masked metric (real value can be calculated only by those who
-    know the Additional Delay)
 ~~~~
 {: #fig_summary_D title="Delay Comparison"}
 
@@ -1465,23 +1442,23 @@ first byte of the short packet header can be modified as follows:
 ~~~~
 {: title="Scheme 2B"}
 
-A further option would be to substitute the Spin bit with the Delay bit (or
-hidden Delay bit), leaving the two reserved bits for loss detection. The
-proposed schemes are:
+A further option would be to substitute the Spin bit with the Delay bit,
+leaving the two reserved bits for loss detection. The proposed schemes
+are:
 
 ~~~~
-          0 1 2 3 4 5 6 7          0 1 2  3 4 5 6 7
-         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
-         |0|1|D|Q|L|K|P|P|   OR   |0|1|D^|Q|L|K|P|P|
-         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|D|Q|L|K|P|P|
+         +-+-+-+-+-+-+-+-+
 ~~~~
 {: title="Scheme 3A"}
 
 ~~~~
-          0 1 2 3 4 5 6 7          0 1 2  3 4 5 6 7
-         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
-         |0|1|D|Q|R|K|P|P|   OR   |0|1|D^|Q|R|K|P|P|
-         +-+-+-+-+-+-+-+-+        +-+-+--+-+-+-+-+-+
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|D|Q|R|K|P|P|
+         +-+-+-+-+-+-+-+-+
 ~~~~
 {: title="Scheme 3B"}
 
@@ -1538,6 +1515,31 @@ Similar considerations apply to the R bit, although a shortened R Block along
 with a matching skip in packet numbers does not necessarily imply a lost
 packet, since it could be due to a lost packet on the reverse path along with a
 deliberately skipped packet by the sender.
+
+## Hidden Delay Bit -- Delay Bit with RTT Obfuscation
+
+Theoretically, delay measurements can be used to roughly evaluate the distance
+of the client from the server (using the RTT) or from any intermediate observer
+(using the client-observer half-RTT). To protect users' location, the Delay bit
+algorithm can be slightly modified to mask the RTT of the connection to an
+intermediate observer. This result can be achieved by, for example, delaying the
+client-side reflection of the delay sample by a fixed randomly chosen time
+value. This would lead an intermediate observer to measure a delay greater than
+the real one.
+
+This Additional Delay should be randomly selected by the client and kept
+constant for a certain amount of time across multiple connections. This ensures
+that the client-server jitter remains the same as if no Additional Delay had
+been inserted. For example, a new Additional Delay value could be generated
+whenever the client's IP address changes.
+
+Using this technique, despite the Additional Delay introduced, it is still
+possible to correctly measure the right component of RTT (observer-server) and
+all the intra-domain measurements used to distribute the delay in the network.
+Furthermore, differently from the Delay bit, the hidden Delay bit makes the use
+of the client reflection threshold (1ms) redundant. Removing this threshold
+leads to the further advantage of increasing the number of valid measurements
+produced by the algorithm.
 
 # Privacy Considerations
 
