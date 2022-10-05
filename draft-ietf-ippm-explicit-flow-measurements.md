@@ -1536,7 +1536,7 @@ been inserted. For example, a new Additional Delay value could be generated
 whenever the client's IP address changes.
 
 Despite the Additional Delay, this Hidden Delay technique still allows an
-accorate measurement of the RTT components (observer-server) and all the
+accurate measurement of the RTT components (observer-server) and all the
 intra-domain measurements used to distribute the delay in the network.
 Furthermore, unlike the Delay bit, the Hidden Delay bit does not require the
 use of the client reflection threshold (1ms by default). Removing this
