@@ -82,11 +82,6 @@ author:
     name: Riccardo Sisto
     org: Politecnico di Torino
     email: riccardo.sisto@polito.it
-  -
-    ins: D. Tikhonov
-    name: Dmitri Tikhonov
-    org: LiteSpeed Technologies
-    email: dtikhonov@litespeedtech.com
 
 
 normative:
@@ -102,7 +97,8 @@ informative:
   QUIC-TRANSPORT: RFC9000
   QUIC-TLS: RFC9001
   RFC9065: RFC9065
-  SPIN-BIT: I-D.ietf-quic-manageability
+  SPIN-BIT: RFC9312
+  SPIN-RTT: DOI.10.1007/978-3-319-76481-8_6
   UDP-OPTIONS: I-D.ietf-tsvwg-udp-options
   UDP-SURPLUS: I-D.herbert-udp-space-hdr
   ACCURATE: I-D.ietf-tcpm-accurate-ecn
@@ -1520,12 +1516,18 @@ deliberately skipped packet by the sender.
 
 Theoretically, delay measurements can be used to roughly evaluate the distance
 of the client from the server (using the RTT) or from any intermediate observer
-(using the client-observer half-RTT). To protect users' location, the Delay bit
-algorithm can be slightly modified to mask the RTT of the connection to an
-intermediate observer. This result can be achieved by, for example, delaying the
-client-side reflection of the delay sample by a fixed randomly chosen time
-value. This would lead an intermediate observer to measure a delay greater than
-the real one.
+(using the client-observer half-RTT). As described in {{SPIN-RTT}}, connection
+RTT measurements for geolocating endpoints are usually inferior to even the
+most basic IP geolocation databases. It is the variability within RTT
+measurements (the jitter) that is most informative, as it can provide insight
+into the operating environment of the endpoints as well as the state of the
+networks (queuing delays) used by the connection.
+
+Nevertheless, to further mask the actual RTT of the connection, the Delay bit
+algorithm can be slightly modified by, for example, delaying the client-side
+reflection of the delay sample by a fixed randomly chosen time value. This
+would lead an intermediate observer to measure a delay greater than the real
+one.
 
 This Additional Delay should be randomly selected by the client and kept
 constant for a certain amount of time across multiple connections. This ensures
@@ -1533,13 +1535,18 @@ that the client-server jitter remains the same as if no Additional Delay had
 been inserted. For example, a new Additional Delay value could be generated
 whenever the client's IP address changes.
 
-Using this technique, despite the Additional Delay introduced, it is still
-possible to correctly measure the right component of RTT (observer-server) and
-all the intra-domain measurements used to distribute the delay in the network.
-Furthermore, differently from the Delay bit, the hidden Delay bit makes the use
-of the client reflection threshold (1ms) redundant. Removing this threshold
-leads to the further advantage of increasing the number of valid measurements
-produced by the algorithm.
+Despite the Additional Delay, this Hidden Delay technique still allows an
+accurate measurement of the RTT components (observer-server) and all the
+intra-domain measurements used to distribute the delay in the network.
+Furthermore, unlike the Delay bit, the Hidden Delay bit does not require the
+use of the client reflection threshold (1ms by default). Removing this
+threshold may lead to increasing the number of valid measurements produced by
+the algorithm.
+
+Note that Hidden Delay bit does not affect an observer's ability to measure
+accurate RTT using other means, such as timing packets exchanged during the
+connection establishment.
+
 
 # Privacy Considerations
 
@@ -1570,6 +1577,7 @@ The following people provided valuable contributions to this document:
 
 * Emile Stephan, Orange, emile.stephan@orange.com
 
+* Dmitri Tikhonov, LiteSpeed Technologies, dtikhonov@litespeedtech.com
 
 # Acknowledgements
 
