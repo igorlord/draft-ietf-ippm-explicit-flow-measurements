@@ -816,7 +816,6 @@ Observation points can estimate upstream losses by watching a single direction
 of the traffic flow and counting the number of packets in each observed Q Block,
 as described in {{upstreamloss}}.
 
-
 ### Q Block Length Selection
 
 The length of the block must be known to the on-path network probes.  There are
