@@ -791,10 +791,10 @@ of packets with different colors.
 on whether the color is switched according to a fixed timer or after a fixed
 number of packets. The method based on fixed timer can measure packet loss on a
 network segment by cooperating and synchronized observers on both ends of the
-segment comparing packets counters for the same packet blocks. The time length
-of the blocks must be chosen long enough to guarantee the proper operation with
-respect to clock errors and network delay issues, but it should be short enough
-to allow for the desired measurement frequency.
+segment comparing packets counters for the same packet blocks. The time length of
+the blocks can be chosen depending on the desired measurement frequency, but it
+must be long enough to guarantee the proper operation with respect to clock errors
+and network delay issues.
 
 The Q bit method described in this document chooses the color-switching method
 based on a fixed number of packets for each block. This approach has the
