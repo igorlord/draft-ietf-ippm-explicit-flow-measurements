@@ -149,7 +149,7 @@ measurement path signals (see {{IPPM-METHODS}}) are to be embedded into a
 transport layer protocol and are explicitly intended for exposing RTT and loss
 rate information to on-path measurement devices. They are designed to facilitate
 network operations and management and are "beneficial" for maintaining the
-quality of service (see {{TRANSPORT-ENCRYPT}}). These measurement mechanisms 
+quality of service (see {{TRANSPORT-ENCRYPT}}). These measurement mechanisms
 are applicable to any transport-layer protocol, and, as an example, the document
 describes QUIC and TCP bindings.
 
@@ -173,7 +173,7 @@ network by aggregating information from multiple flows and raising operator
 alarms if aggregate statistics indicate a potential problem.
 
 The Spin bit, Delay bit and loss bits explained in this document are inspired by
-{{AltMark}}, {{QUIC-MANAGEABILITY}}, {{QUIC-SPIN}}, {{?I-D.trammell-tsvwg-spin}} 
+{{AltMark}}, {{QUIC-MANAGEABILITY}}, {{QUIC-SPIN}}, {{?I-D.trammell-tsvwg-spin}}
 and {{?I-D.trammell-ippm-spin}}.
 
 Additional details about the Performance Measurements for QUIC are described in
@@ -188,8 +188,8 @@ bits.
 
 {{QUIC-TRANSPORT}} introduces an explicit per-flow transport-layer signal for
 hybrid measurement of RTT.  This signal consists of a Spin bit that toggles once
-per RTT. {{QUIC-SPIN}} discusses an additional two-bit Valid Edge Counter (VEC) 
-to compensate for loss and reordering of the Spin bit and increase fidelity 
+per RTT. {{QUIC-SPIN}} discusses an additional two-bit Valid Edge Counter (VEC)
+to compensate for loss and reordering of the Spin bit and increase fidelity
 of the signal in less than ideal network conditions.
 
 This document introduces a stand-alone single-bit delay signal that can be used
