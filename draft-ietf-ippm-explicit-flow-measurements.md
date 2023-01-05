@@ -87,24 +87,24 @@ author:
 normative:
   IP: RFC0791
   IPv6: RFC8200
-  TCP: RFC0793
+  TCP: RFC9293
   ECN: RFC3168
-  ConEx: RFC7713
-  ConEx-TCP: RFC7786
-  IPM-Methods: RFC7799
-
-informative:
+  IPPM-METHODS: RFC7799
   QUIC-TRANSPORT: RFC9000
+  
+informative:
   QUIC-TLS: RFC9001
-  RFC9065: RFC9065
-  SPIN-BIT: RFC9312
-  SPIN-RTT: DOI.10.1007/978-3-319-76481-8_6
+  TRANSPORT-ENCRYPT: RFC9065
+  QUIC-MANAGEABILITY: RFC9312
+  RTT-PRIVACY: DOI.10.1007/978-3-319-76481-8_6
   UDP-OPTIONS: I-D.ietf-tsvwg-udp-options
   UDP-SURPLUS: I-D.herbert-udp-space-hdr
-  ACCURATE: I-D.ietf-tcpm-accurate-ecn
-  IPv6AltMark: I-D.ietf-6man-ipv6-alt-mark
-  AltMark: I-D.ietf-ippm-rfc8321bis
+  ACCURATE-ECN: I-D.ietf-tcpm-accurate-ecn
+  AltMark: RFC9341
+  IPv6AltMark: RFC9343
   ANRW19-PM-QUIC: DOI.10.1145/3340301.3341127
+  ConEx: RFC7713
+  ConEx-TCP: RFC7786
 
 --- abstract
 
@@ -135,7 +135,7 @@ path by moving the passive observer around.
 
 With encrypted protocols, the equivalent transport headers are encrypted and
 passive packet loss and delay observations are not possible, as described in
-{{RFC9065}}.
+{{TRANSPORT-ENCRYPT}}.
 
 Measuring TCP loss and delay between similar endpoints cannot be relied upon to
 evaluate encrypted protocol loss and delay. Different protocols could be routed
@@ -144,12 +144,12 @@ protocols other than TCP is increasing every year. It is imperative to measure
 packet loss and delay experienced by encrypted protocol users directly.
 
 This document defines Explicit Flow Measurement Techniques. These hybrid
-measurement path signals (see {{IPM-Methods}}) are to be embedded into a
+measurement path signals (see {{IPPM-METHODS}}) are to be embedded into a
 transport layer protocol and are explicitly intended for exposing RTT and loss
 rate information to on-path measurement devices. They are designed to facilitate
 network operations and management and are "beneficial" for maintaining the
-quality of service (see {{RFC9065}}). These measurement mechanisms are
-applicable to any transport-layer protocol, and, as an example, the document
+quality of service (see {{TRANSPORT-ENCRYPT}}). These measurement mechanisms 
+are applicable to any transport-layer protocol, and, as an example, the document
 describes QUIC and TCP bindings.
 
 The Explicit Flow Measurement Techniques described in this document can be used
@@ -172,8 +172,8 @@ network by aggregating information from multiple flows and raising operator
 alarms if aggregate statistics indicate a potential problem.
 
 The Spin bit, Delay bit and loss bits explained in this document are inspired by
-{{AltMark}}, {{SPIN-BIT}}, {{?I-D.trammell-tsvwg-spin}} and
-{{?I-D.trammell-ippm-spin}}.
+{{AltMark}}, {{QUIC-MANAGEABILITY}}, {{?I-D.trammell-quic-spin}}, 
+{{?I-D.trammell-tsvwg-spin}} and {{?I-D.trammell-ippm-spin}}.
 
 Additional details about the Performance Measurements for QUIC are described in
 the paper {{ANRW19-PM-QUIC}}.
@@ -187,9 +187,9 @@ bits.
 
 {{QUIC-TRANSPORT}} introduces an explicit per-flow transport-layer signal for
 hybrid measurement of RTT.  This signal consists of a Spin bit that toggles once
-per RTT.  {{SPIN-BIT}} discusses an additional two-bit Valid Edge Counter (VEC)
-to compensate for loss and reordering of the Spin bit and increase fidelity of
-the signal in less than ideal network conditions.
+per RTT. {{?I-D.trammell-quic-spin}} discusses an additional two-bit Valid Edge Counter 
+(VEC) to compensate for loss and reordering of the Spin bit and increase fidelity 
+of the signal in less than ideal network conditions.
 
 This document introduces a stand-alone single-bit delay signal that can be used
 by passive observers to measure the RTT of a network flow, avoiding the Spin bit
@@ -199,7 +199,7 @@ ambiguities that arise as soon as network conditions deteriorate.
 ## Spin Bit   {#spinbit}
 
 This section is a small recap of the Spin bit working mechanism. For a
-comprehensive explanation of the algorithm, please see {{SPIN-BIT}}.
+comprehensive explanation of the algorithm, please see {{QUIC-MANAGEABILITY}}.
 
 The Spin bit is an Alternate-Marking {{AltMark}} generated signal, where the
 size of the alternation changes with the flight size each RTT.
@@ -1297,7 +1297,7 @@ This ECN-Echo signaling is similar to ECN signaling in {{ConEx}}. ECN-Echo
 mechanism in QUIC provides the number of packets received with CE marks. For
 protocols like TCP, the method described in {{ConEx-TCP}} can be employed. As
 stated in {{ConEx-TCP}}, such feedback can be further improved using a method
-described in {{ACCURATE}}.
+described in {{ACCURATE-ECN}}.
 
 ### Using E Bit for Passive ECN-Reported Congestion Measurement {#ech-usage}
 
@@ -1529,7 +1529,7 @@ deliberately skipped packet by the sender.
 
 Theoretically, delay measurements can be used to roughly evaluate the distance
 of the client from the server (using the RTT) or from any intermediate observer
-(using the client-observer half-RTT). As described in {{SPIN-RTT}}, connection
+(using the client-observer half-RTT). As described in {{RTT-PRIVACY}}, connection
 RTT measurements for geolocating endpoints are usually inferior to even the
 most basic IP geolocation databases. It is the variability within RTT
 measurements (the jitter) that is most informative, as it can provide insight
