@@ -96,6 +96,7 @@ informative:
   QUIC-TLS: RFC9001
   TRANSPORT-ENCRYPT: RFC9065
   QUIC-MANAGEABILITY: RFC9312
+  QUIC-SPIN: I-D.trammell-quic-spin
   RTT-PRIVACY: DOI.10.1007/978-3-319-76481-8_6
   UDP-OPTIONS: I-D.ietf-tsvwg-udp-options
   UDP-SURPLUS: I-D.herbert-udp-space-hdr
@@ -172,8 +173,8 @@ network by aggregating information from multiple flows and raising operator
 alarms if aggregate statistics indicate a potential problem.
 
 The Spin bit, Delay bit and loss bits explained in this document are inspired by
-{{AltMark}}, {{QUIC-MANAGEABILITY}}, {{?I-D.trammell-quic-spin}}, 
-{{?I-D.trammell-tsvwg-spin}} and {{?I-D.trammell-ippm-spin}}.
+{{AltMark}}, {{QUIC-MANAGEABILITY}}, {{QUIC-SPIN}}, {{?I-D.trammell-tsvwg-spin}} 
+and {{?I-D.trammell-ippm-spin}}.
 
 Additional details about the Performance Measurements for QUIC are described in
 the paper {{ANRW19-PM-QUIC}}.
@@ -187,8 +188,8 @@ bits.
 
 {{QUIC-TRANSPORT}} introduces an explicit per-flow transport-layer signal for
 hybrid measurement of RTT.  This signal consists of a Spin bit that toggles once
-per RTT. {{?I-D.trammell-quic-spin}} discusses an additional two-bit Valid Edge Counter 
-(VEC) to compensate for loss and reordering of the Spin bit and increase fidelity 
+per RTT. {{QUIC-SPIN}} discusses an additional two-bit Valid Edge Counter (VEC) 
+to compensate for loss and reordering of the Spin bit and increase fidelity 
 of the signal in less than ideal network conditions.
 
 This document introduces a stand-alone single-bit delay signal that can be used
