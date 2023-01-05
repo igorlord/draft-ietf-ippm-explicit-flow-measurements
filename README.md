@@ -7,7 +7,7 @@ dedicated to the measurements.
 
 * [Editor's Copy](https://igorlord.github.io/draft-ietf-ippm-explicit-flow-measurements/#go.draft-ietf-ippm-explicit-flow-measurements.html)
 * [Working Group Draft](https://tools.ietf.org/html/draft-ietf-ippm-explicit-flow-measurements)
-* [Compare Editor's Copy to Individual Draft](https://igorlord.github.io/draft-ietf-ippm-explicit-flow-measurements/#go.draft-ietf-ippm-explicit-flow-measurements.diff)
+* [Compare Editor's Copy to Working Group Draft](https://igorlord.github.io/draft-ietf-ippm-explicit-flow-measurements/#go.draft-ietf-ippm-explicit-flow-measurements.diff)
 
 ## Building the Draft
 
