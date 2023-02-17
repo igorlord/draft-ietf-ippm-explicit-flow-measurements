@@ -85,8 +85,6 @@ author:
 
 
 normative:
-  IP: RFC0791
-  IPv6: RFC8200
   TCP: RFC9293
   ECN: RFC3168
   IPPM-METHODS: RFC7799
@@ -111,14 +109,14 @@ informative:
 
 This document describes protocol independent methods called Explicit
 Host-to-Network Flow Measurement Techniques that can be applicable to
-transport-layer protocols between client and server. These methods employ few
-marking bits inside the header of each packet for performance measurements and
-require collaborative client and server, since both endpoints cooperate together
-by marking and mirroring the information back and forward on the round-trip
-connection. Since the endpoints (client and server) expose performance
-information to an on-path observer, they are especially valuable when applied to
-protocols that encrypt transport header. Different alternatives are considered
-within this document.
+transport-layer protocols between client and server. These methods employ just a
+few marking bits inside the header of each packet for performance measurements
+and require collaborative client and server. Both endpoints cooperate by marking
+and, possibly, mirroring information back and forward on the round-trip
+connection. The techniques are especially valuable when applied to protocols that
+encrypt transport headers, since they enable loss and delay measurements by passive
+on-path network devices.  Different techniques are considered within this
+document.
 
 --- middle
 
@@ -137,35 +135,35 @@ observations are not possible, as also noted in {{TRANSPORT-ENCRYPT}}.
 Nevertheless, the accurate measurement of packet loss and delay experienced by
 encrypted transport-layer protocols is highly desired. In this regard, the
 Alternate-Marking method {{AltMark}} defines a consolidated method to perform
-packet loss, delay, and jitter measurements on live traffic. But, as mentioned
-in {{IPv6AltMark}}, it mainly applies to a network layer controlled domain
-managed with a Network Management System (NMS), where the CPE or the PE routers
-are the starting or the ending nodes. For transport-layer headers (e.g. QUIC,
-TCP), the identification and the marking of the packets on the fly by the on-path
-network nodes is prevented because of the encrypted headers. Therefore,
-{{AltMark}} is not easy to apply to round-trip transport-layer connections.
+packet loss, delay, and jitter measurements on live traffic. But, as mentioned in
+{{IPv6AltMark}}, it mainly applies to a network layer controlled domain managed
+with a Network Management System (NMS), where the CPE or the PE routers are the
+starting or the ending nodes. {{AltMark}} provides measurement within a
+controlled domain in which the packets are marked. Therefore, {{AltMark}} is not
+easy to apply to end-to-end transport-layer connections, because the
+identification and the marking of the packets on the fly by the network nodes can
+be prevented because of the encrypted transport-layer headers (e.g. QUIC, TCP).
 
 This document defines Explicit Host-to-Network Flow Measurement Techniques, which
-are especially designed for encrypted transport protocols. These hybrid
+are specifically designed for encrypted transport protocols. These hybrid
 measurement methods (see {{IPPM-METHODS}}) are to be embedded into a
 transport-layer protocol and are explicitly intended for exposing delay and loss
-rate information to on-path measurement devices. Unlike {{AltMark}}, these
-methods require collaborative endpoints since both client and server mark and
-mirror the information back and forward on the round-trip connection. Also, given
-that these measurement mechanisms make directly visible the performance
-information on the path, they do not rely on an external NMS.
+rate information to on-path measurement devices. Unlike {{AltMark}}, most of
+these methods require collaborative endpoints. Since these measurement techniques
+make performance information directly visible to the path, they do not rely
+on an external NMS.
 
 The Explicit Host-to-Network Flow Measurement Techniques described in this
 document are applicable to any transport-layer protocol, and, as an example, this
 document describes QUIC and TCP bindings. The different methods can be used alone
-or combined together. Each technique uses a small number of bits and exposes a
+or in combination. Each technique uses a small number of bits and exposes a
 specific measurement.
 
 Following the recommendation in {{!RFC8558}} of making path signals explicit,
 this document proposes adding a small number of dedicated measurement bits to
 the clear portion of the transport protocol headers. These bits can be added to
 an unencrypted portion of a transport-layer header, e.g. UDP surplus space (see
-{{UDP-OPTIONS}} and {{UDP-SURPLUS}}), reserved bits in a QUIC v1 header, as
+{{UDP-OPTIONS}} and {{UDP-SURPLUS}}) or reserved bits in a QUIC v1 header, as
 already done with the latency Spin bit (see {{QUIC-TRANSPORT}}).
 
 The Spin bit, Delay bit and loss bits explained in this document are inspired by
