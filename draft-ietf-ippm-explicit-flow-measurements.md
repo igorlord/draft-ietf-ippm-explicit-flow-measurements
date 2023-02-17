@@ -114,7 +114,7 @@ few marking bits inside the header of each packet for performance measurements
 and require collaborative client and server. Both endpoints cooperate by marking
 and, possibly, mirroring information back and forward on the round-trip
 connection. The techniques are especially valuable when applied to protocols that
-encrypt transport headers, since the enable loss and delay measurements by passive
+encrypt transport headers, since they enable loss and delay measurements by passive
 on-path network devices.  Different techniques are considered within this
 document.
 
@@ -138,11 +138,11 @@ Alternate-Marking method {{AltMark}} defines a consolidated method to perform
 packet loss, delay, and jitter measurements on live traffic. But, as mentioned in
 {{IPv6AltMark}}, it mainly applies to a network layer controlled domain managed
 with a Network Management System (NMS), where the CPE or the PE routers are the
-starting or the ending nodes. {{AltMark}} only provides measurement within the
-controlled domain in which the packets are marked. It does not inform the
-observer about loss or delay experienced by the flow outside of the marking
-domain, and it certainly does not help to determine whether the source of the
-loss or delay is upstream or downstream of the marking domain.
+starting or the ending nodes. {{AltMark}} provides measurement within a
+controlled domain in which the packets are marked. Therefore, {{AltMark}} is not
+easy to apply to end-to-end transport-layer connections, because the
+identification and the marking of the packets on the fly by the network nodes can
+be prevented because of the encrypted transport-layer headers (e.g. QUIC, TCP).
 
 This document defines Explicit Host-to-Network Flow Measurement Techniques, which
 are specifically designed for encrypted transport protocols. These hybrid
