@@ -1,0 +1,903 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2023-05-14T00:58:10.402304+00:00",
+  "repo": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "MDExOlB1bGxSZXF1ZXN0NDk5OTIyOTQ2",
+      "title": "Reorganized the content of the draft",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/1",
+      "state": "MERGED",
+      "author": "fabiobulgarella",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Created new macro sections \"Delay Bits\" and \"Loss Bits\".\r\nReorganized draft content.\r\nCreated a new small section for the Spin Bit.\r\nMoved Square Bit in its own section instead of repeating it inside QL and QR.\r\nCreated recap table for delay and loss bits.\r\nChecked and aligned terminology.",
+      "createdAt": "2020-10-08T13:28:32Z",
+      "updatedAt": "2020-10-13T15:17:24Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "834073a17ac5a0769a9ca20ad086853427fe7147",
+      "headRepository": null,
+      "headRefName": "master",
+      "headRefOid": "189669065e562a4848d84ac3bc55b4070a4add89",
+      "closedAt": "2020-10-13T15:17:24Z",
+      "mergedAt": "2020-10-13T15:17:24Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "2921763d416a79ce84af13e5e31f921fe896555e"
+      },
+      "comments": [
+        {
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "body": "I've two comments (I'll need to re-read the section again).\r\n\r\n1. We are trying to keep the number of required bit combinations to the minimum.  There is a new section now that requires 4 bits to be carried together.  Is this necessary?  Will not useful signal be obtained w/ fewer bits (a single bit or a pair) together?\r\n\r\n2. Any reason why normative language is removed by making it lower-case?",
+          "createdAt": "2020-10-12T15:50:53Z",
+          "updatedAt": "2020-10-12T15:50:53Z"
+        },
+        {
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "body": "I am now in-depth reading the PR.  Thanks for the good work, @fabiobulgarella.  The text does seem better organized.\r\n\r\nI have started working on a follow-up PR with some editorial changes (mostly removing redundant text) as well as a more fundamental concept of making it very clear what bits MUST be used with others and what can stand alone (even if the presence of others may improve the signal).",
+          "createdAt": "2020-10-12T16:45:20Z",
+          "updatedAt": "2020-10-12T16:45:20Z"
+        },
+        {
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "body": "Let's merge this and then work from here to edit more.",
+          "createdAt": "2020-10-13T15:15:39Z",
+          "updatedAt": "2020-10-13T15:15:39Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 2,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTA1NjQwNDg5",
+      "title": "Major editorial changes to Delay Bits (and above).",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/2",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Major editorial changes to the draft from the beginning till the end of the Delay Bits.\r\nI tried to clarify the text and remove as many extra words as possible for the sake of clarity.\r\n\r\nPlease, review this for:\r\n\r\n1. Technical Problems\r\n\r\n2. Major Editorial Errors\r\n\r\nSince this is a large change, I would highly prefer it to be merged ASAP, and anything minor can be addressed as follow-up PRs.",
+      "createdAt": "2020-10-19T02:44:53Z",
+      "updatedAt": "2020-10-19T15:56:38Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "2921763d416a79ce84af13e5e31f921fe896555e",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igorlord/update-delay-bits",
+      "headRefOid": "01e80abd2a062bbada849b3a4b8739c3f02c6718",
+      "closedAt": "2020-10-19T15:56:37Z",
+      "mergedAt": "2020-10-19T15:56:37Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "e8c83302cc35ec386db7e23e7c18d6903c34e1f5"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 3,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTA4NzM2MjYz",
+      "title": "Second part of major editorial revisions.",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/3",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Technical changes:\r\n\r\n1. Updatd T bit marking generation token algorithm. Instead of sending\r\n   at most one marked packet after an incoming packet, the new\r\n   algorithm implements a counters for incoming packets, so multiple\r\n   incoming pakcets may earn multiple tokens for marking outgoing\r\n   packets.\r\n\r\n2. Fixed math for R bit. You cannot add/subtract loss fractions.\r\n\r\n3. Added discussion of signal fidelity and delay.\r\n\r\n4. Updated the bit summary matrix with additional data.",
+      "createdAt": "2020-10-23T05:53:47Z",
+      "updatedAt": "2020-10-27T00:06:38Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "e8c83302cc35ec386db7e23e7c18d6903c34e1f5",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igorlord/update-loss-bits",
+      "headRefOid": "dda51e18d213f82ae876503cf7e88e9db037b6d7",
+      "closedAt": "2020-10-27T00:06:37Z",
+      "mergedAt": "2020-10-27T00:06:37Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "c5296100a9cb9d44d2904052a98ba5bd1b964df9"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 4,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTExNTEyMzIw",
+      "title": "Small editorial revisions.",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/4",
+      "state": "MERGED",
+      "author": "fabiobulgarella",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "1) Added some clarifications.\r\n2) Aligned the style of the titles.\r\n3) Corrected some typos and formatting errors.\r\n",
+      "createdAt": "2020-10-28T12:33:01Z",
+      "updatedAt": "2020-10-28T13:56:19Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "c5296100a9cb9d44d2904052a98ba5bd1b964df9",
+      "headRepository": null,
+      "headRefName": "master",
+      "headRefOid": "a592c0895c62ac0f9c4d9c4f09d8e9ea94b97cdf",
+      "closedAt": "2020-10-28T13:56:19Z",
+      "mergedAt": "2020-10-28T13:56:18Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "c77fb2ec8fe2e9110f79ce99b68d5f91892626a6"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTE4Njg2Mzkz",
+          "commit": {
+            "abbreviatedOid": "a592c08"
+          },
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "I like the changes.  Thank you for the insight.\r\n\r\nI'll have a minor follow-up PR",
+          "createdAt": "2020-10-28T13:56:01Z",
+          "updatedAt": "2020-10-28T13:56:01Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTEzMTg3ODEy",
+      "title": "Removed observer loss from matrix, explain pure ACKs, editorial",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/5",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "- Explained a problem with undetected loss of pure ACKs for L bit.\r\n- Removed Observer loss from a list of measured quantities, since it is not a precise or certain enough measurement \r\n- Minor editorial changes.",
+      "createdAt": "2020-10-30T17:54:04Z",
+      "updatedAt": "2020-11-02T14:48:36Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "c77fb2ec8fe2e9110f79ce99b68d5f91892626a6",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igorlord/responding-to-feedback",
+      "headRefOid": "f57c358d143f495436bb21c1e9427fb17cc93eb4",
+      "closedAt": "2020-11-02T14:48:35Z",
+      "mergedAt": "2020-11-02T14:48:35Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "4a975ad21c95d339a7a09639373cc947bcbe5ffd"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 6,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTEzMzE1MzIz",
+      "title": "Change section name from Delay Bits to Latency Bits",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/6",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2020-10-30T22:33:18Z",
+      "updatedAt": "2020-11-02T14:48:58Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "c77fb2ec8fe2e9110f79ce99b68d5f91892626a6",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igorlord/rename-latency",
+      "headRefOid": "febfda4dfee6c280c638cef592041fb167e08f3b",
+      "closedAt": "2020-11-02T14:48:57Z",
+      "mergedAt": "2020-11-02T14:48:57Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "aec9d029f0f6fdf8ef5cd63b9923d55faea1fd8a"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 7,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc1NzkyMjI5",
+      "title": "Changes in Delay Bit section (new version of the algorithm)",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/7",
+      "state": "MERGED",
+      "author": "fabiobulgarella",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "We changed the Delay Bit section proposing a new version of the algorithm, independent from the spin bit.\r\n\r\nIn few words, the client generates a delay sample (just one marked packet); if this sample does not come back to the client after a time interval named \"T_Max\", the client regenerates the lost sample.\r\n\r\nMoreover, if the delay sample is being reflected with a delay greater than a predetermined threshold (1ms by default) after the reception, the delay sample is not reflected and the outgoing delay bit is kept at 0.\r\n\r\nWe have kept the same advantages of the \"spin bit + delay bit\" solution by using only one bit for the delay calculation.",
+      "createdAt": "2021-02-18T15:56:28Z",
+      "updatedAt": "2021-02-23T02:21:36Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "4e8538bc061ae34893676655030dc3bc97ff7a5a",
+      "headRepository": null,
+      "headRefName": "master",
+      "headRefOid": "9a6ff0cf9e257869cf55ecf11a7eceb034a0c4e0",
+      "closedAt": "2021-02-23T02:21:36Z",
+      "mergedAt": "2021-02-23T02:21:36Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "ce233224ab0bae7087fa4c0f6ad271bcaff7343c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 8,
+      "id": "MDExOlB1bGxSZXF1ZXN0Njg2ODEzMTAz",
+      "title": "Added hidden version of delay bit and burst loss resilience of Q-R bits",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/8",
+      "state": "CLOSED",
+      "author": "fabiobulgarella",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Introduced an optional feature of the delay bit (section 3.2.7)\r\nAdded a small paragraph about Q and R burst loss resilience improvements (4.6)\r\nAligned delay comparison table and QUIC header proposals\r\n",
+      "createdAt": "2021-07-09T14:01:21Z",
+      "updatedAt": "2022-04-13T17:47:46Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "ce233224ab0bae7087fa4c0f6ad271bcaff7343c",
+      "headRepository": null,
+      "headRefName": "master",
+      "headRefOid": "c142a78061c96d0c0f81c03b2b8cbebc2038e48d",
+      "closedAt": "2022-04-13T17:47:46Z",
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 9,
+      "id": "PR_kwDOEPipus42MVd-",
+      "title": "Added hidden version of delay bit, burst loss resilience of Q-R bits, small changes in T and R-bit description",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/9",
+      "state": "MERGED",
+      "author": "fabiobulgarella",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Introduced an optional feature of the delay bit (section 3.2.7)\r\nAdded a small paragraph about Q and R burst loss resilience improvements (4.6)\r\nAligned delay comparison table and QUIC header proposals\r\nSmall changes in T-bit and R-bit descriptions",
+      "createdAt": "2022-04-13T17:55:39Z",
+      "updatedAt": "2022-04-22T18:18:49Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "ce233224ab0bae7087fa4c0f6ad271bcaff7343c",
+      "headRepository": null,
+      "headRefName": "master",
+      "headRefOid": "b7bf9e01f2a878deceaa83235bb8b34ead510d62",
+      "closedAt": "2022-04-22T18:18:49Z",
+      "mergedAt": "2022-04-22T18:18:49Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "bf865a86d3635540764ebb26f77e2886ab63cd33"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOEPipus44poPn",
+          "commit": {
+            "abbreviatedOid": "b7bf9e0"
+          },
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "Looks good.  There are a few editorial change I'll make as a followup.",
+          "createdAt": "2022-04-22T18:18:19Z",
+          "updatedAt": "2022-04-22T18:18:19Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "id": "PR_kwDOEPipus42plpS",
+      "title": "Editorial changes",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/10",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Editorial changes:\r\n\r\n- Clarify latest changes\r\n- Add a consistent use of capitalization for work \"bit\" and bit names.",
+      "createdAt": "2022-04-22T22:02:21Z",
+      "updatedAt": "2022-05-04T14:52:50Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "bf865a86d3635540764ebb26f77e2886ab63cd33",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igor/editorial-cleanup",
+      "headRefOid": "9bca9d63eb5448f900f063dc94cdbbd15deca048",
+      "closedAt": "2022-05-04T14:52:50Z",
+      "mergedAt": "2022-05-04T14:52:50Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "c38b018b7f74fc4445bfaed0626ba18158710e4c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 11,
+      "id": "PR_kwDOEPipus42sLzA",
+      "title": "Igor/restructure",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/11",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "- Restructured the document per feedback from the list.\r\n- Additional editorial changes",
+      "createdAt": "2022-04-24T23:27:27Z",
+      "updatedAt": "2022-05-05T14:30:06Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "c38b018b7f74fc4445bfaed0626ba18158710e4c",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igor/restructure",
+      "headRefOid": "4c223a0c54a2727508bced2984da207d373e7c24",
+      "closedAt": "2022-05-05T14:30:05Z",
+      "mergedAt": "2022-05-05T14:30:05Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "37ce6934ee47dd09b261340500d1a938092441f6"
+      },
+      "comments": [
+        {
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "body": "Make sure to review this **after** reviewing #10, since it is based on #10 commits.",
+          "createdAt": "2022-04-24T23:29:41Z",
+          "updatedAt": "2022-04-24T23:29:41Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 12,
+      "id": "PR_kwDOEPipus42sMhl",
+      "title": "Igor/make ippm",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/12",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "* Rename draft to reflect adoption",
+      "createdAt": "2022-04-24T23:45:43Z",
+      "updatedAt": "2022-05-05T14:45:30Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "37ce6934ee47dd09b261340500d1a938092441f6",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igor/make-ippm",
+      "headRefOid": "8aab71f5d866a7d14ef41442360633e3be45102f",
+      "closedAt": "2022-05-05T14:45:30Z",
+      "mergedAt": "2022-05-05T14:45:30Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "571ecb5528000699b9917a4e828ab079bdcb499f"
+      },
+      "comments": [
+        {
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "body": "Make sure to review #11 first, since this PR is based on #11.",
+          "createdAt": "2022-04-24T23:47:02Z",
+          "updatedAt": "2022-04-24T23:47:02Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 13,
+      "id": "PR_kwDOEPipus43SKp8",
+      "title": "Fabio/revision",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/13",
+      "state": "MERGED",
+      "author": "fabiobulgarella",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Removed RFC2119 paragraph\r\nRemoved change log section\r\nAdded acknowledgements\r\nFixed small typos and punctuation\r\nUpdated security section\r\nChanged references as per giuseppefioccola suggestion",
+      "createdAt": "2022-05-04T11:22:07Z",
+      "updatedAt": "2022-05-05T14:50:20Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "bf865a86d3635540764ebb26f77e2886ab63cd33",
+      "headRepository": "fabiobulgarella/draft-mdt-ippm-explicit-flow-measurements",
+      "headRefName": "fabio/revision",
+      "headRefOid": "3ff84243b749db47fe3d6437f03161b2d57170a1",
+      "closedAt": "2022-05-05T14:50:19Z",
+      "mergedAt": "2022-05-05T14:50:19Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "8f3020b9f16ce1ef527f0c00e0c876ba1b59ac76"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOEPipus45bW7k",
+          "commit": {
+            "abbreviatedOid": "3ff8424"
+          },
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "I'll follow up with very minor editorial updates.",
+          "createdAt": "2022-05-05T14:38:19Z",
+          "updatedAt": "2022-05-05T14:38:19Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "id": "PR_kwDOEPipus43XBsi",
+      "title": "Fabio's: Reviewed changes, added acknowledgements",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/14",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-05-05T14:47:46Z",
+      "updatedAt": "2022-05-05T14:49:33Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "571ecb5528000699b9917a4e828ab079bdcb499f",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "fabiobulgarella-fabio/revision",
+      "headRefOid": "869a4c187b5a963657ffb76d7b9d3fbb8826e838",
+      "closedAt": "2022-05-05T14:49:33Z",
+      "mergedAt": "2022-05-05T14:49:32Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "acf78e951e8e0c0cb0cfd35c2dcaddada2faee7d"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 15,
+      "id": "PR_kwDOEPipus43XdDT",
+      "title": "Reword applicability to all protocols (not only client-server)",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/15",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-05-05T16:24:46Z",
+      "updatedAt": "2022-05-05T16:30:06Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "8f3020b9f16ce1ef527f0c00e0c876ba1b59ac76",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igor/followup-editorial",
+      "headRefOid": "11a704b66fe94be501c4531658d96716ce6ac05f",
+      "closedAt": "2022-05-05T16:30:06Z",
+      "mergedAt": "2022-05-05T16:30:05Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "2b2d2fd5e15b2790a730d1cd1821acc411d0cdab"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 16,
+      "id": "PR_kwDOEPipus43XgLg",
+      "title": "new draft name, new repo",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/16",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-05-05T16:39:39Z",
+      "updatedAt": "2022-05-05T16:40:01Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "2b2d2fd5e15b2790a730d1cd1821acc411d0cdab",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igor/new-repo",
+      "headRefOid": "2233f2dc044deb0de1c7bb421fcd2166d6f81dad",
+      "closedAt": "2022-05-05T16:40:01Z",
+      "mergedAt": "2022-05-05T16:40:01Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "fcd693c7f1b2691e984c51b3f7a180a59bd3dac2"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 17,
+      "id": "PR_kwDOEPipus43a968",
+      "title": "Update readme to reflect WG adoption",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/17",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-05-06T15:07:36Z",
+      "updatedAt": "2022-05-06T15:08:01Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "e9b2b318a0af32c536cf134a298483c32af3dcc7",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igor/readme",
+      "headRefOid": "3988a9c17a2594a09cb439b38a89bcc6e363f63e",
+      "closedAt": "2022-05-06T15:08:01Z",
+      "mergedAt": "2022-05-06T15:08:01Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "4e99e910f55f87d5d2e628066ed447d5448faa68"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 18,
+      "id": "PR_kwDOEPipus5AHZ8Q",
+      "title": "Comments made at IPPM WG meeting were addressed.",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/18",
+      "state": "MERGED",
+      "author": "massimon",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Removed the Hidden Delay bit from the possible methods. Moved into the security considerations paragraph as an possible option.\r\nRemoved references for Hidden bit from tables and figures.\r\nAdded clarification about choice in this draft for fixed numer of packets for the block length.\r\nUpdated Cociglio email.",
+      "createdAt": "2022-10-04T08:48:57Z",
+      "updatedAt": "2022-10-04T15:15:35Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "4e99e910f55f87d5d2e628066ed447d5448faa68",
+      "headRepository": "massimon/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "master",
+      "headRefOid": "b5329177263462ae9528c314b419cb99c578fef2",
+      "closedAt": "2022-10-04T15:15:35Z",
+      "mergedAt": "2022-10-04T15:15:35Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "6aea17001267575264591b84d6a620e114ea4380"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOEPipus5DXOAU",
+          "commit": {
+            "abbreviatedOid": "b532917"
+          },
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-10-04T15:15:14Z",
+          "updatedAt": "2022-10-04T15:15:14Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "id": "PR_kwDOEPipus5AJr8L",
+      "title": "Reference RTT privacy study. Update references.",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/19",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Reference RTT privacy study.\r\nUpdate references.\r\nUpdate contributors.",
+      "createdAt": "2022-10-04T16:58:29Z",
+      "updatedAt": "2022-10-05T17:10:55Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "3ccd1d659f20c763412664c12dafc31008aecd26",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igorlord/hidden",
+      "headRefOid": "5e5e21c99897d9ed3fe06c2c6169a05b1d7f89dc",
+      "closedAt": "2022-10-05T17:10:55Z",
+      "mergedAt": "2022-10-05T17:10:55Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "d45914eeab48b5f4d281a986f703170303c52643"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOEPipus5DdV0E",
+          "commit": {
+            "abbreviatedOid": "ef7d3ce"
+          },
+          "author": "massimon",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": " on line 1539 substitute /accorate/accurate/ measurement",
+          "createdAt": "2022-10-05T17:02:49Z",
+          "updatedAt": "2022-10-05T17:02:49Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "id": "PR_kwDOEPipus5AYnQc",
+      "title": "Update draft-ietf-ippm-explicit-flow-measurements.md",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/20",
+      "state": "MERGED",
+      "author": "giuseppefioccola",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Revised section on Q Bit and minor editorial nits",
+      "createdAt": "2022-10-07T10:52:47Z",
+      "updatedAt": "2022-10-07T15:58:23Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "d45914eeab48b5f4d281a986f703170303c52643",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "giuseppefioccola-patch-1",
+      "headRefOid": "e155357be481736b33d61e2dc97cff078a43f99f",
+      "closedAt": "2022-10-07T15:58:22Z",
+      "mergedAt": "2022-10-07T15:58:22Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "bcdeab5594e2dddd42b67dca004ba16c61e69690"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOEPipus5Doyae",
+          "commit": {
+            "abbreviatedOid": "e155357"
+          },
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "I will merge this version, but I'll revise the new section about the time-based square signal a bit. It is good background but I feel like we need to point out sooner than is for a different kind of observers -- the ones that coordinate with other network elements.",
+          "createdAt": "2022-10-07T15:57:59Z",
+          "updatedAt": "2022-10-07T15:57:59Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "id": "PR_kwDOEPipus5AaEf0",
+      "title": "Editorial changes for Q bit background",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/21",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-10-07T16:26:57Z",
+      "updatedAt": "2022-10-07T17:40:09Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "bcdeab5594e2dddd42b67dca004ba16c61e69690",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igorlord/q-bit-background-update",
+      "headRefOid": "cb9df5a647d2f29de9fdafd3ce52add62a3a369f",
+      "closedAt": "2022-10-07T17:40:08Z",
+      "mergedAt": "2022-10-07T17:40:08Z",
+      "mergedBy": "giuseppefioccola",
+      "mergeCommit": {
+        "oid": "fbaecb7e9c65727d3fe3c1f9f48aafcea3d1daf1"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 22,
+      "id": "PR_kwDOEPipus5AaYXZ",
+      "title": "Update draft-ietf-ippm-explicit-flow-measurements.md",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/22",
+      "state": "MERGED",
+      "author": "giuseppefioccola",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Small revision to the section on Q Bit",
+      "createdAt": "2022-10-07T18:05:59Z",
+      "updatedAt": "2022-10-07T20:14:27Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "fbaecb7e9c65727d3fe3c1f9f48aafcea3d1daf1",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "giuseppefioccola-patch-1",
+      "headRefOid": "0f22b62eea9337d5d677b334f382d5aa1bddd86e",
+      "closedAt": "2022-10-07T20:14:27Z",
+      "mergedAt": "2022-10-07T20:14:27Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "5450647e7d479b92c71415ea1aead92f6348b040"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOEPipus5DpzQ3",
+          "commit": {
+            "abbreviatedOid": "0f22b62"
+          },
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-10-07T20:14:14Z",
+          "updatedAt": "2022-10-07T20:14:14Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "id": "PR_kwDOEPipus5Gs2Bn",
+      "title": "Update draft-ietf-ippm-explicit-flow-measurements.md",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/23",
+      "state": "MERGED",
+      "author": "giuseppefioccola",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Few nits to address",
+      "createdAt": "2023-01-05T09:06:11Z",
+      "updatedAt": "2023-01-05T14:13:10Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "5450647e7d479b92c71415ea1aead92f6348b040",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "giuseppefioccola-patch-1",
+      "headRefOid": "081445e9d64bbaf46fcc68990ec405813a4a9a07",
+      "closedAt": "2023-01-05T14:13:09Z",
+      "mergedAt": "2023-01-05T14:13:09Z",
+      "mergedBy": "igorlord",
+      "mergeCommit": {
+        "oid": "ec136fcf760ca76e4f668c3fe4b0d0939ce835c0"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOEPipus5Jwg3S",
+          "commit": {
+            "abbreviatedOid": "081445e"
+          },
+          "author": "igorlord",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "Thank you for these updates!",
+          "createdAt": "2023-01-05T14:11:21Z",
+          "updatedAt": "2023-01-05T14:11:21Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "id": "PR_kwDOEPipus5J09Hf",
+      "title": "Update draft-ietf-ippm-explicit-flow-measurements.md",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/24",
+      "state": "MERGED",
+      "author": "giuseppefioccola",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Revision of Abstract and Introduction",
+      "createdAt": "2023-02-13T09:01:00Z",
+      "updatedAt": "2023-02-13T09:05:41Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "5c7d81349ebcca62c329423bb14fdd6106a67d01",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "giuseppefioccola-patch-1",
+      "headRefOid": "1406bc0ddff17e188478bebb3cfe9bbd21a7fd16",
+      "closedAt": "2023-02-13T09:05:40Z",
+      "mergedAt": "2023-02-13T09:05:40Z",
+      "mergedBy": "giuseppefioccola",
+      "mergeCommit": {
+        "oid": "cc0cc340f159afabdde68b1ad7883d418b5d448e"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 25,
+      "id": "PR_kwDOEPipus5KLL-U",
+      "title": "Minor update to the Intro",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/25",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2023-02-16T23:39:02Z",
+      "updatedAt": "2023-02-17T10:15:31Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "cc0cc340f159afabdde68b1ad7883d418b5d448e",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "ilubashe/edits",
+      "headRefOid": "50969102a2556363743e08fb5302caf374c62030",
+      "closedAt": "2023-02-17T10:15:30Z",
+      "mergedAt": "2023-02-17T10:15:30Z",
+      "mergedBy": "giuseppefioccola",
+      "mergeCommit": {
+        "oid": "b19deb4837330619333cf0489d8f3c408c748321"
+      },
+      "comments": [],
+      "reviews": []
+    }
+  ]
+}

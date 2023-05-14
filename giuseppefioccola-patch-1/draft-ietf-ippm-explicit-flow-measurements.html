@@ -1,0 +1,3299 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Explicit Flow Measurements Techniques</title>
+<meta content="Mauro Cociglio" name="author">
+<meta content="Alexandre Ferrieux" name="author">
+<meta content="Giuseppe Fioccola" name="author">
+<meta content="Igor Lubashev" name="author">
+<meta content="Fabio Bulgarella" name="author">
+<meta content="Massimo Nilo" name="author">
+<meta content="Isabelle Hamchaoui" name="author">
+<meta content="Riccardo Sisto" name="author">
+<meta content="
+       This document describes protocol independent methods called Explicit
+Host-to-Network Flow Measurement Techniques that can be applicable to
+transport-layer protocols between client and server. These methods employ few
+marking bits inside the header of each packet for performance measurements and
+require collaborative client and server, since both endpoints cooperate together
+by marking and mirroring the information back and forward on the round-trip
+connection. Since the endpoints (client and server) expose performance
+information to an on-path observer, they are especially valuable when applied to
+protocols that encrypt transport header. Different alternatives are considered
+within this document. 
+    " name="description">
+<meta content="xml2rfc 3.16.0" name="generator">
+<meta content="Internet-Draft" name="keyword">
+<meta content="draft-ietf-ippm-explicit-flow-measurements-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.16.0
+    Python 3.10.9
+    appdirs 1.4.4
+    ConfigArgParse 1.5.3
+    google-i18n-address 2.5.2
+    html5lib 1.1
+    intervaltree 3.1.0
+    Jinja2 3.1.2
+    lxml 4.9.2
+    MarkupSafe 2.1.1
+    pycountry 22.3.5
+    PyYAML 6.0
+    requests 2.28.1
+    setuptools 65.6.0
+    six 1.16.0
+    wcwidth 0.2.6
+-->
+<link href="draft-ietf-ippm-explicit-flow-measurements.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Cabin Condensed", sans-serif;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+/* font-family isn't space-separated, but =~ will have to do */
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+}
+:is(ol, ul) :is(ol, ul) {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+  min-width: 20ch;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+dl > dd {
+  margin-bottom: .8em;
+  margin-left: var(--indent) !important; /* stupid element overrides */
+  min-height: 2ex;
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:first-child, .break:first-child + *) {
+  margin-top: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:last-child) {
+  margin-bottom: 0;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+dl .break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href].selfRef {
+  color: var(--text-color);
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) p {
+    margin: -2px 0;
+    max-height: 0;
+    transition: max-height 2s ease, margin 0.5s ease 0.5s;
+    overflow: hidden;
+  }
+  :is(#status-of-memo, #copyright):hover p,
+  :is(#status-of-memo, #copyright) h2:target ~ p {
+    margin: 0.5em 0;
+    max-height: 500px;
+    overflow: auto;
+  }
+  pre, svg {
+    display: inline-block;
+    overflow-x: auto;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+}
+a.pilcrow[href] { color: var(--pilcrow-weak); }
+a.pilcrow[href]:hover { text-decoration: none; }
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: 14.5px;
+}
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+}
+#identifiers dt {
+  width: var(--identifier-width);
+  min-width: var(--identifier-width);
+  clear: left;
+  float: left;
+  text-align: right;
+}
+#identifiers dd {
+  margin: 0;
+  margin-left: calc(1em + var(--identifier-width)) !important;
+  min-width: 5em;
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+#toc nav ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+#toc nav li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+#toc a.xref {
+  white-space: normal;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dt:target::before {
+  content: "⇒";
+  width: 15px;
+  margin: 0 10px 0 -25px;
+}
+.references dd {
+  margin-left: 8em !important;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc.active {
+      opacity: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 8px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active nav {
+    display: block;
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin-top: 2px;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #toc nav > ul  {
+    margin-bottom: 2em;
+  }
+  #toc ul {
+    margin: 0 0 0 4px;
+    font-size: var(--small-font-size);
+  }
+  #toc ul :is(p, li) {
+    margin: 2px 0;
+    line-height: 22px;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Changes introduced to fix issues found during implementation */
+
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin: 8px 0.5em 0;
+}
+
+/* Provide styling for table cell text alignment */
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 20em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  dd {
+    page-break-before: avoid;
+  }
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg :is([stroke="black"], [stroke^="#000"]) {
+  stroke: var(--text-color);
+}
+svg :is([stroke="white"], [stroke^="#fff"]) {
+  stroke: var(--background-color);
+}
+svg :is([fill="black"], [fill^="#000"], :not([fill])) {
+  fill: var(--text-color);
+}
+svg :is([stroke="fill"], [fill^="#fff"]) {
+  fill: var(--background-color);
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">Delay and Loss bits</td>
+<td class="right">February 2023</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Cociglio, et al.</td>
+<td class="center">Expires 17 August 2023</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">IPPM</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-ietf-ippm-explicit-flow-measurements-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2023-02-13" class="published">13 February 2023</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Informational</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2023-08-17">17 August 2023</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">M. Cociglio</div>
+<div class="org">Telecom Italia - TIM</div>
+</div>
+<div class="author">
+      <div class="author-name">A. Ferrieux</div>
+<div class="org">Orange Labs</div>
+</div>
+<div class="author">
+      <div class="author-name">G. Fioccola</div>
+<div class="org">Huawei Technologies</div>
+</div>
+<div class="author">
+      <div class="author-name">I. Lubashev</div>
+<div class="org">Akamai Technologies</div>
+</div>
+<div class="author">
+      <div class="author-name">F. Bulgarella</div>
+<div class="org">Telecom Italia - TIM</div>
+</div>
+<div class="author">
+      <div class="author-name">M. Nilo</div>
+<div class="org">Telecom Italia - TIM</div>
+</div>
+<div class="author">
+      <div class="author-name">I. Hamchaoui</div>
+<div class="org">Orange Labs</div>
+</div>
+<div class="author">
+      <div class="author-name">R. Sisto</div>
+<div class="org">Politecnico di Torino</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Explicit Flow Measurements Techniques</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This document describes protocol independent methods called Explicit
+Host-to-Network Flow Measurement Techniques that can be applicable to
+transport-layer protocols between client and server. These methods employ few
+marking bits inside the header of each packet for performance measurements and
+require collaborative client and server, since both endpoints cooperate together
+by marking and mirroring the information back and forward on the round-trip
+connection. Since the endpoints (client and server) expose performance
+information to an on-path observer, they are especially valuable when applied to
+protocols that encrypt transport header. Different alternatives are considered
+within this document.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-discussion-venues">
+<a href="#name-discussion-venues" class="section-name selfRef">Discussion Venues</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">Discussion of this document takes place on the
+  IPPM Working Group mailing list (ippm@ietf.org),
+  which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/ippm/">https://mailarchive.ietf.org/arch/browse/ippm/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">Source for this draft and an issue tracker can be found at
+  <span><a href="https://github.com/igorlord/draft-xxx-ippm-flow-measurements">https://github.com/igorlord/draft-xxx-ippm-flow-measurements</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 17 August 2023.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2023 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-latency-bits" class="internal xref">Latency Bits</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-spin-bit" class="internal xref">Spin Bit</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-delay-bit" class="internal xref">Delay Bit</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.1">
+                    <p id="section-toc.1-1.2.2.2.2.1.1" class="keepWithNext"><a href="#section-2.2.1" class="auto internal xref">2.2.1</a>.  <a href="#name-generation-phase" class="internal xref">Generation Phase</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.2">
+                    <p id="section-toc.1-1.2.2.2.2.2.1"><a href="#section-2.2.2" class="auto internal xref">2.2.2</a>.  <a href="#name-reflection-phase" class="internal xref">Reflection Phase</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.3">
+                    <p id="section-toc.1-1.2.2.2.2.3.1"><a href="#section-2.2.3" class="auto internal xref">2.2.3</a>.  <a href="#name-t_max-selection" class="internal xref">T_Max Selection</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.4">
+                    <p id="section-toc.1-1.2.2.2.2.4.1"><a href="#section-2.2.4" class="auto internal xref">2.2.4</a>.  <a href="#name-delay-measurement-using-del" class="internal xref">Delay Measurement Using Delay Bit</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.4.2.1">
+                        <p id="section-toc.1-1.2.2.2.2.4.2.1.1"><a href="#section-2.2.4.1" class="auto internal xref">2.2.4.1</a>.  <a href="#name-rtt-measurement" class="internal xref">RTT Measurement</a></p>
+</li>
+                      <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.4.2.2">
+                        <p id="section-toc.1-1.2.2.2.2.4.2.2.1"><a href="#section-2.2.4.2" class="auto internal xref">2.2.4.2</a>.  <a href="#name-half-rtt-measurement" class="internal xref">Half-RTT Measurement</a></p>
+</li>
+                      <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.4.2.3">
+                        <p id="section-toc.1-1.2.2.2.2.4.2.3.1"><a href="#section-2.2.4.3" class="auto internal xref">2.2.4.3</a>.  <a href="#name-intra-domain-rtt-measuremen" class="internal xref">Intra-Domain RTT Measurement</a></p>
+</li>
+                    </ul>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.5">
+                    <p id="section-toc.1-1.2.2.2.2.5.1"><a href="#section-2.2.5" class="auto internal xref">2.2.5</a>.  <a href="#name-observers-algorithm" class="internal xref">Observer's Algorithm</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.6">
+                    <p id="section-toc.1-1.2.2.2.2.6.1"><a href="#section-2.2.6" class="auto internal xref">2.2.6</a>.  <a href="#name-two-bits-delay-measurement-" class="internal xref">Two Bits Delay Measurement: Spin Bit + Delay Bit</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-loss-bits" class="internal xref">Loss Bits</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-t-bit-round-trip-loss-bit" class="internal xref">T Bit -- Round Trip Loss Bit</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.1">
+                    <p id="section-toc.1-1.3.2.1.2.1.1"><a href="#section-3.1.1" class="auto internal xref">3.1.1</a>.  <a href="#name-round-trip-loss" class="internal xref">Round Trip Loss</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.2">
+                    <p id="section-toc.1-1.3.2.1.2.2.1"><a href="#section-3.1.2" class="auto internal xref">3.1.2</a>.  <a href="#name-setting-the-round-trip-loss" class="internal xref">Setting the Round Trip Loss Bit on Outgoing Packets</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.3">
+                    <p id="section-toc.1-1.3.2.1.2.3.1"><a href="#section-3.1.3" class="auto internal xref">3.1.3</a>.  <a href="#name-observers-logic-for-round-t" class="internal xref">Observer's Logic for Round Trip Loss Signal</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.4">
+                    <p id="section-toc.1-1.3.2.1.2.4.1"><a href="#section-3.1.4" class="auto internal xref">3.1.4</a>.  <a href="#name-loss-coverage-and-signal-ti" class="internal xref">Loss Coverage and Signal Timing</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-q-bit-square-bit" class="internal xref">Q Bit -- sQuare Bit</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.1">
+                    <p id="section-toc.1-1.3.2.2.2.1.1"><a href="#section-3.2.1" class="auto internal xref">3.2.1</a>.  <a href="#name-q-block-length-selection" class="internal xref">Q Block Length Selection</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.2">
+                    <p id="section-toc.1-1.3.2.2.2.2.1"><a href="#section-3.2.2" class="auto internal xref">3.2.2</a>.  <a href="#name-upstream-loss" class="internal xref">Upstream Loss</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.3">
+                    <p id="section-toc.1-1.3.2.2.2.3.1"><a href="#section-3.2.3" class="auto internal xref">3.2.3</a>.  <a href="#name-identifying-q-block-boundar" class="internal xref">Identifying Q Block Boundaries</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.3.2.1">
+                        <p id="section-toc.1-1.3.2.2.2.3.2.1.1"><a href="#section-3.2.3.1" class="auto internal xref">3.2.3.1</a>.  <a href="#name-improved-resilience-to-burs" class="internal xref">Improved Resilience to Burst Losses</a></p>
+</li>
+                    </ul>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-l-bit-loss-event-bit" class="internal xref">L Bit -- Loss Event Bit</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.1">
+                    <p id="section-toc.1-1.3.2.3.2.1.1"><a href="#section-3.3.1" class="auto internal xref">3.3.1</a>.  <a href="#name-end-to-end-loss" class="internal xref">End-To-End Loss</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.1.2.1">
+                        <p id="section-toc.1-1.3.2.3.2.1.2.1.1"><a href="#section-3.3.1.1" class="auto internal xref">3.3.1.1</a>.  <a href="#name-loss-profile-characterizati" class="internal xref">Loss Profile Characterization</a></p>
+</li>
+                    </ul>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.2">
+                    <p id="section-toc.1-1.3.2.3.2.2.1"><a href="#section-3.3.2" class="auto internal xref">3.3.2</a>.  <a href="#name-lq-bits-loss-measurement-us" class="internal xref">L+Q Bits -- Loss Measurement Using L and Q Bits</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.2.2.1">
+                        <p id="section-toc.1-1.3.2.3.2.2.2.1.1"><a href="#section-3.3.2.1" class="auto internal xref">3.3.2.1</a>.  <a href="#name-correlating-end-to-end-and-" class="internal xref">Correlating End-to-End and Upstream Loss</a></p>
+</li>
+                      <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.2.2.2">
+                        <p id="section-toc.1-1.3.2.3.2.2.2.2.1"><a href="#section-3.3.2.2" class="auto internal xref">3.3.2.2</a>.  <a href="#name-downstream-loss" class="internal xref">Downstream Loss</a></p>
+</li>
+                      <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.2.2.3">
+                        <p id="section-toc.1-1.3.2.3.2.2.2.3.1"><a href="#section-3.3.2.3" class="auto internal xref">3.3.2.3</a>.  <a href="#name-observer-loss" class="internal xref">Observer Loss</a></p>
+</li>
+                    </ul>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-r-bit-reflection-square-bit" class="internal xref">R Bit -- Reflection Square Bit</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.1">
+                    <p id="section-toc.1-1.3.2.4.2.1.1"><a href="#section-3.4.1" class="auto internal xref">3.4.1</a>.  <a href="#name-enhancement-of-r-block-leng" class="internal xref">Enhancement of R Block Length Computation</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.2">
+                    <p id="section-toc.1-1.3.2.4.2.2.1"><a href="#section-3.4.2" class="auto internal xref">3.4.2</a>.  <a href="#name-improved-resilience-to-pack" class="internal xref">Improved Resilience to Packet Reordering</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.2.2.1">
+                        <p id="section-toc.1-1.3.2.4.2.2.2.1.1"><a href="#section-3.4.2.1" class="auto internal xref">3.4.2.1</a>.  <a href="#name-improved-resilience-to-burst" class="internal xref">Improved Resilience to Burst Losses</a></p>
+</li>
+                    </ul>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.3">
+                    <p id="section-toc.1-1.3.2.4.2.3.1"><a href="#section-3.4.3" class="auto internal xref">3.4.3</a>.  <a href="#name-rq-bits-loss-measurement-us" class="internal xref">R+Q Bits -- Loss Measurement Using R and Q Bits</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.3.2.1">
+                        <p id="section-toc.1-1.3.2.4.2.3.2.1.1"><a href="#section-3.4.3.1" class="auto internal xref">3.4.3.1</a>.  <a href="#name-three-quarters-connection-l" class="internal xref">Three-Quarters Connection Loss</a></p>
+</li>
+                      <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.3.2.2">
+                        <p id="section-toc.1-1.3.2.4.2.3.2.2.1"><a href="#section-3.4.3.2" class="auto internal xref">3.4.3.2</a>.  <a href="#name-end-to-end-loss-in-the-oppo" class="internal xref">End-To-End Loss in the Opposite Direction</a></p>
+</li>
+                      <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.3.2.3">
+                        <p id="section-toc.1-1.3.2.4.2.3.2.3.1"><a href="#section-3.4.3.3" class="auto internal xref">3.4.3.3</a>.  <a href="#name-half-round-trip-loss" class="internal xref">Half Round-Trip Loss</a></p>
+</li>
+                      <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4.2.3.2.4">
+                        <p id="section-toc.1-1.3.2.4.2.3.2.4.1"><a href="#section-3.4.3.4" class="auto internal xref">3.4.3.4</a>.  <a href="#name-downstream-loss-2" class="internal xref">Downstream Loss</a></p>
+</li>
+                    </ul>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5">
+                <p id="section-toc.1-1.3.2.5.1"><a href="#section-3.5" class="auto internal xref">3.5</a>.  <a href="#name-e-bit-ecn-echo-event-bit" class="internal xref">E Bit -- ECN-Echo Event Bit</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.1">
+                    <p id="section-toc.1-1.3.2.5.2.1.1"><a href="#section-3.5.1" class="auto internal xref">3.5.1</a>.  <a href="#name-setting-the-ecn-echo-event-" class="internal xref">Setting the ECN-Echo Event Bit on Outgoing Packets</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.2">
+                    <p id="section-toc.1-1.3.2.5.2.2.1"><a href="#section-3.5.2" class="auto internal xref">3.5.2</a>.  <a href="#name-using-e-bit-for-passive-ecn" class="internal xref">Using E Bit for Passive ECN-Reported Congestion Measurement</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-summary-of-delay-and-loss-m" class="internal xref">Summary of Delay and Loss Marking Methods</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-protocol-ossification-consi" class="internal xref">Protocol Ossification Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-examples-of-application" class="internal xref">Examples of Application</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-quic" class="internal xref">QUIC</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-tcp" class="internal xref">TCP</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-optimistic-ack-attack" class="internal xref">Optimistic ACK Attack</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-delay-bit-with-rtt-obfuscat" class="internal xref">Delay Bit with RTT Obfuscation</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-contributors" class="internal xref">Contributors</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
+                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
+                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">Packet loss and delay are hard and pervasive problems of day-to-day network
+operation. Proactively detecting, measuring, and locating them is crucial to
+maintaining high QoS and timely resolution of crippling end-to-end throughput
+issues. To this effect, network operators have been heavily relying on
+information present in the clear in transport-layer headers (e.g. TCP sequence
+and acknowledgment numbers) to allow for quantitative estimation of packet loss
+and delay by passive on-path observation. With encrypted protocols, the
+transport-layer headers are encrypted and passive packet loss and delay
+observations are not possible, as also noted in <span>[<a href="#TRANSPORT-ENCRYPT" class="cite xref">TRANSPORT-ENCRYPT</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Nevertheless, the accurate measurement of packet loss and delay experienced by
+encrypted transport-layer protocols is highly desired. In this regard, the
+Alternate-Marking method <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> defines a consolidated method to perform
+packet loss, delay, and jitter measurements on live traffic. But, as mentioned
+in <span>[<a href="#IPv6AltMark" class="cite xref">IPv6AltMark</a>]</span>, it mainly applies to a network layer controlled domain
+managed with a Network Management System (NMS), where the CPE or the PE routers
+are the starting or the ending nodes. For transport-layer headers (e.g. QUIC,
+TCP), the identification and the marking of the packets on the fly by the on-path
+network nodes is prevented because of the encrypted headers. Therefore,
+<span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> is not easy to apply to round-trip transport-layer connections.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This document defines Explicit Host-to-Network Flow Measurement Techniques, which
+are especially designed for encrypted transport protocols. These hybrid
+measurement methods (see <span>[<a href="#IPPM-METHODS" class="cite xref">IPPM-METHODS</a>]</span>) are to be embedded into a
+transport-layer protocol and are explicitly intended for exposing delay and loss
+rate information to on-path measurement devices. Unlike <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span>, these
+methods require collaborative endpoints since both client and server mark and
+mirror the information back and forward on the round-trip connection. Also, given
+that these measurement mechanisms make directly visible the performance
+information on the path, they do not rely on an external NMS.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">The Explicit Host-to-Network Flow Measurement Techniques described in this
+document are applicable to any transport-layer protocol, and, as an example, this
+document describes QUIC and TCP bindings. The different methods can be used alone
+or combined together. Each technique uses a small number of bits and exposes a
+specific measurement.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">Following the recommendation in <span>[<a href="#RFC8558" class="cite xref">RFC8558</a>]</span> of making path signals explicit,
+this document proposes adding a small number of dedicated measurement bits to
+the clear portion of the transport protocol headers. These bits can be added to
+an unencrypted portion of a transport-layer header, e.g. UDP surplus space (see
+<span>[<a href="#UDP-OPTIONS" class="cite xref">UDP-OPTIONS</a>]</span> and <span>[<a href="#UDP-SURPLUS" class="cite xref">UDP-SURPLUS</a>]</span>), reserved bits in a QUIC v1 header, as
+already done with the latency Spin bit (see <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>).<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">The Spin bit, Delay bit and loss bits explained in this document are inspired by
+<span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span>, <span>[<a href="#QUIC-MANAGEABILITY" class="cite xref">QUIC-MANAGEABILITY</a>]</span>, <span>[<a href="#QUIC-SPIN" class="cite xref">QUIC-SPIN</a>]</span>, <span>[<a href="#I-D.trammell-tsvwg-spin" class="cite xref">I-D.trammell-tsvwg-spin</a>]</span>
+and <span>[<a href="#I-D.trammell-ippm-spin" class="cite xref">I-D.trammell-ippm-spin</a>]</span>.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">Additional details about the Performance Measurements for QUIC are described in
+the paper <span>[<a href="#ANRW19-PM-QUIC" class="cite xref">ANRW19-PM-QUIC</a>]</span>.<a href="#section-1-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="latency-bits">
+<section id="section-2">
+      <h2 id="name-latency-bits">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-latency-bits" class="section-name selfRef">Latency Bits</a>
+      </h2>
+<p id="section-2-1">This section introduces bits that can be used for round trip latency
+measurements.  Whenever this section of the specification refers to packets, it
+is referring only to packets with protocol headers that include the latency
+bits.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2"><span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> introduces an explicit per-flow transport-layer signal for
+hybrid measurement of RTT.  This signal consists of a Spin bit that toggles once
+per RTT. <span>[<a href="#QUIC-SPIN" class="cite xref">QUIC-SPIN</a>]</span> discusses an additional two-bit Valid Edge Counter (VEC)
+to compensate for loss and reordering of the Spin bit and increase fidelity
+of the signal in less than ideal network conditions.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">This document introduces a stand-alone single-bit delay signal that can be used
+by passive observers to measure the RTT of a network flow, avoiding the Spin bit
+ambiguities that arise as soon as network conditions deteriorate.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<div id="spinbit">
+<section id="section-2.1">
+        <h3 id="name-spin-bit">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-spin-bit" class="section-name selfRef">Spin Bit</a>
+        </h3>
+<p id="section-2.1-1">This section is a small recap of the Spin bit working mechanism. For a
+comprehensive explanation of the algorithm, please see <span>[<a href="#QUIC-MANAGEABILITY" class="cite xref">QUIC-MANAGEABILITY</a>]</span>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">The Spin bit is an Alternate-Marking <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> generated signal, where the
+size of the alternation changes with the flight size each RTT.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-3">The latency Spin bit is a single bit signal that toggles once per RTT,
+enabling latency monitoring of a connection-oriented communication
+from intermediate observation points.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.1-4">A "spin period" is a set of packets with the same Spin bit value sent during one
+RTT time interval. A "spin period value" is the value of the Spin bit shared by
+all packets in a spin period.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
+<p id="section-2.1-5">The client and server maintain an internal per-connection spin value (i.e. 0 or
+1) used to set the Spin bit on outgoing packets. Both endpoints initialize the
+spin value to 0 when a new connection starts. Then:<a href="#section-2.1-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.1-6.1">when the client receives a packet with the packet number larger than any
+ number seen so far, it sets the connection spin value to the opposite value
+ contained in the received packet;<a href="#section-2.1-6.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-2.1-6.2">when the server receives a packet with the packet number larger than any
+ number seen so far, it sets the connection spin value to the same value
+ contained in the received packet.<a href="#section-2.1-6.2" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-2.1-7">The computed spin value is used by the endpoints for setting the spin
+bit on outgoing packets.  This mechanism allows the endpoints
+to generate a square wave such that, by measuring the distance in time
+between pairs of consecutive edges observed in the same direction, a
+passive on-path observer can compute the round trip delay of that
+network flow.<a href="#section-2.1-7" class="pilcrow">¶</a></p>
+<p id="section-2.1-8">Spin bit enables round trip latency measurement by observing a single direction
+of the traffic flow.<a href="#section-2.1-8" class="pilcrow">¶</a></p>
+<p id="section-2.1-9">Note that packet reordering can cause spurious edges that require heuristics to
+correct. The Spin bit performance deteriorates as soon as network impairments
+arise as explained in <a href="#delaybit" class="auto internal xref">Section 2.2</a>.<a href="#section-2.1-9" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="delaybit">
+<section id="section-2.2">
+        <h3 id="name-delay-bit">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-delay-bit" class="section-name selfRef">Delay Bit</a>
+        </h3>
+<p id="section-2.2-1">The Delay bit has been designed to overcome accuracy limitations experienced by
+the Spin bit under difficult network conditions:<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2-2.1">packet reordering leads to generation of spurious edges and errors in delay
+estimation;<a href="#section-2.2-2.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-2.2-2.2">loss of edges causes wrong estimation of spin periods and therefore wrong RTT
+measurements;<a href="#section-2.2-2.2" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-2.2-2.3">application-limited senders cause the Spin bit to measure the application
+delays instead of network delays.<a href="#section-2.2-2.3" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-2.2-3">Unlike the Spin bit, which is set in every packet transmitted on the network,
+the Delay bit is set only once per round trip.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.2-4">When the Delay bit is used, a single packet with a marked bit (the Delay bit)
+bounces between a client and a server during the entire connection lifetime.
+This single packet is called "delay sample".<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.2-5">An observer placed at an intermediate point, observing a single direction of
+traffic, tracking the delay sample and the relative timestamp, can measure the
+round trip delay of the connection.<a href="#section-2.2-5" class="pilcrow">¶</a></p>
+<p id="section-2.2-6">The delay sample lifetime is comprised of two phases: initialization and
+reflection.  The initialization is the generation of the delay sample, while the
+reflection realizes the bounce behavior of this single packet between the two
+endpoints.<a href="#section-2.2-6" class="pilcrow">¶</a></p>
+<p id="section-2.2-7">The next figure describes the elementary Delay bit mechanism.<a href="#section-2.2-7" class="pilcrow">¶</a></p>
+<span id="name-delay-bit-mechanism"></span><figure id="figure-1">
+          <div class="alignLeft art-text artwork" id="section-2.2-8.1">
+<pre>
+      +--------+   -   -   -   -   -   +--------+
+      |        |      -----------&gt;     |        |
+      | Client |                       | Server |
+      |        |     &lt;-----------      |        |
+      +--------+   -   -   -   -   -   +--------+
+
+      (a) No traffic at beginning.
+
+      +--------+   0   0   1   -   -   +--------+
+      |        |      -----------&gt;     |        |
+      | Client |                       | Server |
+      |        |     &lt;-----------      |        |
+      +--------+   -   -   -   -   -   +--------+
+
+       (b) The Client starts sending data and
+        sets the first packet as Delay Sample.
+
+      +--------+   0   0   0   0   0   +--------+
+      |        |      -----------&gt;     |        |
+      | Client |                       | Server |
+      |        |     &lt;-----------      |        |
+      +--------+   -   -   -   1   0   +--------+
+
+       (c) The Server starts sending data
+        and reflects the Delay Sample.
+
+      +--------+   0   1   0   0   0   +--------+
+      |        |      -----------&gt;     |        |
+      | Client |                       | Server |
+      |        |     &lt;-----------      |        |
+      +--------+   0   0   0   0   0   +--------+
+
+      (d) The Client reflects the Delay Sample.
+
+      +--------+   0   0   0   0   0   +--------+
+      |        |      -----------&gt;     |        |
+      | Client |                       | Server |
+      |        |     &lt;-----------      |        |
+      +--------+   0   0   0   1   0   +--------+
+
+      (e) The Server reflects the Delay Sample
+       and so on.
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-delay-bit-mechanism" class="selfRef">Delay bit mechanism</a>
+          </figcaption></figure>
+<div id="generation-phase">
+<section id="section-2.2.1">
+          <h4 id="name-generation-phase">
+<a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-generation-phase" class="section-name selfRef">Generation Phase</a>
+          </h4>
+<p id="section-2.2.1-1">Only client is actively involved in the generation phase. It maintains an
+internal per-flow timestamp variable (<code>ds_time</code>) updated every time a delay
+sample is transmitted.<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-2">When connection starts, the client generates a new delay sample initializing the
+Delay bit of the first outgoing packet to 1.  Then it updates the <code>ds_time</code>
+variable with the timestamp of its transmission.<a href="#section-2.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-3">The server initializes the Delay bit to 0 at the beginning of the connection,
+and its only task during the connection is described in <a href="#reflection-phase" class="auto internal xref">Section 2.2.2</a>.<a href="#section-2.2.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-4">In absence of network impairments, the delay sample should bounce between client
+and server continuously, for the entire duration of the connection.  That is
+highly unlikely for two reasons:<a href="#section-2.2.1-4" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.1-5">
+<li id="section-2.2.1-5.1">the packet carrying the Delay bit might be lost;<a href="#section-2.2.1-5.1" class="pilcrow">¶</a>
+</li>
+            <li id="section-2.2.1-5.2">an endpoint could stop or delay sending packets because the application is
+limiting the amount of traffic transmitted.<a href="#section-2.2.1-5.2" class="pilcrow">¶</a>
+</li>
+          </ol>
+<p id="section-2.2.1-6">To deal with these problems, the client generates a new delay sample if more
+than a predetermined time (<code>T_Max</code>) has elapsed since the last delay sample
+transmission (including reflections). Note that <code>T_Max</code> should be greater than
+the max measurable RTT on the network. See <a href="#tmax-selection" class="auto internal xref">Section 2.2.3</a> for details.<a href="#section-2.2.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="reflection-phase">
+<section id="section-2.2.2">
+          <h4 id="name-reflection-phase">
+<a href="#section-2.2.2" class="section-number selfRef">2.2.2. </a><a href="#name-reflection-phase" class="section-name selfRef">Reflection Phase</a>
+          </h4>
+<p id="section-2.2.2-1">Reflection is the process that enables the bouncing of the delay sample between
+a client and a server.  The behavior of the two endpoints is almost the same.<a href="#section-2.2.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.2-2.1">Server side reflection: when a delay sample arrives, the server marks the
+first packet in the opposite direction as the delay sample.<a href="#section-2.2.2-2.1" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-2.2.2-2.2">Client side reflection: when a delay sample arrives, the client marks the
+first packet in the opposite direction as the delay sample. It also updates
+the <code>ds_time</code> variable when the outgoing delay sample is actually forwarded.<a href="#section-2.2.2-2.2" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-2.2.2-3">In both cases, if the outgoing delay sample is being transmitted with a delay
+greater than a predetermined threshold after the reception of the incoming delay
+sample (1ms by default), the delay sample is not reflected, and the outgoing
+Delay bit is kept at 0.<a href="#section-2.2.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.2.2-4">By doing so, the algorithm can reject measurements that would overestimate the
+delay due to lack of traffic on the endpoints.  Hence, the maximum estimation
+error would amount to twice the threshold (e.g. 2ms) per measurement.<a href="#section-2.2.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="tmax-selection">
+<section id="section-2.2.3">
+          <h4 id="name-t_max-selection">
+<a href="#section-2.2.3" class="section-number selfRef">2.2.3. </a><a href="#name-t_max-selection" class="section-name selfRef">T_Max Selection</a>
+          </h4>
+<p id="section-2.2.3-1">The internal <code>ds_time</code> variable allows a client to identify delay sample losses.
+Considering that a lost delay sample is regenerated at the end of an explicit
+time (<code>T_Max</code>) since the last generation, this same value can be used by an
+observer to reject a measure and start a new one.<a href="#section-2.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-2">In other words, if the difference in time between two delay samples is greater
+or equal than <code>T_Max</code>, then these cannot be used to produce a delay measure.
+Therefore the value of <code>T_Max</code> must also be known to the on-path network probes.<a href="#section-2.2.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-3">There are two alternatives to select the <code>T_Max</code> value so that both client and
+observers know it. The first one requires that <code>T_Max</code> is known a priori
+(<code>T_Max_p</code>) and therefore set within the protocol specifications that implements
+the marking mechanism (e.g. 1 second which usually is greater than the max
+expectable RTT). The second alternative requires a dynamic mechanism able to
+adapt the duration of the <code>T_Max</code> to the delay of the connection (<code>T_Max_c</code>).<a href="#section-2.2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-4">For instance, client and observers could use the connection RTT as a basis for
+calculating an effective <code>T_Max</code>. They should use a predetermined initial value
+so that <code>T_Max = T_Max_p</code> (e.g. 1 second) and then, when a valid RTT is
+measured, change <code>T_Max</code> accordingly so that <code>T_Max = T_Max_c</code>. In any case, the
+selected <code>T_Max</code> should be large enough to absorb any possible variations in the
+connection delay.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-5"><code>T_Max_c</code> could be computed as two times the measured <code>RTT</code> plus a fixed amount
+of time (<code>100ms</code>) to prevent low <code>T_Max</code> values in case of very small RTTs.
+The resulting formula is: <code>T_Max_c = 2RTT + 100ms</code>. If <code>T_Max_c</code> is greater than
+<code>T_Max_p</code> then <code>T_Max_c</code> is forced to <code>T_Max_p</code> value.<a href="#section-2.2.3-5" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-6">Note that the observer's <code>T_Max</code> should always be less than or equal to the
+client's <code>T_Max</code> to avoid considering as a valid measurement what is actually
+the client's <code>T_Max</code>. To obtain this result, the client waits for two
+consecutive incoming samples and computes the two related RTTs. Then it takes
+the largest of them as the basis of the <code>T_Max_c</code> formula. At this point,
+observers have already measured a valid RTT and then computed their <code>T_Max_c</code>.<a href="#section-2.2.3-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="delay-measurement-using-delay-bit">
+<section id="section-2.2.4">
+          <h4 id="name-delay-measurement-using-del">
+<a href="#section-2.2.4" class="section-number selfRef">2.2.4. </a><a href="#name-delay-measurement-using-del" class="section-name selfRef">Delay Measurement Using Delay Bit</a>
+          </h4>
+<p id="section-2.2.4-1">When the Delay bit is used, a passive observer can use delay samples directly
+and avoid inherent ambiguities in the calculation of the RTT as can be seen in
+Spin bit analysis.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
+<div id="rtt-measurement">
+<section id="section-2.2.4.1">
+            <h5 id="name-rtt-measurement">
+<a href="#section-2.2.4.1" class="section-number selfRef">2.2.4.1. </a><a href="#name-rtt-measurement" class="section-name selfRef">RTT Measurement</a>
+            </h5>
+<p id="section-2.2.4.1-1">The delay sample generation process ensures that only one packet marked with the
+Delay bit set to 1 runs back and forth between two endpoints per round trip
+time.  To determine the RTT measurement of a flow, an on-path passive observer
+computes the time difference between two delay samples observed in a single
+direction.<a href="#section-2.2.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.4.1-2">To ensure a valid measurement, the observer must verify that the distance in
+time between the two samples taken into account is less than <code>T_Max</code>.<a href="#section-2.2.4.1-2" class="pilcrow">¶</a></p>
+<span id="name-round-trip-time-both-direct"></span><figure id="figure-2">
+              <div class="alignLeft art-text artwork" id="section-2.2.4.1-3.1">
+<pre>
+           =======================|======================&gt;
+           = **********     -----Obs----&gt;     ********** =
+           = * Client *                       * Server * =
+           = **********     &lt;------------     ********** =
+           &lt;==============================================
+
+                     (a) client-server RTT
+
+           ==============================================&gt;
+           = **********     ------------&gt;     ********** =
+           = * Client *                       * Server * =
+           = **********     &lt;----Obs-----     ********** =
+           &lt;======================|=======================
+
+                     (b) server-client RTT
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-round-trip-time-both-direct" class="selfRef">Round-trip time (both direction)</a>
+              </figcaption></figure>
+</section>
+</div>
+<div id="half-rtt-measurement">
+<section id="section-2.2.4.2">
+            <h5 id="name-half-rtt-measurement">
+<a href="#section-2.2.4.2" class="section-number selfRef">2.2.4.2. </a><a href="#name-half-rtt-measurement" class="section-name selfRef">Half-RTT Measurement</a>
+            </h5>
+<p id="section-2.2.4.2-1">An observer that is able to observe both forward and return traffic directions
+can use the delay samples to measure "upstream" and "downstream" RTT components,
+also known as the half-RTT measurements. It does this by measuring the time
+between a delay sample observed in one direction and the delay sample previously
+observed in the opposite direction.<a href="#section-2.2.4.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.4.2-2">As with RTT measurement, the observer must verify that the distance in time
+between the two samples taken into account is less than <code>T_Max</code>.<a href="#section-2.2.4.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.2.4.2-3">Note that upstream and downstream sections of paths between the endpoints and
+the observer, i.e. observer-to-client vs client-to-observer and
+observer-to-server vs server-to-observer, may have different delay
+characteristics due to the difference in network congestion and other factors.<a href="#section-2.2.4.2-3" class="pilcrow">¶</a></p>
+<span id="name-half-round-trip-time-both-d"></span><figure id="figure-3">
+              <div class="alignLeft art-text artwork" id="section-2.2.4.2-4.1">
+<pre>
+           =======================&gt;
+           = **********     ------|-----&gt;     **********
+           = * Client *          Obs          * Server *
+           = **********     &lt;-----|------     **********
+           &lt;=======================
+
+                  (a) client-observer half-RTT
+
+                                  =======================&gt;
+             **********     ------|-----&gt;     ********** =
+             * Client *          Obs          * Server * =
+             **********     &lt;-----|------     ********** =
+                                  &lt;=======================
+
+                  (b) observer-server half-RTT
+</pre>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-half-round-trip-time-both-d" class="selfRef">Half Round-trip time (both direction)</a>
+              </figcaption></figure>
+</section>
+</div>
+<div id="intra-domain-rtt-measurement">
+<section id="section-2.2.4.3">
+            <h5 id="name-intra-domain-rtt-measuremen">
+<a href="#section-2.2.4.3" class="section-number selfRef">2.2.4.3. </a><a href="#name-intra-domain-rtt-measuremen" class="section-name selfRef">Intra-Domain RTT Measurement</a>
+            </h5>
+<p id="section-2.2.4.3-1">Intra-domain RTT is the portion of the entire RTT used by a flow to traverse the
+network of a provider.  To measure intra-domain RTT, two observers capable of
+observing traffic in both directions must be employed simultaneously at ingress
+and egress of the network to be measured.  Intra-domain RTT is difference
+between the two computed upstream (or downstream) RTT components.<a href="#section-2.2.4.3-1" class="pilcrow">¶</a></p>
+<span id="name-intra-domain-round-trip-tim"></span><figure id="figure-4">
+              <div class="alignLeft art-text artwork" id="section-2.2.4.3-2.1">
+<pre>
+        =========================================&gt;
+        = =====================&gt;
+        = = **********      ---|--&gt;           ---|--&gt;      **********
+        = = * Client *         Obs               Obs       * Server *
+        = = **********      &lt;--|---           &lt;--|---      **********
+        = &lt;=====================
+        &lt;=========================================
+
+                 (a) client-observer RTT components (half-RTTs)
+
+                               ==================&gt;
+            **********      ---|--&gt;           ---|--&gt;      **********
+            * Client *         Obs               Obs       * Server *
+            **********      &lt;--|---           &lt;--|---      **********
+                               &lt;==================
+
+                 (b) the intra-domain RTT resulting from the
+                 subtraction of the above RTT components
+</pre>
+</div>
+<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
+<a href="#name-intra-domain-round-trip-tim" class="selfRef">Intra-domain Round-trip time (client-observer: upstream)</a>
+              </figcaption></figure>
+</section>
+</div>
+</section>
+</div>
+<div id="observers-algorithm">
+<section id="section-2.2.5">
+          <h4 id="name-observers-algorithm">
+<a href="#section-2.2.5" class="section-number selfRef">2.2.5. </a><a href="#name-observers-algorithm" class="section-name selfRef">Observer's Algorithm</a>
+          </h4>
+<p id="section-2.2.5-1">An on-path observer maintains an internal per-flow variable to keep track of
+time at which the last delay sample has been observed.<a href="#section-2.2.5-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.5-2">A unidirectional observer, upon detecting a delay sample:<a href="#section-2.2.5-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.5-3.1">if a delay sample was also detected previously in the same direction and the
+distance in time between them is less than <code>T_Max - K</code>, then the two delay
+samples can be used to calculate RTT measurement. <code>K</code> is a protection
+threshold to absorb differences in <code>T_Max</code> computation and delay variations
+between two consecutive delay samples (e.g. <code>K = 10% T_Max</code>).<a href="#section-2.2.5-3.1" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-2.2.5-4">If the observer can observe both forward and return traffic flows, and it is
+able to determine which direction contains the client and the server (e.g. by
+observing the connection handshake), upon detecting a delay sample:<a href="#section-2.2.5-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.5-5.1">if a delay sample was also detected in the opposite direction and the distance
+in time between them is less than <code>T_Max - K</code>, then the two delay samples can
+be used to measure the observer-client half-RTT or the observer-server
+half-RTT, according to the direction of the last delay sample observed.<a href="#section-2.2.5-5.1" class="pilcrow">¶</a>
+</li>
+          </ul>
+</section>
+</div>
+<div id="two-bits-delay-measurement-spin-bit-delay-bit">
+<section id="section-2.2.6">
+          <h4 id="name-two-bits-delay-measurement-">
+<a href="#section-2.2.6" class="section-number selfRef">2.2.6. </a><a href="#name-two-bits-delay-measurement-" class="section-name selfRef">Two Bits Delay Measurement: Spin Bit + Delay Bit</a>
+          </h4>
+<p id="section-2.2.6-1">Spin and Delay bit algorithms work independently. If both marking methods are
+used in the same connection, observers can choose the best measurement between
+the two available:<a href="#section-2.2.6-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.6-2.1">when a precise measurement can be produced using the Delay bit, observers
+choose it;<a href="#section-2.2.6-2.1" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-2.2.6-2.2">when a Delay bit measurement is not available, observers choose the
+approximate Spin bit one.<a href="#section-2.2.6-2.2" class="pilcrow">¶</a>
+</li>
+          </ul>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="loss-bits">
+<section id="section-3">
+      <h2 id="name-loss-bits">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-loss-bits" class="section-name selfRef">Loss Bits</a>
+      </h2>
+<p id="section-3-1">This section introduces bits that can be used for loss measurements.
+Whenever this section of the specification refers to packets, it is
+referring only to packets with protocol headers that include the loss
+bits -- the only packets whose loss can be measured.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-2.1">T: the "round Trip loss" bit is used in combination with the Spin bit to
+measure round-trip loss. See <a href="#rtlossbit" class="auto internal xref">Section 3.1</a>.<a href="#section-3-2.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-3-2.2">Q: the "sQuare signal" bit is used to measure upstream loss. See
+<a href="#squarebit" class="auto internal xref">Section 3.2</a>.<a href="#section-3-2.2" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-3-2.3">L: the "Loss event" bit is used to measure end-to-end loss. See <a href="#lossbit" class="auto internal xref">Section 3.3</a>.<a href="#section-3-2.3" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-3-2.4">R: the "Reflection square signal" bit is used in combination with Q bit to
+measure end-to-end loss. See <a href="#rtlossbit" class="auto internal xref">Section 3.1</a>.<a href="#section-3-2.4" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-3-3">Loss measurements enabled by T, Q, and L bits can be implemented by those loss
+bits alone (T bit requires a working Spin bit). Two-bit combinations Q+L and Q+R
+enable additional measurement opportunities discussed below.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">Each endpoint maintains appropriate counters independently and separately for
+each separately identifiable flow (each sub-flow for multipath connections).<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">Since loss is reported independently for each flow, all bits (except for L bit)
+require a certain minimum number of packets to be exchanged per flow before any
+signal can be measured. Therefore, loss measurements work best for flows that
+transfer more than a minimal amount of data.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<div id="rtlossbit">
+<section id="section-3.1">
+        <h3 id="name-t-bit-round-trip-loss-bit">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-t-bit-round-trip-loss-bit" class="section-name selfRef">T Bit -- Round Trip Loss Bit</a>
+        </h3>
+<p id="section-3.1-1">The round Trip loss bit is used to mark a variable number of packets exchanged
+twice between the endpoints realizing a two round-trip reflection. A passive
+on-path observer, observing either direction, can count and compare the number
+of marked packets seen during the two reflections, estimating the loss rate
+experienced by the connection. The overall exchange comprises:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-2.1">the client selects, generates and consequently transmits
+a first train of packets, by setting the T bit to 1;<a href="#section-3.1-2.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.1-2.2">the server, upon receiving each packet included in the first train, reflects
+to the client a respective second train of packets of the same size as the
+first train received, by setting the T bit to 1;<a href="#section-3.1-2.2" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.1-2.3">the client, upon receiving each packet included in the second train, reflects
+to the server a respective third train of packets of the same size as the
+second train received, by setting the T bit to 1;<a href="#section-3.1-2.3" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.1-2.4">the server, upon receiving each packet included in the third train, finally
+reflects to the client a respective fourth train of packets of the same size
+as the third train received, by setting the T bit to 1.<a href="#section-3.1-2.4" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-3.1-3">Packets belonging to the first round trip (first and second train)
+represent the Generation Phase, while those belonging to the second
+round trip (third and fourth train) represent the Reflection Phase.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-4">A passive on-path observer can count and compare the number of marked
+packets seen during the two round trips (i.e. the first and third
+or the second and the fourth trains of packets, depending on which
+direction is observed) and estimate the loss rate experienced by the
+connection. This process is repeated continuously to obtain more
+measurements as long as the endpoints exchange traffic.  These
+measurements can be called Round Trip losses.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1-5">Since packet rates in two directions may be different, the number of marked
+packets in the train is determined by the direction with the lowest packet rate.
+See <a href="#tbit-details" class="auto internal xref">Section 3.1.2</a> for details on packet generation.<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<div id="round-trip-loss">
+<section id="section-3.1.1">
+          <h4 id="name-round-trip-loss">
+<a href="#section-3.1.1" class="section-number selfRef">3.1.1. </a><a href="#name-round-trip-loss" class="section-name selfRef">Round Trip Loss</a>
+          </h4>
+<p id="section-3.1.1-1">Since the measurements are performed on a portion of the traffic exchanged
+between the client and the server, the observer calculates the end-to-end Round
+Trip Packet Loss (RTPL) that, statistically, will correspond to the loss rate
+experienced by the connection along the entire network path.<a href="#section-3.1.1-1" class="pilcrow">¶</a></p>
+<span id="name-round-trip-packet-loss-both"></span><figure id="figure-5">
+            <div class="alignLeft art-text artwork" id="section-3.1.1-2.1">
+<pre>
+           =======================|======================&gt;
+           = **********     -----Obs----&gt;     ********** =
+           = * Client *                       * Server * =
+           = **********     &lt;------------     ********** =
+           &lt;==============================================
+
+                     (a) client-server RTPL
+
+           ==============================================&gt;
+           = **********     ------------&gt;     ********** =
+           = * Client *                       * Server * =
+           = **********     &lt;----Obs-----     ********** =
+           &lt;======================|=======================
+
+                     (b) server-client RTPL
+</pre>
+</div>
+<figcaption><a href="#figure-5" class="selfRef">Figure 5</a>:
+<a href="#name-round-trip-packet-loss-both" class="selfRef">Round-trip packet loss (both direction)</a>
+            </figcaption></figure>
+<p id="section-3.1.1-3">This methodology also allows the Half-RTPL measurement and
+the Intra-domain RTPL measurement in a way similar to RTT measurement.<a href="#section-3.1.1-3" class="pilcrow">¶</a></p>
+<span id="name-half-round-trip-packet-loss"></span><figure id="figure-6">
+            <div class="alignLeft art-text artwork" id="section-3.1.1-4.1">
+<pre>
+           =======================&gt;
+           = **********     ------|-----&gt;     **********
+           = * Client *          Obs          * Server *
+           = **********     &lt;-----|------     **********
+           &lt;=======================
+
+                  (a) client-observer half-RTPL
+
+                                  =======================&gt;
+             **********     ------|-----&gt;     ********** =
+             * Client *          Obs          * Server * =
+             **********     &lt;-----|------     ********** =
+                                  &lt;=======================
+
+                  (b) observer-server half-RTPL
+</pre>
+</div>
+<figcaption><a href="#figure-6" class="selfRef">Figure 6</a>:
+<a href="#name-half-round-trip-packet-loss" class="selfRef">Half Round-trip packet loss (both direction)</a>
+            </figcaption></figure>
+<span id="name-intra-domain-round-trip-pac"></span><figure id="figure-7">
+            <div class="alignLeft art-text artwork" id="section-3.1.1-5.1">
+<pre>
+                           =========================================&gt;
+                                             =====================&gt; =
+        **********      ---|--&gt;           ---|--&gt;      ********** = =
+        * Client *         Obs               Obs       * Server * = =
+        **********      &lt;--|---           &lt;--|---      ********** = =
+                                             &lt;===================== =
+                           &lt;=========================================
+
+             (a) observer-server RTPL components (half-RTPLs)
+
+                           ==================&gt;
+        **********      ---|--&gt;           ---|--&gt;      **********
+        * Client *         Obs               Obs       * Server *
+        **********      &lt;--|---           &lt;--|---      **********
+                           &lt;==================
+
+             (b) the intra-domain RTPL resulting from the
+             subtraction of the above RTPL components
+</pre>
+</div>
+<figcaption><a href="#figure-7" class="selfRef">Figure 7</a>:
+<a href="#name-intra-domain-round-trip-pac" class="selfRef">Intra-domain Round-trip packet loss (observer-server)</a>
+            </figcaption></figure>
+</section>
+</div>
+<div id="tbit-details">
+<section id="section-3.1.2">
+          <h4 id="name-setting-the-round-trip-loss">
+<a href="#section-3.1.2" class="section-number selfRef">3.1.2. </a><a href="#name-setting-the-round-trip-loss" class="section-name selfRef">Setting the Round Trip Loss Bit on Outgoing Packets</a>
+          </h4>
+<p id="section-3.1.2-1">The round Trip loss signal requires a working Spin-bit signal to separate trains
+of marked packets (packets with T bit set to 1).  A "pause" of at least one
+empty spin-bit period between each phase of the algorithm serves as such
+separator for the on-path observer.<a href="#section-3.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.1.2-2">The client maintains a "generation token" count that is set to zero at the
+beginning of the session and is incremented every time a packet is received
+(marked or unmarked). The client also maintains a "reflection counter" that
+starts at zero at the beginning of the session.<a href="#section-3.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.1.2-3">The client is in charge of launching trains of marked packets and does so
+according to the algorithm:<a href="#section-3.1.2-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.1.2-4">
+<li id="section-3.1.2-4.1">Generation Phase. The client starts generating marked packets for two
+consecutive spin-bit periods; when the client transmits a packet and a
+"generation token" is available, the client marks the packet and retires a
+"generation token". If no token is available, the outgoing packet is
+transmitted unmarked.  At the end of the first spin-bit period spent in
+generation, the reflection counter is unlocked to start counting incoming
+marked packets that will be reflected later;<a href="#section-3.1.2-4.1" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.1.2-4.2">Pause Phase. When the generation is completed, the client pauses till it has
+observed one entire Spin bit period with no marked packets.  That Spin bit
+period is used by the observer as a separator between generated and
+reflected packets.  During this marking pause, all the outgoing packets are
+transmitted with T bit set to 0.  The reflection counter is still
+incremented every time a marked packet arrives;<a href="#section-3.1.2-4.2" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.1.2-4.3">Reflection Phase. The client starts transmitting marked packets,
+decrementing the reflection counter for each transmitted marked packet until
+the reflection counter reached zero. The "generation token" method from the
+generation phase is used during this phase as well.  At the end of the first
+spin-period spent in reflection, the reflection counter is locked to avoid
+incoming reflected packets incrementing it;<a href="#section-3.1.2-4.3" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.1.2-4.4">Pause Phase 2. The pause phase is repeated after the reflection phase and
+serves as a separator between the reflected packet train and a new packet
+train.<a href="#section-3.1.2-4.4" class="pilcrow">¶</a>
+</li>
+          </ol>
+<p id="section-3.1.2-5">The generation token counter should be capped to limit the effects of a
+subsequent sudden reduction in the other endpoint's packet rate that could
+prevent that endpoint from reflecting collected packets. The most conservative
+cap value is <code>1</code>.<a href="#section-3.1.2-5" class="pilcrow">¶</a></p>
+<p id="section-3.1.2-6">A server maintains a "marking counter" that starts at zero and is incremented
+every time a marked packet arrives. When the server transmits a packet and the
+"marking counter" is positive, the server marks the packet and decrements the
+"marking counter". If the "marking counter" is zero, the outgoing packet is
+transmitted unmarked.<a href="#section-3.1.2-6" class="pilcrow">¶</a></p>
+<p id="section-3.1.2-7">Note that a choice of 2-RTT (two spin periods) for the generation phase is a
+tradeoff between the percentage of marked packets (i.e. the percentage of
+traffic monitored) and the measurement delay. Using this value the algorithm
+produces a measurement approximately every 6-RTT (<code>2</code> generation, <code>~2</code>
+reflection, <code>2</code> pauses), marking <code>~1/3</code> of packets exchanged in the slower
+direction (see <a href="#tbit-losscov" class="auto internal xref">Section 3.1.4</a>). Choosing a generation phase of 1-RTT, we would
+produce measurements every 4-RTT, monitoring just <code>~1/4</code> of packets in the
+slower direction.<a href="#section-3.1.2-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="observers-logic-for-round-trip-loss-signal">
+<section id="section-3.1.3">
+          <h4 id="name-observers-logic-for-round-t">
+<a href="#section-3.1.3" class="section-number selfRef">3.1.3. </a><a href="#name-observers-logic-for-round-t" class="section-name selfRef">Observer's Logic for Round Trip Loss Signal</a>
+          </h4>
+<p id="section-3.1.3-1">The on-path observer counts marked packets and separates different trains by
+detecting spin-bit periods (at least one) with no marked packets.  The Round
+Trip Packet Loss (RTPL) is the difference between the size of the Generation
+train and the Reflection train.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.1.3-2">In the following example, packets are represented by two bits (first one
+is the Spin bit, second one is the round Trip loss bit):<a href="#section-3.1.3-2" class="pilcrow">¶</a></p>
+<span id="name-round-trip-loss-signal-exam"></span><figure id="figure-8">
+            <div class="alignLeft art-text artwork" id="section-3.1.3-3.1">
+<pre>
+        Generation          Pause           Reflection       Pause
+   ____________________ ______________ ____________________ ________
+  |                    |              |                    |        |
+   01 01 00 01 11 10 11 00 00 10 10 10 01 00 01 01 10 11 10 00 00 10
+
+</pre>
+</div>
+<figcaption><a href="#figure-8" class="selfRef">Figure 8</a>:
+<a href="#name-round-trip-loss-signal-exam" class="selfRef">Round Trip Loss signal example</a>
+            </figcaption></figure>
+<p id="section-3.1.3-4">Note that 5 marked packets have been generated of which 4 have been reflected.<a href="#section-3.1.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="tbit-losscov">
+<section id="section-3.1.4">
+          <h4 id="name-loss-coverage-and-signal-ti">
+<a href="#section-3.1.4" class="section-number selfRef">3.1.4. </a><a href="#name-loss-coverage-and-signal-ti" class="section-name selfRef">Loss Coverage and Signal Timing</a>
+          </h4>
+<p id="section-3.1.4-1">A cycle of the round Trip loss signaling algorithm contains 2 RTTs of Generation
+phase, 2 RTTs of Reflection phase, and two Pause phases at least 1 RTT in
+duration each.  Hence, the loss signal is delayed by about 6 RTTs since the loss
+events.<a href="#section-3.1.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.1.4-2">The observer can only detect loss of marked packets that occurs after its
+initial observation of the Generation phase and before its subsequent
+observation of the Reflection phase. Hence, if the loss occurs on the path that
+sends packets at a lower rate (typically ACKs in such asymmetric scenarios),
+<code>2/6</code> (<code>1/3</code>) of the packets will be sampled for loss detection.<a href="#section-3.1.4-2" class="pilcrow">¶</a></p>
+<p id="section-3.1.4-3">If the loss occurs on the path that sends packets at a higher rate,
+<code>lowPacketRate/(3*highPacketRate)</code> of the packets will be sampled for loss
+detection. For protocols that use ACKs, the portion of packets sampled for loss
+in the higher rate direction during unidirectional data transfer is
+<code>1/(3*packetsPerAck)</code>, where the value of <code>packetsPerAck</code> can vary by protocol,
+by implementation, and by network conditions.<a href="#section-3.1.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="squarebit">
+<section id="section-3.2">
+        <h3 id="name-q-bit-square-bit">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-q-bit-square-bit" class="section-name selfRef">Q Bit -- sQuare Bit</a>
+        </h3>
+<p id="section-3.2-1">The sQuare bit (Q bit) takes its name from the square wave generated by its
+signal. This method is based on the Alternate-Marking method <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> and
+the Q bit represents the "packet color" that allows to mark consecutive blocks
+of packets with different colors.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-2"><span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> introduces two variations of the Alternate-Marking method depending
+on whether the color is switched according to a fixed timer or after a fixed
+number of packets. The method based on fixed timer can measure packet loss on a
+network segment by cooperating and synchronized observers on both ends of the
+segment comparing packets counters for the same packet blocks. The time length of
+the blocks can be chosen depending on the desired measurement frequency, but it
+must be long enough to guarantee the proper operation with respect to clock errors
+and network delay issues.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-3">The Q bit method described in this document chooses the color-switching method
+based on a fixed number of packets for each block. This approach has the
+advantage that it does not require cooperating or synchronized observers or
+network elements. Each probe can measure packet loss autonomously without
+relying on an external Network Management System (NMS). For the purpose of the
+packet loss measurement, all blocks have the same number of packets, and it is
+necessary to detect only the loss event and not to identify the exact block with
+losses.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<p id="section-3.2-4">Following the method based on fixed number of packets, the square wave signal is
+generated by the switching of the Q bit: every outgoing packet contains the Q
+bit value, which is initialized to 0 and inverted after sending N packets (a
+sQuare Block or simply Q Block). Hence, Q Period is 2*N.<a href="#section-3.2-4" class="pilcrow">¶</a></p>
+<p id="section-3.2-5">Observation points can estimate upstream losses by watching a single direction
+of the traffic flow and counting the number of packets in each observed Q Block,
+as described in <a href="#upstreamloss" class="auto internal xref">Section 3.2.2</a>.<a href="#section-3.2-5" class="pilcrow">¶</a></p>
+<div id="q-block-length-selection">
+<section id="section-3.2.1">
+          <h4 id="name-q-block-length-selection">
+<a href="#section-3.2.1" class="section-number selfRef">3.2.1. </a><a href="#name-q-block-length-selection" class="section-name selfRef">Q Block Length Selection</a>
+          </h4>
+<p id="section-3.2.1-1">The length of the block must be known to the on-path network probes.  There are
+two alternatives to selecting the Q Block length. The first one requires that
+the length is known a priori and therefore set within the protocol
+specifications that implements the marking mechanism. The second requires the
+sender to select it.<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-2">In this latter scenario, the sender is expected to choose N (Q Block
+length) based on the expected amount of loss and reordering on the
+path.  The choice of N strikes a compromise -- the observation could
+become too unreliable in case of packet reordering and/or severe loss
+if N is too small, while short flows may not yield a useful upstream
+loss measurement if N is too large (see <a href="#upstreamloss" class="auto internal xref">Section 3.2.2</a>).<a href="#section-3.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-3">The value of N should be at least 64 and be a power of 2. This requirement allows
+an Observer to infer the Q Block length by observing one period of the square
+signal. It also allows the Observer to identify flows that set the loss bits to
+arbitrary values (see <a href="#ossification" class="auto internal xref">Section 5</a>).<a href="#section-3.2.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-4">If the sender does not have sufficient information to make an informed decision
+about Q Block length, the sender should use N=64, since this value has been
+extensively tried in large-scale field tests and yielded good results.
+Alternatively, the sender may also choose a random power-of-2 N for each flow,
+increasing the chances of using a Q Block length that gives the best signal for
+some flows.<a href="#section-3.2.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-5">The sender must keep the value of N constant for a given flow.<a href="#section-3.2.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="upstreamloss">
+<section id="section-3.2.2">
+          <h4 id="name-upstream-loss">
+<a href="#section-3.2.2" class="section-number selfRef">3.2.2. </a><a href="#name-upstream-loss" class="section-name selfRef">Upstream Loss</a>
+          </h4>
+<p id="section-3.2.2-1">Blocks of N (Q Block length) consecutive packets are sent with the same
+value of the Q bit, followed by another block of N packets with an
+inverted value of the Q bit.  Hence, knowing the value of N, an
+on-path observer can estimate the amount of upstream loss after
+observing at least N packets.  The upstream loss rate (<code>uloss</code>) is one
+minus the average number of packets in a block of packets with the
+same Q value (<code>p</code>) divided by N (<code>uloss=1-avg(p)/N</code>).<a href="#section-3.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.2-2">The observer needs to be able to tolerate packet reordering that can
+blur the edges of the square signal, as explained in <a href="#endmarkingblock" class="auto internal xref">Section 3.2.3</a>.<a href="#section-3.2.2-2" class="pilcrow">¶</a></p>
+<span id="name-upstream-loss-2"></span><figure id="figure-9">
+            <div class="alignLeft art-text artwork" id="section-3.2.2-3.1">
+<pre>
+          =====================&gt;
+          **********     -----Obs----&gt;     **********
+          * Client *                       * Server *
+          **********     &lt;------------     **********
+
+            (a) in client-server channel (uloss_up)
+
+          **********     ------------&gt;     **********
+          * Client *                       * Server *
+          **********     &lt;----Obs-----     **********
+                               &lt;=====================
+
+            (b) in server-client channel (uloss_down)
+</pre>
+</div>
+<figcaption><a href="#figure-9" class="selfRef">Figure 9</a>:
+<a href="#name-upstream-loss-2" class="selfRef">Upstream loss</a>
+            </figcaption></figure>
+</section>
+</div>
+<div id="endmarkingblock">
+<section id="section-3.2.3">
+          <h4 id="name-identifying-q-block-boundar">
+<a href="#section-3.2.3" class="section-number selfRef">3.2.3. </a><a href="#name-identifying-q-block-boundar" class="section-name selfRef">Identifying Q Block Boundaries</a>
+          </h4>
+<p id="section-3.2.3-1">Packet reordering can produce spurious edges in the square signal. To address
+this, the observer should look for packets with the current Q bit value up to X
+packets past the first packet with a reverse Q bit value. The value of X, a
+"Marking Block Threshold", should be less than <code>N/2</code>.<a href="#section-3.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-2">The choice of X represents a trade-off between resiliency to reordering and
+resiliency to loss. A very large Marking Block Threshold will be able to
+reconstruct Q Blocks despite a significant amount of reordering, but it may
+erroneously coalesce packets from multiple Q Blocks into fewer Q Blocks, if loss
+exceeds 50% for some Q Blocks.<a href="#section-3.2.3-2" class="pilcrow">¶</a></p>
+<div id="Qburst">
+<section id="section-3.2.3.1">
+            <h5 id="name-improved-resilience-to-burs">
+<a href="#section-3.2.3.1" class="section-number selfRef">3.2.3.1. </a><a href="#name-improved-resilience-to-burs" class="section-name selfRef">Improved Resilience to Burst Losses</a>
+            </h5>
+<p id="section-3.2.3.1-1">Burst losses can affect Q measurements accuracy. Generally, burst losses can be
+absorbed and correctly measured if smaller than the established Q Block
+length. If entire Q Block length of packets get lost in a burst, however, the
+observer may be left completely unaware of the loss.<a href="#section-3.2.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.3.1-2">To improve burst loss resilience, an observer may consider a received Q Block
+larger than the selected Q Block length as an indication of a burst loss
+event. The observer would then compute the loss as three times Q Block length
+minus the measured block length. By doing so, the observer can detect burst
+losses of less than two blocks (e.g., less than 128 packets for Q Block length
+of 64 packets). A burst loss of two or more consecutive periods would still
+remain unnoticed by the observer (or underestimated if a period longer than Q
+Block length were formed).<a href="#section-3.2.3.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="lossbit">
+<section id="section-3.3">
+        <h3 id="name-l-bit-loss-event-bit">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-l-bit-loss-event-bit" class="section-name selfRef">L Bit -- Loss Event Bit</a>
+        </h3>
+<p id="section-3.3-1">The Loss Event bit uses an Unreported Loss counter maintained by the protocol
+that implements the marking mechanism. To use the Loss Event bit, the protocol
+must allow the sender to identify lost packets. This is true of protocols such
+as QUIC, partially true for TCP and SCTP (losses of pure ACKs are not detected)
+and is not true of protocols such as UDP and IP/IPv6.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">The Unreported Loss counter is initialized to 0, and L bit of every outgoing
+packet indicates whether the Unreported Loss counter is positive (L=1 if the
+counter is positive, and L=0 otherwise).<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+<p id="section-3.3-3">The value of the Unreported Loss counter is decremented every time a packet
+with L=1 is sent.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.3-4">The value of the Unreported Loss counter is incremented for every packet that
+the protocol declares lost, using whatever loss detection machinery the protocol
+employs. If the protocol is able to rescind the loss determination later, a
+positive Unreported Loss counter may be decremented due to the rescission, but
+it should not become negative due to the rescission.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
+<p id="section-3.3-5">This loss signaling is similar to loss signaling in <span>[<a href="#ConEx" class="cite xref">ConEx</a>]</span>, except the Loss
+Event bit is reporting the exact number of lost packets, whereas Echo Loss bit
+in <span>[<a href="#ConEx" class="cite xref">ConEx</a>]</span> is reporting an approximate number of lost bytes.<a href="#section-3.3-5" class="pilcrow">¶</a></p>
+<p id="section-3.3-6">For protocols, such as TCP (<span>[<a href="#TCP" class="cite xref">TCP</a>]</span>), that allow network devices to change data
+segmentation, it is possible that only a part of the packet is lost. In these
+cases, the sender must increment Unreported Loss counter by the fraction of the
+packet data lost (so Unreported Loss counter may become negative when a packet
+with L=1 is sent after a partial packet has been lost).<a href="#section-3.3-6" class="pilcrow">¶</a></p>
+<p id="section-3.3-7">Observation points can estimate the end-to-end loss, as determined by the
+upstream endpoint, by counting packets in this direction with the L bit equal to
+1, as described in <a href="#endtoendloss" class="auto internal xref">Section 3.3.1</a>.<a href="#section-3.3-7" class="pilcrow">¶</a></p>
+<div id="endtoendloss">
+<section id="section-3.3.1">
+          <h4 id="name-end-to-end-loss">
+<a href="#section-3.3.1" class="section-number selfRef">3.3.1. </a><a href="#name-end-to-end-loss" class="section-name selfRef">End-To-End Loss</a>
+          </h4>
+<p id="section-3.3.1-1">The Loss Event bit allows an observer to estimate the end-to-end loss rate by
+counting packets with L bit value of 0 and 1 for a given flow. The end-to-end
+loss rate is the fraction of packets with L=1.<a href="#section-3.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-2">The assumption here is that upstream loss affects packets with L=0 and L=1
+equally. If some loss is caused by tail-drop in a network device, this may be a
+simplification.  If the sender's congestion controller reduces the packet send
+rate after loss, there may be a sufficient delay before sending packets with L=1
+that they have a greater chance of arriving at the observer.<a href="#section-3.3.1-2" class="pilcrow">¶</a></p>
+<div id="loss-profile">
+<section id="section-3.3.1.1">
+            <h5 id="name-loss-profile-characterizati">
+<a href="#section-3.3.1.1" class="section-number selfRef">3.3.1.1. </a><a href="#name-loss-profile-characterizati" class="section-name selfRef">Loss Profile Characterization</a>
+            </h5>
+<p id="section-3.3.1.1-1">The Loss Event bit allows an observer to characterize loss profile, since the
+distribution of observed packets with L bit set to 1 roughly corresponds to the
+distribution of packets lost between 1 RTT and 1 RTO before (see
+<a href="#loss-correlation" class="auto internal xref">Section 3.3.2.1</a>).  Hence, observing random single instances of L bit set
+to 1 indicates random single packet loss, while observing blocks of packets
+with L bit set to 1 indicates loss affecting entire blocks of packets.<a href="#section-3.3.1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="lq-bits-loss-measurement-using-l-and-q-bits">
+<section id="section-3.3.2">
+          <h4 id="name-lq-bits-loss-measurement-us">
+<a href="#section-3.3.2" class="section-number selfRef">3.3.2. </a><a href="#name-lq-bits-loss-measurement-us" class="section-name selfRef">L+Q Bits -- Loss Measurement Using L and Q Bits</a>
+          </h4>
+<p id="section-3.3.2-1">Combining L and Q bits allows a passive observer watching a single direction of
+traffic to accurately measure:<a href="#section-3.3.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.3.2-2.1">upstream loss: sender-to-observer loss (see <a href="#upstreamloss" class="auto internal xref">Section 3.2.2</a>)<a href="#section-3.3.2-2.1" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.3.2-2.2">downstream loss: observer-to-receiver loss (see <a href="#downstreamloss" class="auto internal xref">Section 3.3.2.2</a>)<a href="#section-3.3.2-2.2" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.3.2-2.3">end-to-end loss: sender-to-receiver loss on the observed path (see
+<a href="#endtoendloss" class="auto internal xref">Section 3.3.1</a>) with loss profile characterization (see <a href="#loss-profile" class="auto internal xref">Section 3.3.1.1</a>)<a href="#section-3.3.2-2.3" class="pilcrow">¶</a>
+</li>
+          </ul>
+<div id="loss-correlation">
+<section id="section-3.3.2.1">
+            <h5 id="name-correlating-end-to-end-and-">
+<a href="#section-3.3.2.1" class="section-number selfRef">3.3.2.1. </a><a href="#name-correlating-end-to-end-and-" class="section-name selfRef">Correlating End-to-End and Upstream Loss</a>
+            </h5>
+<p id="section-3.3.2.1-1">Upstream loss is calculated by observing packets that did not suffer the
+upstream loss (<a href="#upstreamloss" class="auto internal xref">Section 3.2.2</a>). End-to-end loss, however, is calculated by
+observing subsequent packets after the sender's protocol detected the loss.
+Hence, end-to-end loss is generally observed with a delay of between 1 RTT (loss
+declared due to multiple duplicate acknowledgements) and 1 RTO (loss declared
+due to a timeout) relative to the upstream loss.<a href="#section-3.3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.2.1-2">The flow RTT can sometimes be estimated by timing protocol handshake
+messages. This RTT estimate can be greatly improved by observing a dedicated
+protocol mechanism for conveying RTT information, such as the Spin bit (see
+<a href="#spinbit" class="auto internal xref">Section 2.1</a>) or Delay bit (see <a href="#delaybit" class="auto internal xref">Section 2.2</a>).<a href="#section-3.3.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.2.1-3">Whenever the observer needs to perform a computation that uses both upstream and
+end-to-end loss rate measurements, it should use upstream loss rate leading the
+end-to-end loss rate by approximately 1 RTT. If the observer is unable to
+estimate RTT of the flow, it should accumulate loss measurements over time
+periods of at least 4 times the typical RTT for the observed flows.<a href="#section-3.3.2.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.3.2.1-4">If the calculated upstream loss rate exceeds the end-to-end loss rate calculated
+in <a href="#endtoendloss" class="auto internal xref">Section 3.3.1</a>, then either the Q Period is too short for the amount of
+packet reordering or there is observer loss, described in <a href="#observerloss" class="auto internal xref">Section 3.3.2.3</a>. If
+this happens, the observer should adjust the calculated upstream loss rate to
+match end-to-end loss rate, unless the following applies.<a href="#section-3.3.2.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.3.2.1-5">In case of a protocol, such as TCP or SCTP, that does not track losses of pure
+ACK packets, observing a direction of traffic dominated by pure ACK packets
+could result in measured upstream loss that is higher than measured end-to-end
+loss, if said pure ACK packets are lost upstream. Hence, if the measurement is
+applied to such protocols, and the observer can confirm that pure ACK packets
+dominate the observed traffic direction, the observer should adjust the
+calculated end-to-end loss rate to match upstream loss rate.<a href="#section-3.3.2.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="downstreamloss">
+<section id="section-3.3.2.2">
+            <h5 id="name-downstream-loss">
+<a href="#section-3.3.2.2" class="section-number selfRef">3.3.2.2. </a><a href="#name-downstream-loss" class="section-name selfRef">Downstream Loss</a>
+            </h5>
+<p id="section-3.3.2.2-1">Because downstream loss affects only those packets that did not suffer upstream
+loss, the end-to-end loss rate (<code>eloss</code>) relates to the upstream loss rate
+(<code>uloss</code>) and downstream loss rate (<code>dloss</code>) as <code>(1-uloss)(1-dloss)=1-eloss</code>.
+Hence, <code>dloss=(eloss-uloss)/(1-uloss)</code>.<a href="#section-3.3.2.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="observerloss">
+<section id="section-3.3.2.3">
+            <h5 id="name-observer-loss">
+<a href="#section-3.3.2.3" class="section-number selfRef">3.3.2.3. </a><a href="#name-observer-loss" class="section-name selfRef">Observer Loss</a>
+            </h5>
+<p id="section-3.3.2.3-1">A typical deployment of a passive observation system includes a network tap
+device that mirrors network packets of interest to a device that performs
+analysis and measurement on the mirrored packets. The observer loss is the loss
+that occurs on the mirror path.<a href="#section-3.3.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.2.3-2">Observer loss affects upstream loss rate measurement, since it causes the
+observer to account for fewer packets in a block of identical Q bit values (see
+<a href="#upstreamloss" class="auto internal xref">Section 3.2.2</a>). The end-to-end loss rate measurement, however, is unaffected
+by the observer loss, since it is a measurement of the fraction of packets with
+the L bit value of 1, and the observer loss would affect all packets equally
+(see <a href="#endtoendloss" class="auto internal xref">Section 3.3.1</a>).<a href="#section-3.3.2.3-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.2.3-3">The need to adjust the upstream loss rate down to match end-to-end loss rate as
+described in <a href="#loss-correlation" class="auto internal xref">Section 3.3.2.1</a> is an indication of the observer loss, whose
+magnitude is between the amount of such adjustment and the entirety of the
+upstream loss measured in <a href="#upstreamloss" class="auto internal xref">Section 3.2.2</a>. Alternatively, a high apparent
+upstream loss rate could be an indication of significant packet reordering,
+possibly due to packets belonging to a single flow being multiplexed over
+several upstream paths with different latency characteristics.<a href="#section-3.3.2.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="refsquarebit">
+<section id="section-3.4">
+        <h3 id="name-r-bit-reflection-square-bit">
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-r-bit-reflection-square-bit" class="section-name selfRef">R Bit -- Reflection Square Bit</a>
+        </h3>
+<p id="section-3.4-1">R bit requires a deployment alongside Q bit. Unlike the square signal for which
+packets are transmitted in blocks of fixed size, the number of packets in
+Reflection square signal blocks (also an Alternate-Marking signal) varies
+according to these rules:<a href="#section-3.4-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.4-2.1">when the transmission of a new block starts, its size is set equal
+to the size of the last Q Block whose reception has been completed;<a href="#section-3.4-2.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.4-2.2">if, before transmission of the block is terminated, the reception
+of at least one further Q Block is completed, the size of the block
+is updated to be the average size of the further received Q Blocks.<a href="#section-3.4-2.2" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-3.4-3">The Reflection square value is initialized to 0 and is applied to the R bit of
+every outgoing packet.  The Reflection square value is toggled for the first
+time when the completion of a Q Block is detected in the incoming square signal
+(produced by the other endpoint using the Q bit). The number of packets
+detected within this first Q Block (<code>p</code>), is used to generate a reflection
+square signal that toggles every <code>M=p</code> packets (at first). This new signal
+produces blocks of M packets (marked using the R bit) and each of them is
+called "Reflection Block" (R Block).<a href="#section-3.4-3" class="pilcrow">¶</a></p>
+<p id="section-3.4-4">The M value is then updated every time a completed Q Block in the
+incoming square signal is received, following this formula:
+<code>M=round(avg(p))</code>.<a href="#section-3.4-4" class="pilcrow">¶</a></p>
+<p id="section-3.4-5">The parameter <code>avg(p)</code>, the average number of packets in a marking
+period, is computed based on all the Q Blocks received since the
+beginning of the current R Block.<a href="#section-3.4-5" class="pilcrow">¶</a></p>
+<p id="section-3.4-6">The transmission of an R Block is considered complete (and the signal toggled)
+when the number of packets transmitted in that block is at least the latest
+computed M value.<a href="#section-3.4-6" class="pilcrow">¶</a></p>
+<p id="section-3.4-7">To ensure a proper computation of the M value, endpoints implementing the R bit
+must identify the boundaries of incoming Q Blocks. The same approach described
+in <a href="#endmarkingblock" class="auto internal xref">Section 3.2.3</a> should be used.<a href="#section-3.4-7" class="pilcrow">¶</a></p>
+<p id="section-3.4-8">Looking at the R bit, unidirectional observation points have an indication of
+loss experienced by the entire unobserved channel plus the loss on the path
+from the sender to them.<a href="#section-3.4-8" class="pilcrow">¶</a></p>
+<p id="section-3.4-9">Since the Q Block is sent in one direction, and the corresponding reflected R
+Block is sent in the opposite direction, the reflected R signal is transmitted
+with the packet rate of the slowest direction. Namely, if the observed direction
+is the slowest, there can be multiple Q Blocks transmitted in the unobserved
+direction before a complete R Block is transmitted in the observed direction. If
+the unobserved direction is the slowest, the observed direction can be sending R
+Blocks of the same size repeatedly before it can update the signal to account
+for a newly-completed Q Block.<a href="#section-3.4-9" class="pilcrow">¶</a></p>
+<div id="enhancement-of-r-block-length-computation">
+<section id="section-3.4.1">
+          <h4 id="name-enhancement-of-r-block-leng">
+<a href="#section-3.4.1" class="section-number selfRef">3.4.1. </a><a href="#name-enhancement-of-r-block-leng" class="section-name selfRef">Enhancement of R Block Length Computation</a>
+          </h4>
+<p id="section-3.4.1-1">The use of the rounding function used in the M computation introduces errors
+that can be minimized by storing the rounding applied each time M is computed,
+and using it during the computation of the M value in the following R Block.<a href="#section-3.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.4.1-2">This can be achieved introducing the new <code>r_avg</code> parameter in the computation of
+M.  The new formula is <code>Mr=avg(p)+r_avg; M=round(Mr); r_avg=Mr-M</code> where the
+initial value of <code>r_avg</code> is equal to 0.<a href="#section-3.4.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="improved-resilience-to-packet-reordering">
+<section id="section-3.4.2">
+          <h4 id="name-improved-resilience-to-pack">
+<a href="#section-3.4.2" class="section-number selfRef">3.4.2. </a><a href="#name-improved-resilience-to-pack" class="section-name selfRef">Improved Resilience to Packet Reordering</a>
+          </h4>
+<p id="section-3.4.2-1">When a protocol implementing the marking mechanism is able to detect when
+packets are received out of order, it can improve resilience to packet
+reordering beyond what is possible using methods described in
+<a href="#endmarkingblock" class="auto internal xref">Section 3.2.3</a>.<a href="#section-3.4.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.4.2-2">This can be achieved by updating the size of the current R Block while it is
+being transmitted.  The reflection block size is then updated every time an
+incoming reordered packet of the previous Q Block is detected.  This can be
+done if and only if the transmission of the current reflection block is in
+progress and no packets of the following Q Block have been received.<a href="#section-3.4.2-2" class="pilcrow">¶</a></p>
+<div id="Rburst">
+<section id="section-3.4.2.1">
+            <h5 id="name-improved-resilience-to-burst">
+<a href="#section-3.4.2.1" class="section-number selfRef">3.4.2.1. </a><a href="#name-improved-resilience-to-burst" class="section-name selfRef">Improved Resilience to Burst Losses</a>
+            </h5>
+<p id="section-3.4.2.1-1">Burst losses can affect R measurements accuracy similarly to how they affect Q
+measurements accuracy. Therefore, recommendations in section <a href="#Qburst" class="auto internal xref">Section 3.2.3.1</a> apply
+equally to improving burst loss resilience for R measurements.<a href="#section-3.4.2.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="rq-bits-loss-measurement-using-r-and-q-bits">
+<section id="section-3.4.3">
+          <h4 id="name-rq-bits-loss-measurement-us">
+<a href="#section-3.4.3" class="section-number selfRef">3.4.3. </a><a href="#name-rq-bits-loss-measurement-us" class="section-name selfRef">R+Q Bits -- Loss Measurement Using R and Q Bits</a>
+          </h4>
+<p id="section-3.4.3-1">Since both sQuare and Reflection square bits are toggled at most every N packets
+(except for the first transition of the R bit as explained before), an on-path
+observer can count the number of packets of each marking block and, knowing the
+value of N, can estimate the amount of loss experienced by the connection.  An
+observer can calculate different measurements depending on whether it is able to
+observe a single direction of the traffic or both directions.<a href="#section-3.4.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.4.3-2">Single directional observer:<a href="#section-3.4.3-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.4.3-3.1">upstream loss in the observed direction: the loss between the sender and the
+observation point (see <a href="#upstreamloss" class="auto internal xref">Section 3.2.2</a>)<a href="#section-3.4.3-3.1" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.4.3-3.2">"three-quarters" connection loss: the loss between the receiver and
+the sender in the unobserved direction plus the loss between the
+sender and the observation point in the observed direction<a href="#section-3.4.3-3.2" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.4.3-3.3">end-to-end loss in the unobserved direction: the loss between the
+receiver and the sender in the opposite direction<a href="#section-3.4.3-3.3" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-3.4.3-4">Two directions observer (same metrics seen previously applied to both
+direction, plus):<a href="#section-3.4.3-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.4.3-5.1">client-observer half round-trip loss: the loss between the client
+and the observation point in both directions<a href="#section-3.4.3-5.1" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.4.3-5.2">observer-server half round-trip loss: the loss between the
+observation point and the server in both directions<a href="#section-3.4.3-5.2" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.4.3-5.3">downstream loss: the loss between the observation point and the
+receiver (applicable to both directions)<a href="#section-3.4.3-5.3" class="pilcrow">¶</a>
+</li>
+          </ul>
+<div id="tqloss">
+<section id="section-3.4.3.1">
+            <h5 id="name-three-quarters-connection-l">
+<a href="#section-3.4.3.1" class="section-number selfRef">3.4.3.1. </a><a href="#name-three-quarters-connection-l" class="section-name selfRef">Three-Quarters Connection Loss</a>
+            </h5>
+<p id="section-3.4.3.1-1">Except for the very first block in which there is nothing to reflect
+(a complete Q Block has not been yet received), packets are
+continuously R-bit marked into alternate blocks of size lower or equal
+than N.  Knowing the value of N, an on-path observer can estimate the
+amount of loss occurred in the whole opposite channel plus the loss
+from the sender up to it in the observation channel. As for the
+previous metric, the <code>three-quarters</code> connection loss rate (<code>tqloss</code>) is
+one minus the average number of packets in a block of packets with the
+same R value (<code>t</code>) divided by <code>N</code> (<code>tqloss=1-avg(t)/N</code>).<a href="#section-3.4.3.1-1" class="pilcrow">¶</a></p>
+<span id="name-three-quarters-connection-lo"></span><figure id="figure-10">
+              <div class="alignLeft art-text artwork" id="section-3.4.3.1-2.1">
+<pre>
+        =======================&gt;
+        = **********     -----Obs----&gt;     **********
+        = * Client *                       * Server *
+        = **********     &lt;------------     **********
+        &lt;============================================
+
+            (a) in client-server channel (tqloss_up)
+
+          ============================================&gt;
+          **********     ------------&gt;     ********** =
+          * Client *                       * Server * =
+          **********     &lt;----Obs-----     ********** =
+                               &lt;=======================
+
+            (b) in server-client channel (tqloss_down)
+</pre>
+</div>
+<figcaption><a href="#figure-10" class="selfRef">Figure 10</a>:
+<a href="#name-three-quarters-connection-lo" class="selfRef">Three-quarters connection loss</a>
+              </figcaption></figure>
+<p id="section-3.4.3.1-3">The following metrics derive from this last metric and the upstream
+loss produced by the Q bit.<a href="#section-3.4.3.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="end-to-end-loss-in-the-opposite-direction">
+<section id="section-3.4.3.2">
+            <h5 id="name-end-to-end-loss-in-the-oppo">
+<a href="#section-3.4.3.2" class="section-number selfRef">3.4.3.2. </a><a href="#name-end-to-end-loss-in-the-oppo" class="section-name selfRef">End-To-End Loss in the Opposite Direction</a>
+            </h5>
+<p id="section-3.4.3.2-1">End-to-end loss in the unobserved direction (<code>eloss_unobserved</code>) relates to the
+"three-quarters" connection loss (<code>tqloss</code>) and upstream loss in the observed
+direction (<code>uloss</code>) as <code>(1-eloss_unobserved)(1-uloss)=1-tqloss</code>.  Hence,
+<code>eloss_unobserved=(tqloss-uloss)/(1-uloss)</code>.<a href="#section-3.4.3.2-1" class="pilcrow">¶</a></p>
+<span id="name-end-to-end-loss-in-the-oppos"></span><figure id="figure-11">
+              <div class="alignLeft art-text artwork" id="section-3.4.3.2-2.1">
+<pre>
+          **********     -----Obs----&gt;     **********
+          * Client *                       * Server *
+          **********     &lt;------------     **********
+          &lt;==========================================
+
+            (a) in client-server channel (eloss_down)
+
+          ==========================================&gt;
+          **********     ------------&gt;     **********
+          * Client *                       * Server *
+          **********     &lt;----Obs-----     **********
+
+            (b) in server-client channel (eloss_up)
+</pre>
+</div>
+<figcaption><a href="#figure-11" class="selfRef">Figure 11</a>:
+<a href="#name-end-to-end-loss-in-the-oppos" class="selfRef">End-To-End loss in the opposite direction</a>
+              </figcaption></figure>
+</section>
+</div>
+<div id="half-round-trip-loss">
+<section id="section-3.4.3.3">
+            <h5 id="name-half-round-trip-loss">
+<a href="#section-3.4.3.3" class="section-number selfRef">3.4.3.3. </a><a href="#name-half-round-trip-loss" class="section-name selfRef">Half Round-Trip Loss</a>
+            </h5>
+<p id="section-3.4.3.3-1">If the observer is able to observe both directions of traffic, it is able to
+calculate two "half round-trip" loss measurements -- loss from the observer to
+the receiver (in a given direction) and then back to the observer in the
+opposite direction.  For both directions, "half round-trip" loss (<code>hrtloss</code>)
+relates to "three-quarters" connection loss (<code>tqloss_opposite</code>) measured in the
+opposite direction and the upstream loss (<code>uloss</code>) measured in the given
+direction as <code>(1-uloss)(1-hrtloss)=1-tqloss_opposite</code>.  Hence,
+<code>hrtloss=(tqloss_opposite-uloss)/(1-uloss)</code>.<a href="#section-3.4.3.3-1" class="pilcrow">¶</a></p>
+<span id="name-half-round-trip-loss-both-d"></span><figure id="figure-12">
+              <div class="alignLeft art-text artwork" id="section-3.4.3.3-2.1">
+<pre>
+        =======================&gt;
+        = **********     ------|-----&gt;     **********
+        = * Client *          Obs          * Server *
+        = **********     &lt;-----|------     **********
+        &lt;=======================
+
+      (a) client-observer half round-trip loss (hrtloss_co)
+
+                               =======================&gt;
+          **********     ------|-----&gt;     ********** =
+          * Client *          Obs          * Server * =
+          **********     &lt;-----|------     ********** =
+                               &lt;=======================
+
+      (b) observer-server half round-trip loss (hrtloss_os)
+</pre>
+</div>
+<figcaption><a href="#figure-12" class="selfRef">Figure 12</a>:
+<a href="#name-half-round-trip-loss-both-d" class="selfRef">Half Round-trip loss (both direction)</a>
+              </figcaption></figure>
+</section>
+</div>
+<div id="downstream-loss">
+<section id="section-3.4.3.4">
+            <h5 id="name-downstream-loss-2">
+<a href="#section-3.4.3.4" class="section-number selfRef">3.4.3.4. </a><a href="#name-downstream-loss-2" class="section-name selfRef">Downstream Loss</a>
+            </h5>
+<p id="section-3.4.3.4-1">If the observer is able to observe both directions of traffic, it is able to
+calculate two downstream loss measurements using either end-to-end loss and
+upstream loss, similar to the calculation in <a href="#downstreamloss" class="auto internal xref">Section 3.3.2.2</a> or using "half
+round-trip" loss and upstream loss in the opposite direction.<a href="#section-3.4.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.4.3.4-2">For the latter, <code>dloss=(hrtloss-uloss_opposite)/(1-uloss_opposite)</code>.<a href="#section-3.4.3.4-2" class="pilcrow">¶</a></p>
+<span id="name-downstream-loss-3"></span><figure id="figure-13">
+              <div class="alignLeft art-text artwork" id="section-3.4.3.4-3.1">
+<pre>
+                               =====================&gt;
+          **********     ------|-----&gt;     **********
+          * Client *          Obs          * Server *
+          **********     &lt;-----|------     **********
+
+             (a) in client-server channel (dloss_up)
+
+          **********     ------|-----&gt;     **********
+          * Client *          Obs          * Server *
+          **********     &lt;-----|------     **********
+          &lt;=====================
+
+             (b) in server-client channel (dloss_down)
+</pre>
+</div>
+<figcaption><a href="#figure-13" class="selfRef">Figure 13</a>:
+<a href="#name-downstream-loss-3" class="selfRef">Downstream loss</a>
+              </figcaption></figure>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="e-bit-ecn-echo-event-bit">
+<section id="section-3.5">
+        <h3 id="name-e-bit-ecn-echo-event-bit">
+<a href="#section-3.5" class="section-number selfRef">3.5. </a><a href="#name-e-bit-ecn-echo-event-bit" class="section-name selfRef">E Bit -- ECN-Echo Event Bit</a>
+        </h3>
+<p id="section-3.5-1">While the primary focus of this draft is on exposing packet loss and
+delay, modern networks can report congestion before they are forced to
+drop packets, as described in <span>[<a href="#ECN" class="cite xref">ECN</a>]</span>.  When transport protocols keep
+ECN-Echo feedback under encryption, this signal cannot be observed by
+the network operators.  When tasked with diagnosing network
+performance problems, knowledge of a congestion downstream of an
+observation point can be instrumental.<a href="#section-3.5-1" class="pilcrow">¶</a></p>
+<p id="section-3.5-2">If downstream congestion information is desired, this information can be
+signaled with an additional bit.<a href="#section-3.5-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.5-3.1">E: The "ECN-Echo Event" bit is set to 0 or 1 according to the Unreported ECN
+Echo counter, as explained below in <a href="#ecnbit" class="auto internal xref">Section 3.5.1</a>.<a href="#section-3.5-3.1" class="pilcrow">¶</a>
+</li>
+        </ul>
+<div id="ecnbit">
+<section id="section-3.5.1">
+          <h4 id="name-setting-the-ecn-echo-event-">
+<a href="#section-3.5.1" class="section-number selfRef">3.5.1. </a><a href="#name-setting-the-ecn-echo-event-" class="section-name selfRef">Setting the ECN-Echo Event Bit on Outgoing Packets</a>
+          </h4>
+<p id="section-3.5.1-1">The Unreported ECN-Echo counter operates identically to Unreported Loss counter
+(<a href="#lossbit" class="auto internal xref">Section 3.3</a>), except it counts packets delivered by the network with CE
+markings, according to the ECN-Echo feedback from the receiver.<a href="#section-3.5.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.5.1-2">This ECN-Echo signaling is similar to ECN signaling in <span>[<a href="#ConEx" class="cite xref">ConEx</a>]</span>. ECN-Echo
+mechanism in QUIC provides the number of packets received with CE marks. For
+protocols like TCP, the method described in <span>[<a href="#ConEx-TCP" class="cite xref">ConEx-TCP</a>]</span> can be employed. As
+stated in <span>[<a href="#ConEx-TCP" class="cite xref">ConEx-TCP</a>]</span>, such feedback can be further improved using a method
+described in <span>[<a href="#ACCURATE-ECN" class="cite xref">ACCURATE-ECN</a>]</span>.<a href="#section-3.5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="ech-usage">
+<section id="section-3.5.2">
+          <h4 id="name-using-e-bit-for-passive-ecn">
+<a href="#section-3.5.2" class="section-number selfRef">3.5.2. </a><a href="#name-using-e-bit-for-passive-ecn" class="section-name selfRef">Using E Bit for Passive ECN-Reported Congestion Measurement</a>
+          </h4>
+<p id="section-3.5.2-1">A network observer can count packets with CE codepoint and determine the
+upstream CE-marking rate directly.<a href="#section-3.5.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.5.2-2">Observation points can also estimate ECN-reported end-to-end congestion by
+counting packets in this direction with a E bit equal to 1.<a href="#section-3.5.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.5.2-3">The upstream CE-marking rate and end-to-end ECN-reported congestion can provide
+information about downstream CE-marking rate. Presence of E bits along with L
+bits, however, can somewhat confound precise estimates of upstream and
+downstream CE-markings in case the flow contains packets that are not
+ECN-capable.<a href="#section-3.5.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="summary-of-delay-and-loss-marking-methods">
+<section id="section-4">
+      <h2 id="name-summary-of-delay-and-loss-m">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-summary-of-delay-and-loss-m" class="section-name selfRef">Summary of Delay and Loss Marking Methods</a>
+      </h2>
+<p id="section-4-1">This section summarizes the marking methods described in this draft.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">For the Delay measurement, it is possible to use the Spin bit and/or the delay
+bit. A unidirectional or bidirectional observer can be used.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<span id="name-delay-comparison"></span><div id="fig_summary_D">
+<figure id="figure-14">
+        <div class="alignLeft art-text artwork" id="section-4-3.1">
+<pre>
+ +---------------+----+------------------------+--------------------+
+ | Method        |# of|        Available       |             | # of |
+ |               |bits|      Delay Metrics     | Impairments | meas.|
+ |               |    +------------+-----------+ Resiliency  |      |
+ |               |    |   UniDir   |   BiDir   |             |      |
+ |               |    |  Observer  |  Observer |             |      |
+ +---------------+----+------------+-----------+-------------+------+
+ |S: Spin Bit    | 1  | RTT        | x2        | low         | very |
+ |               |    |            | Half RTT  |             | high |
+ +---------------+----+------------+-----------+-------------+------+
+ |D: Delay Bit   | 1  | RTT        | x2        | high        |medium|
+ |               |    |            | Half RTT  |             |      |
+ +---------------+----+------------+-----------+-------------+------+
+ |SD: Spin Bit &amp; | 2  | RTT        | x2        | high        | very |
+ |    Delay Bit *|    |            | Half RTT  |             | high |
+ +---------------+----+------------+-----------+-------------+------+
+
+ x2 Same metric for both directions
+ *  Both bits work independently; an observer could use less accurate
+    Spin bit measurements when Delay bit ones are unavailable
+</pre>
+</div>
+<figcaption><a href="#figure-14" class="selfRef">Figure 14</a>:
+<a href="#name-delay-comparison" class="selfRef">Delay Comparison</a>
+        </figcaption></figure>
+</div>
+<p id="section-4-4">For the Loss measurement, each row in the table of <a href="#fig_summary_L" class="auto internal xref">Figure 15</a>
+represents a loss marking method. For each method the table specifies
+the number of bits required in the header, the available metrics using
+an unidirectional or bidirectional observer, applicable protocols,
+measurement fidelity and delay.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<span id="name-loss-comparison"></span><div id="fig_summary_L">
+<figure id="figure-15">
+        <div class="alignLeft art-text artwork" id="section-4-5.1">
+<pre>
+ +-------------+-+-----------------------+-+------------------------+
+ | Method      |B|        Available      |P|  Measurement Aspects   |
+ |             |i|      Loss Metrics     |r+------------+-----------+
+ |             |t|   UniDir  |   BiDir   |t|  Fidelity  |   Delay   |
+ |             |s|  Observer |  Observer |o|            |           |
+ +-------------+-+-----------+-----------+-+------------+-----------+
+ |T: Round Trip|$| RT        | x2        | | Rate by    | ~6 RTT    |
+ |   Loss Bit  |1|           | Half RT   |*| sampling   +-----------+
+ |             | |           |           | | 1/3 to 1/(3*ppa) of    |
+ |             | |           |           | | pkts over 2 RTT        |
+ +-------------+-+-----------+-----------+-+------------+-----------+
+ |Q: sQuare Bit|1| Upstream  | x2        |*| Rate over  | N pkts    |
+ |             | |           |           | | N pkts     | (e.g. 64) |
+ |             | |           |           | | (e.g. 64)  |           |
+ +-------------+-+-----------+-----------+-+------------+-----------+
+ |L: Loss Event|1| E2E       | x2        |#| Loss shape | Min: RTT  |
+ |   Bit       | |           |           | | (and rate) | Max: RTO  |
+ +-------------+-+-----------+-----------+-+------------+-----------+
+ |QL: sQuare + |2| Upstream  | x2        | | -&gt; see Q   | Up: see Q |
+ |    Loss Ev. | | Downstream| x2        |#| -&gt; see Q|L | Others:   |
+ |    Bits     | | E2E       | x2        | | -&gt; see L   |     see L |
+ +-------------+-+-----------+-----------+-+------------+-----------+
+ |QR: sQuare + |2| Upstream  | x2        | | Rate over  | Up: see Q |
+ |    Ref. Sq. | | 3/4 RT    | x2        | | N*ppa pkts | Others:   |
+ |    Bits     | | !E2E      | E2E       |*| (see Q bit |  N*ppa pk |
+ |             | |           | Downstream| |   for N)   |   (see Q  |
+ |             | |           | Half RT   | |            |    for N) |
+ +-------------+-+-----------+-----------+-+------------+-----------+
+
+ *   All protocols
+ #   Protocols employing loss detection
+     (with or without pure ACK loss detection)
+ $   Require a working Spin bit
+ !   Metric relative to the opposite channel
+ x2  Same metric for both directions
+ ppa Packets-Per-Ack
+ Q|L See Q if Upstream loss is significant; L otherwise
+</pre>
+</div>
+<figcaption><a href="#figure-15" class="selfRef">Figure 15</a>:
+<a href="#name-loss-comparison" class="selfRef">Loss Comparison</a>
+        </figcaption></figure>
+</div>
+</section>
+</div>
+<div id="ossification">
+<section id="section-5">
+      <h2 id="name-protocol-ossification-consi">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-protocol-ossification-consi" class="section-name selfRef">Protocol Ossification Considerations</a>
+      </h2>
+<p id="section-5-1">Accurate loss and delay information is not critical to the operation of any protocol,
+though its presence for a sufficient number of flows is important for the
+operation of networks.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">The delay and loss bits are amenable to "greasing" described in <span>[<a href="#RFC8701" class="cite xref">RFC8701</a>]</span>, if
+the protocol designers are not ready to dedicate (and ossify) bits used for loss
+reporting to this function. The greasing could be accomplished similarly to the
+Latency Spin bit greasing in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>. Namely, implementations could
+decide that a fraction of flows should not encode loss and delay information and,
+instead, the bits would be set to arbitrary values. The observers would need to be
+ready to ignore flows with delay and loss information more resembling noise
+than the expected signal.<a href="#section-5-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="examples-of-application">
+<section id="section-6">
+      <h2 id="name-examples-of-application">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-examples-of-application" class="section-name selfRef">Examples of Application</a>
+      </h2>
+<div id="quic">
+<section id="section-6.1">
+        <h3 id="name-quic">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-quic" class="section-name selfRef">QUIC</a>
+        </h3>
+<p id="section-6.1-1">The binding of a delay signal to QUIC is partially described in
+<span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>, which adds the Spin bit to the first byte of the short
+packet header, leaving two reserved bits for future use.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-2">To implement the additional signals discussed in this document, the
+first byte of the short packet header can be modified as follows:<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6.1-3.1">the Delay bit (D) can be placed in the first reserved bit (i.e. the fourth
+most significant bit <em>0x10</em>) while the round trip loss bit (T) in the second
+reserved bit (i.e. the fifth most significant bit <em>0x08</em>); the proposed
+scheme is:<a href="#section-6.1-3.1" class="pilcrow">¶</a>
+</li>
+        </ul>
+<span id="name-scheme-1"></span><figure id="figure-16">
+          <div class="alignLeft art-text artwork" id="section-6.1-4.1">
+<pre>
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|S|D|T|K|P|P|
+         +-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-16" class="selfRef">Figure 16</a>:
+<a href="#name-scheme-1" class="selfRef">Scheme 1</a>
+          </figcaption></figure>
+<ul class="normal">
+<li class="normal" id="section-6.1-5.1">alternatively, a two bits loss signal (QL or QR) can be placed in both
+reserved bits; the proposed schemes, in this case, are:<a href="#section-6.1-5.1" class="pilcrow">¶</a>
+</li>
+        </ul>
+<span id="name-scheme-2a"></span><figure id="figure-17">
+          <div class="alignLeft art-text artwork" id="section-6.1-6.1">
+<pre>
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|S|Q|L|K|P|P|
+         +-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-17" class="selfRef">Figure 17</a>:
+<a href="#name-scheme-2a" class="selfRef">Scheme 2A</a>
+          </figcaption></figure>
+<span id="name-scheme-2b"></span><figure id="figure-18">
+          <div class="alignLeft art-text artwork" id="section-6.1-7.1">
+<pre>
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|S|Q|R|K|P|P|
+         +-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-18" class="selfRef">Figure 18</a>:
+<a href="#name-scheme-2b" class="selfRef">Scheme 2B</a>
+          </figcaption></figure>
+<p id="section-6.1-8">A further option would be to substitute the Spin bit with the Delay bit,
+leaving the two reserved bits for loss detection. The proposed schemes
+are:<a href="#section-6.1-8" class="pilcrow">¶</a></p>
+<span id="name-scheme-3a"></span><figure id="figure-19">
+          <div class="alignLeft art-text artwork" id="section-6.1-9.1">
+<pre>
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|D|Q|L|K|P|P|
+         +-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-19" class="selfRef">Figure 19</a>:
+<a href="#name-scheme-3a" class="selfRef">Scheme 3A</a>
+          </figcaption></figure>
+<span id="name-scheme-3b"></span><figure id="figure-20">
+          <div class="alignLeft art-text artwork" id="section-6.1-10.1">
+<pre>
+          0 1 2 3 4 5 6 7
+         +-+-+-+-+-+-+-+-+
+         |0|1|D|Q|R|K|P|P|
+         +-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-20" class="selfRef">Figure 20</a>:
+<a href="#name-scheme-3b" class="selfRef">Scheme 3B</a>
+          </figcaption></figure>
+</section>
+</div>
+<div id="tcp">
+<section id="section-6.2">
+        <h3 id="name-tcp">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-tcp" class="section-name selfRef">TCP</a>
+        </h3>
+<p id="section-6.2-1">The signals can be added to TCP by defining bit 4 of byte 13 of the TCP header
+to carry the Spin bit or the Delay bit, and possibly bits 5 and 6 to carry
+additional information, like the Delay bit and the round-trip loss bit (DT), or
+a two bits loss signal (QL or QR).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-7">
+      <h2 id="name-security-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-7-1">Passive loss and delay observations have been a part of the network operations
+for a long time, so exposing loss and delay information to the network does not
+add new security concerns for protocols that are currently observable.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-2">In the absence of packet loss, Q and R bits signals do not provide any
+information that cannot be observed by simply counting packets transiting a
+network path. In the presence of packet loss, Q and R bits will disclose
+the loss, but this is information about the environment and not the endpoint
+state. The L bit signal discloses internal state of the protocol's loss
+detection machinery, but this state can often be gleamed by timing packets and
+observing congestion controller response.<a href="#section-7-2" class="pilcrow">¶</a></p>
+<p id="section-7-3">Hence, loss bits do not provide a viable new mechanism to attack data integrity
+and secrecy.<a href="#section-7-3" class="pilcrow">¶</a></p>
+<p id="section-7-4">The described techniques can generally apply to different communication
+protocols operating in different security environments. An implementation of
+these techniques for a particular protocol must consider specifics of the
+protocol and its expected operating environment. For example, security
+considerations for QUIC, discussed in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> and <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>,
+consider a possibility of active and passive attackers in the network as well
+as attacks on specific QUIC mechanisms.<a href="#section-7-4" class="pilcrow">¶</a></p>
+<div id="optimistic-ack-attack">
+<section id="section-7.1">
+        <h3 id="name-optimistic-ack-attack">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-optimistic-ack-attack" class="section-name selfRef">Optimistic ACK Attack</a>
+        </h3>
+<p id="section-7.1-1">A defense against an Optimistic ACK Attack, described in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>,
+involves a sender randomly skipping packet numbers to detect a receiver
+acknowledging packet numbers that have never been received. The Q bit signal may
+inform the attacker which packet numbers were skipped on purpose and which had
+been actually lost (and are, therefore, safe for the attacker to
+acknowledge). To use the Q bit for this purpose, the attacker must first receive
+at least an entire Q Block of packets, which renders the attack ineffective
+against a delay-sensitive congestion controller.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1-2">A protocol that is more susceptible to an Optimistic ACK Attack with the loss
+signal provided by Q bit and uses a loss-based congestion controller, should
+shorten the current Q Block by the number of skipped packets numbers. For example,
+skipping a single packet number will invert the square signal one outgoing
+packet sooner.<a href="#section-7.1-2" class="pilcrow">¶</a></p>
+<p id="section-7.1-3">Similar considerations apply to the R bit, although a shortened R Block along
+with a matching skip in packet numbers does not necessarily imply a lost
+packet, since it could be due to a lost packet on the reverse path along with a
+deliberately skipped packet by the sender.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="delay-bit-with-rtt-obfuscation">
+<section id="section-7.2">
+        <h3 id="name-delay-bit-with-rtt-obfuscat">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-delay-bit-with-rtt-obfuscat" class="section-name selfRef">Delay Bit with RTT Obfuscation</a>
+        </h3>
+<p id="section-7.2-1">Theoretically, delay measurements can be used to roughly evaluate the distance
+of the client from the server (using the RTT) or from any intermediate observer
+(using the client-observer half-RTT). As described in <span>[<a href="#RTT-PRIVACY" class="cite xref">RTT-PRIVACY</a>]</span>, connection
+RTT measurements for geolocating endpoints are usually inferior to even the
+most basic IP geolocation databases. It is the variability within RTT
+measurements (the jitter) that is most informative, as it can provide insight
+into the operating environment of the endpoints as well as the state of the
+networks (queuing delays) used by the connection.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">Nevertheless, to further mask the actual RTT of the connection, the Delay bit
+algorithm can be slightly modified by, for example, delaying the client-side
+reflection of the delay sample by a fixed randomly chosen time value. This
+would lead an intermediate observer to measure a delay greater than the real
+one.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">This Additional Delay should be randomly selected by the client and kept
+constant for a certain amount of time across multiple connections. This ensures
+that the client-server jitter remains the same as if no Additional Delay had
+been inserted. For example, a new Additional Delay value could be generated
+whenever the client's IP address changes.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-4">Despite the Additional Delay, this Hidden Delay technique still allows an
+accurate measurement of the RTT components (observer-server) and all the
+intra-domain measurements used to distribute the delay in the network.
+Furthermore, unlike the Delay bit, the Hidden Delay bit does not require the
+use of the client reflection threshold (1ms by default). Removing this
+threshold may lead to increasing the number of valid measurements produced by
+the algorithm.<a href="#section-7.2-4" class="pilcrow">¶</a></p>
+<p id="section-7.2-5">Note that Hidden Delay bit does not affect an observer's ability to measure
+accurate RTT using other means, such as timing packets exchanged during the
+connection establishment.<a href="#section-7.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy-considerations">
+<section id="section-8">
+      <h2 id="name-privacy-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-8-1">To minimize unintentional exposure of information, loss bits provide an explicit
+loss signal -- a preferred way to share information per <span>[<a href="#RFC8558" class="cite xref">RFC8558</a>]</span>.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">New protocols commonly have specific privacy goals, and loss reporting must
+ensure that loss information does not compromise those privacy goals. For
+example, <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> allows changing Connection IDs in the middle of a
+connection to reduce the likelihood of a passive observer linking old and new
+sub-flows to the same device. A QUIC implementation would need to reset all
+counters when it changes the destination (IP address or UDP port) or the
+Connection ID used for outgoing packets. It would also need to avoid
+incrementing Unreported Loss counter for loss of packets sent to a different
+destination or with a different Connection ID.<a href="#section-8-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-9">
+      <h2 id="name-iana-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-9-1">This document makes no request of IANA.<a href="#section-9-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="contributors">
+<section id="section-10">
+      <h2 id="name-contributors">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-contributors" class="section-name selfRef">Contributors</a>
+      </h2>
+<p id="section-10-1">The following people provided valuable contributions to this document:<a href="#section-10-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-10-2.1">Marcus Ihlar, Ericsson, marcus.ihlar@ericsson.com<a href="#section-10-2.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-10-2.2">Jari Arkko, Ericsson, jari.arkko@ericsson.com<a href="#section-10-2.2" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-10-2.3">Emile Stephan, Orange, emile.stephan@orange.com<a href="#section-10-2.3" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-10-2.4">Dmitri Tikhonov, LiteSpeed Technologies, dtikhonov@litespeedtech.com<a href="#section-10-2.4" class="pilcrow">¶</a>
+</li>
+      </ul>
+</section>
+</div>
+<div id="acknowledgements">
+<section id="section-11">
+      <h2 id="name-acknowledgements">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="section-11-1">The authors would like to thank the QUIC WG for their contributions, Christian
+Huitema for implementing Q and L bits in his picoquic stack, and Ike Kunze for
+providing constructive reviews and helpful suggestions.<a href="#section-11-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<section id="section-12">
+      <h2 id="name-references">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<section id="section-12.1">
+        <h3 id="name-normative-references">
+<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="ECN">[ECN]</dt>
+        <dd>
+<span class="refAuthor">Ramakrishnan, K.</span>, <span class="refAuthor">Floyd, S.</span>, and <span class="refAuthor">D. Black</span>, <span class="refTitle">"The Addition of Explicit Congestion Notification (ECN) to IP"</span>, <span class="seriesInfo">RFC 3168</span>, <span class="seriesInfo">DOI 10.17487/RFC3168</span>, <time datetime="2001-09" class="refDate">September 2001</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3168">https://www.rfc-editor.org/rfc/rfc3168</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="IP">[IP]</dt>
+        <dd>
+<span class="refAuthor">Postel, J.</span>, <span class="refTitle">"Internet Protocol"</span>, <span class="seriesInfo">STD 5</span>, <span class="seriesInfo">RFC 791</span>, <span class="seriesInfo">DOI 10.17487/RFC0791</span>, <time datetime="1981-09" class="refDate">September 1981</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc791">https://www.rfc-editor.org/rfc/rfc791</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="IPPM-METHODS">[IPPM-METHODS]</dt>
+        <dd>
+<span class="refAuthor">Morton, A.</span>, <span class="refTitle">"Active and Passive Metrics and Methods (with Hybrid Types In-Between)"</span>, <span class="seriesInfo">RFC 7799</span>, <span class="seriesInfo">DOI 10.17487/RFC7799</span>, <time datetime="2016-05" class="refDate">May 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7799">https://www.rfc-editor.org/rfc/rfc7799</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="IPv6">[IPv6]</dt>
+        <dd>
+<span class="refAuthor">Deering, S.</span> and <span class="refAuthor">R. Hinden</span>, <span class="refTitle">"Internet Protocol, Version 6 (IPv6) Specification"</span>, <span class="seriesInfo">STD 86</span>, <span class="seriesInfo">RFC 8200</span>, <span class="seriesInfo">DOI 10.17487/RFC8200</span>, <time datetime="2017-07" class="refDate">July 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8200">https://www.rfc-editor.org/rfc/rfc8200</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-TRANSPORT">[QUIC-TRANSPORT]</dt>
+        <dd>
+<span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">M. Thomson, Ed.</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="seriesInfo">RFC 9000</span>, <span class="seriesInfo">DOI 10.17487/RFC9000</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8558">[RFC8558]</dt>
+        <dd>
+<span class="refAuthor">Hardie, T., Ed.</span>, <span class="refTitle">"Transport Protocol Path Signals"</span>, <span class="seriesInfo">RFC 8558</span>, <span class="seriesInfo">DOI 10.17487/RFC8558</span>, <time datetime="2019-04" class="refDate">April 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8558">https://www.rfc-editor.org/rfc/rfc8558</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TCP">[TCP]</dt>
+      <dd>
+<span class="refAuthor">Eddy, W., Ed.</span>, <span class="refTitle">"Transmission Control Protocol (TCP)"</span>, <span class="seriesInfo">STD 7</span>, <span class="seriesInfo">RFC 9293</span>, <span class="seriesInfo">DOI 10.17487/RFC9293</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9293">https://www.rfc-editor.org/rfc/rfc9293</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<section id="section-12.2">
+        <h3 id="name-informative-references">
+<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="ACCURATE-ECN">[ACCURATE-ECN]</dt>
+        <dd>
+<span class="refAuthor">Briscoe, B.</span>, <span class="refAuthor">Kühlewind, M.</span>, and <span class="refAuthor">R. Scheffenegger</span>, <span class="refTitle">"More Accurate ECN Feedback in TCP"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tcpm-accurate-ecn-22</span>, <time datetime="2022-11-09" class="refDate">9 November 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tcpm-accurate-ecn-22">https://datatracker.ietf.org/doc/html/draft-ietf-tcpm-accurate-ecn-22</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="AltMark">[AltMark]</dt>
+        <dd>
+<span class="refAuthor">Fioccola, G., Ed.</span>, <span class="refAuthor">Cociglio, M.</span>, <span class="refAuthor">Mirsky, G.</span>, <span class="refAuthor">Mizrahi, T.</span>, and <span class="refAuthor">T. Zhou</span>, <span class="refTitle">"Alternate-Marking Method"</span>, <span class="seriesInfo">RFC 9341</span>, <span class="seriesInfo">DOI 10.17487/RFC9341</span>, <time datetime="2022-12" class="refDate">December 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9341">https://www.rfc-editor.org/rfc/rfc9341</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ANRW19-PM-QUIC">[ANRW19-PM-QUIC]</dt>
+        <dd>
+<span class="refAuthor">Bulgarella, F.</span>, <span class="refAuthor">Cociglio, M.</span>, <span class="refAuthor">Fioccola, G.</span>, <span class="refAuthor">Marchetto, G.</span>, and <span class="refAuthor">R. Sisto</span>, <span class="refTitle">"Performance measurements of QUIC communications"</span>, <span class="seriesInfo">Proceedings of the Applied Networking Research Workshop</span>, <span class="seriesInfo">DOI 10.1145/3340301.3341127</span>, <time datetime="2019-07" class="refDate">July 2019</time>, <span>&lt;<a href="https://doi.org/10.1145/3340301.3341127">https://doi.org/10.1145/3340301.3341127</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ConEx">[ConEx]</dt>
+        <dd>
+<span class="refAuthor">Mathis, M.</span> and <span class="refAuthor">B. Briscoe</span>, <span class="refTitle">"Congestion Exposure (ConEx) Concepts, Abstract Mechanism, and Requirements"</span>, <span class="seriesInfo">RFC 7713</span>, <span class="seriesInfo">DOI 10.17487/RFC7713</span>, <time datetime="2015-12" class="refDate">December 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7713">https://www.rfc-editor.org/rfc/rfc7713</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ConEx-TCP">[ConEx-TCP]</dt>
+        <dd>
+<span class="refAuthor">Kuehlewind, M., Ed.</span> and <span class="refAuthor">R. Scheffenegger</span>, <span class="refTitle">"TCP Modifications for Congestion Exposure (ConEx)"</span>, <span class="seriesInfo">RFC 7786</span>, <span class="seriesInfo">DOI 10.17487/RFC7786</span>, <time datetime="2016-05" class="refDate">May 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7786">https://www.rfc-editor.org/rfc/rfc7786</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.trammell-ippm-spin">[I-D.trammell-ippm-spin]</dt>
+        <dd>
+<span class="refAuthor">Trammell, B.</span>, <span class="refTitle">"An Explicit Transport-Layer Signal for Hybrid RTT Measurement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-trammell-ippm-spin-00</span>, <time datetime="2019-01-09" class="refDate">9 January 2019</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-trammell-ippm-spin-00">https://datatracker.ietf.org/doc/html/draft-trammell-ippm-spin-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.trammell-tsvwg-spin">[I-D.trammell-tsvwg-spin]</dt>
+        <dd>
+<span class="refAuthor">Trammell, B.</span>, <span class="refTitle">"A Transport-Independent Explicit Signal for Hybrid RTT Measurement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-trammell-tsvwg-spin-00</span>, <time datetime="2018-07-02" class="refDate">2 July 2018</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-trammell-tsvwg-spin-00">https://datatracker.ietf.org/doc/html/draft-trammell-tsvwg-spin-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="IPv6AltMark">[IPv6AltMark]</dt>
+        <dd>
+<span class="refAuthor">Fioccola, G.</span>, <span class="refAuthor">Zhou, T.</span>, <span class="refAuthor">Cociglio, M.</span>, <span class="refAuthor">Qin, F.</span>, and <span class="refAuthor">R. Pang</span>, <span class="refTitle">"IPv6 Application of the Alternate-Marking Method"</span>, <span class="seriesInfo">RFC 9343</span>, <span class="seriesInfo">DOI 10.17487/RFC9343</span>, <time datetime="2022-12" class="refDate">December 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9343">https://www.rfc-editor.org/rfc/rfc9343</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-MANAGEABILITY">[QUIC-MANAGEABILITY]</dt>
+        <dd>
+<span class="refAuthor">Kühlewind, M.</span> and <span class="refAuthor">B. Trammell</span>, <span class="refTitle">"Manageability of the QUIC Transport Protocol"</span>, <span class="seriesInfo">RFC 9312</span>, <span class="seriesInfo">DOI 10.17487/RFC9312</span>, <time datetime="2022-09" class="refDate">September 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9312">https://www.rfc-editor.org/rfc/rfc9312</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-SPIN">[QUIC-SPIN]</dt>
+        <dd>
+<span class="refAuthor">Trammell, B.</span>, <span class="refAuthor">De Vaere, P.</span>, <span class="refAuthor">Even, R.</span>, <span class="refAuthor">Fioccola, G.</span>, <span class="refAuthor">Fossati, T.</span>, <span class="refAuthor">Ihlar, M.</span>, <span class="refAuthor">Morton, A. C.</span>, and <span class="refAuthor">S. Emile</span>, <span class="refTitle">"Adding Explicit Passive Measurability of Two-Way Latency to the QUIC Transport Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-trammell-quic-spin-03</span>, <time datetime="2018-05-14" class="refDate">14 May 2018</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-trammell-quic-spin-03">https://datatracker.ietf.org/doc/html/draft-trammell-quic-spin-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-TLS">[QUIC-TLS]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">S. Turner, Ed.</span>, <span class="refTitle">"Using TLS to Secure QUIC"</span>, <span class="seriesInfo">RFC 9001</span>, <span class="seriesInfo">DOI 10.17487/RFC9001</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9001">https://www.rfc-editor.org/rfc/rfc9001</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8701">[RFC8701]</dt>
+        <dd>
+<span class="refAuthor">Benjamin, D.</span>, <span class="refTitle">"Applying Generate Random Extensions And Sustain Extensibility (GREASE) to TLS Extensibility"</span>, <span class="seriesInfo">RFC 8701</span>, <span class="seriesInfo">DOI 10.17487/RFC8701</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8701">https://www.rfc-editor.org/rfc/rfc8701</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RTT-PRIVACY">[RTT-PRIVACY]</dt>
+        <dd>
+<span class="refAuthor">Trammell, B.</span> and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Revisiting the Privacy Implications of Two-Way Internet Latency Data"</span>, <span class="seriesInfo">Passive and Active Measurement pp. 73-84</span>, <span class="seriesInfo">DOI 10.1007/978-3-319-76481-8_6</span>, <time datetime="2018" class="refDate">2018</time>, <span>&lt;<a href="https://doi.org/10.1007/978-3-319-76481-8_6">https://doi.org/10.1007/978-3-319-76481-8_6</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TRANSPORT-ENCRYPT">[TRANSPORT-ENCRYPT]</dt>
+        <dd>
+<span class="refAuthor">Fairhurst, G.</span> and <span class="refAuthor">C. Perkins</span>, <span class="refTitle">"Considerations around Transport Header Confidentiality, Network Operations, and the Evolution of Internet Transport Protocols"</span>, <span class="seriesInfo">RFC 9065</span>, <span class="seriesInfo">DOI 10.17487/RFC9065</span>, <time datetime="2021-07" class="refDate">July 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9065">https://www.rfc-editor.org/rfc/rfc9065</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="UDP-OPTIONS">[UDP-OPTIONS]</dt>
+        <dd>
+<span class="refAuthor">Touch, J. D.</span>, <span class="refTitle">"Transport Options for UDP"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tsvwg-udp-options-19</span>, <time datetime="2022-12-27" class="refDate">27 December 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tsvwg-udp-options-19">https://datatracker.ietf.org/doc/html/draft-ietf-tsvwg-udp-options-19</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="UDP-SURPLUS">[UDP-SURPLUS]</dt>
+      <dd>
+<span class="refAuthor">Herbert, T.</span>, <span class="refTitle">"UDP Surplus Header"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-herbert-udp-space-hdr-01</span>, <time datetime="2019-07-08" class="refDate">8 July 2019</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-herbert-udp-space-hdr-01">https://datatracker.ietf.org/doc/html/draft-herbert-udp-space-hdr-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</section>
+<div id="authors-addresses">
+<section id="appendix-A">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Mauro Cociglio</span></div>
+<div dir="auto" class="left"><span class="org">Telecom Italia - TIM</span></div>
+<div dir="auto" class="left"><span class="street-address">Via Reiss Romoli, 274</span></div>
+<div dir="auto" class="left">
+<span class="postal-code">10148</span> <span class="locality">Torino</span> </div>
+<div dir="auto" class="left"><span class="country-name">Italy</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:mauro.cociglio@outlook.com" class="email">mauro.cociglio@outlook.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Alexandre Ferrieux</span></div>
+<div dir="auto" class="left"><span class="org">Orange Labs</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:alexandre.ferrieux@orange.com" class="email">alexandre.ferrieux@orange.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Giuseppe Fioccola</span></div>
+<div dir="auto" class="left"><span class="org">Huawei Technologies</span></div>
+<div dir="auto" class="left"><span class="street-address">Riesstrasse, 25</span></div>
+<div dir="auto" class="left">
+<span class="postal-code">80992</span> <span class="locality">Munich</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">Germany</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:giuseppe.fioccola@huawei.com" class="email">giuseppe.fioccola@huawei.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Igor Lubashev</span></div>
+<div dir="auto" class="left"><span class="org">Akamai Technologies</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:ilubashe@akamai.com" class="email">ilubashe@akamai.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Fabio Bulgarella</span></div>
+<div dir="auto" class="left"><span class="org">Telecom Italia - TIM</span></div>
+<div dir="auto" class="left"><span class="street-address">Via Reiss Romoli, 274</span></div>
+<div dir="auto" class="left">
+<span class="postal-code">10148</span> <span class="locality">Torino</span> </div>
+<div dir="auto" class="left"><span class="country-name">Italy</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:fabio.bulgarella@guest.telecomitalia.it" class="email">fabio.bulgarella@guest.telecomitalia.it</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Massimo Nilo</span></div>
+<div dir="auto" class="left"><span class="org">Telecom Italia - TIM</span></div>
+<div dir="auto" class="left"><span class="street-address">Via Reiss Romoli, 274</span></div>
+<div dir="auto" class="left">
+<span class="postal-code">10148</span> <span class="locality">Torino</span> </div>
+<div dir="auto" class="left"><span class="country-name">Italy</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:massimo.nilo@telecomitalia.it" class="email">massimo.nilo@telecomitalia.it</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Isabelle Hamchaoui</span></div>
+<div dir="auto" class="left"><span class="org">Orange Labs</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:isabelle.hamchaoui@orange.com" class="email">isabelle.hamchaoui@orange.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Riccardo Sisto</span></div>
+<div dir="auto" class="left"><span class="org">Politecnico di Torino</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:riccardo.sisto@polito.it" class="email">riccardo.sisto@polito.it</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
