@@ -124,7 +124,7 @@ document.
 
 Packet loss and delay are hard and pervasive problems of day-to-day network
 operation. Proactively detecting, measuring, and locating them is crucial to
-maintaining high QoS and timely resolution of end-to-end throughput issues. 
+maintaining high QoS and timely resolution of end-to-end throughput issues.
 To this effect, network operators have been heavily relying on information
 present in the clear in transport-layer headers (e.g. TCP sequence and
 acknowledgment numbers) to allow for quantitative estimation of packet loss
@@ -144,8 +144,8 @@ encrypted transport-layer protocols is highly desired especially by network
 operators that owns or controls the infrastructure between client and server.
 
 In this regard, the Alternate-Marking method {{AltMark}} defines a consolidated
-method to perform packet loss, delay, and jitter measurements on live traffic. 
-But, as mentioned in {{IPv6AltMark}}, it mainly applies to a network layer 
+method to perform packet loss, delay, and jitter measurements on live traffic.
+But, as mentioned in {{IPv6AltMark}}, it mainly applies to a network layer
 controlled domain managed with a Network Management System (NMS), where the
 CPE or the PE routers are the starting or the ending nodes. {{AltMark}} provides
 measurement within a controlled domain in which the packets are marked. Therefore,
@@ -1494,7 +1494,7 @@ and secrecy.
 
 The measurement fields introduced in this document are intended to be included
 into the packets. But it is worth mentioning that it may be possible to use this
-information as a covert channel.  
+information as a covert channel.
 
 The current document does not define a specific application and the described
 techniques can generally apply to different communication protocols operating in
