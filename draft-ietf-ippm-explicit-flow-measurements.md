@@ -141,7 +141,7 @@ by the network differently. Therefore it is necessary to measure packet loss
 and delay experienced by encrypted protocol users directly.
 Nevertheless, the accurate measurement of packet loss and delay experienced by
 encrypted transport-layer protocols is highly desired especially by network
-operators that owns or controls the infrastructure between client and server.
+operators that own or control the infrastructure between client and server.
 
 In this regard, the Alternate-Marking method {{AltMark}} defines a consolidated
 method to perform packet loss, delay, and jitter measurements on live traffic.
