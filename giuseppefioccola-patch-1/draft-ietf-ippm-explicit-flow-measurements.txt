@@ -5,7 +5,7 @@
 IPPM                                                         M. Cociglio
 Internet-Draft                                      Telecom Italia - TIM
 Intended status: Informational                               A. Ferrieux
-Expires: 15 December 2023                                    Orange Labs
+Expires: 17 December 2023                                    Orange Labs
                                                              G. Fioccola
                                                      Huawei Technologies
                                                              I. Lubashev
@@ -17,7 +17,7 @@ Expires: 15 December 2023                                    Orange Labs
                                                              Orange Labs
                                                                 R. Sisto
                                                    Politecnico di Torino
-                                                            13 June 2023
+                                                            15 June 2023
 
 
          Explicit Host-to-Network Flow Measurements Techniques
@@ -63,7 +63,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 December 2023.
+   This Internet-Draft will expire on 17 December 2023.
 
 Copyright Notice
 
@@ -165,7 +165,7 @@ Table of Contents
    encrypted protocol users directly.  Nevertheless, the accurate
    measurement of packet loss and delay experienced by encrypted
    transport-layer protocols is highly desired especially by network
-   operators that owns or controls the infrastructure between client and
+   operators that own or control the infrastructure between client and
    server.
 
    In this regard, the Alternate-Marking method [AltMark] defines a
