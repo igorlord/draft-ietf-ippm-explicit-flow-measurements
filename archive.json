@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-06-15T01:35:24.711719+00:00",
+  "timestamp": "2023-06-18T01:09:57.626091+00:00",
   "repo": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
   "labels": [
     {
@@ -911,13 +911,13 @@
       "labels": [],
       "body": "Revised I-D for IESG Evaluation",
       "createdAt": "2023-06-13T09:04:42Z",
-      "updatedAt": "2023-06-13T09:33:38Z",
+      "updatedAt": "2023-06-15T08:54:10Z",
       "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
       "baseRefName": "master",
       "baseRefOid": "562332c40f6a04dd5bdbf1b40d640decb1132fe2",
       "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
       "headRefName": "giuseppefioccola-patch-1",
-      "headRefOid": "ccdd53af092612503073d2d2b0114287706098fa",
+      "headRefOid": "d0dec2336509e5a4e8c48e5d3367e1d750775c17",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -941,6 +941,26 @@
               "body": "Grammar: \"who own or control\"",
               "createdAt": "2023-06-13T09:33:17Z",
               "updatedAt": "2023-06-13T09:33:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOEPipus5YRvky",
+          "commit": {
+            "abbreviatedOid": "ccdd53a"
+          },
+          "author": "giuseppefioccola",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-06-15T08:51:27Z",
+          "updatedAt": "2023-06-15T08:51:28Z",
+          "comments": [
+            {
+              "originalPosition": 39,
+              "body": "ok, thanks",
+              "createdAt": "2023-06-15T08:51:27Z",
+              "updatedAt": "2023-06-15T08:51:28Z"
             }
           ]
         }
