@@ -1411,22 +1411,21 @@ quickly identified in the network path by moving the passive observer around.<a 
 packet loss and delay observations are not possible, as also noted in
 <span>[<a href="#TRANSPORT-ENCRYPT" class="cite xref">TRANSPORT-ENCRYPT</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">Measuring loss and delay between similar endpoints cannot be relied upon to
-evaluate encrypted protocol loss and delay. Different protocols could be routed
-by the network differently. Therefore it is necessary to measure packet loss
-and delay experienced by encrypted protocol users directly.
-Nevertheless, the accurate measurement of packet loss and delay experienced by
-encrypted transport-layer protocols is highly desired especially by network
-operators that own or control the infrastructure between client and server.<a href="#section-1-3" class="pilcrow">¶</a></p>
+evaluate encrypted protocol loss and delay. Different protocols may be routed
+differently by the network. Therefore, it is necessary to directly measure the
+packet loss and delay experienced by users of encrypted protocols.
+Nevertheless, accurate measurement of packet loss and delay experienced by
+encrypted transport-layer protocols is highly desired, especially by network
+operators who own or control the infrastructure between client and server.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">In this regard, the Alternate-Marking method <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> defines a consolidated
 method to perform packet loss, delay, and jitter measurements on live traffic.
 But, as mentioned in <span>[<a href="#IPv6AltMark" class="cite xref">IPv6AltMark</a>]</span>, it mainly applies to a network layer
 controlled domain managed with a Network Management System (NMS), where the
 CPE or the PE routers are the starting or the ending nodes. <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> provides
 measurement within a controlled domain in which the packets are marked. Therefore,
-<span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> is not easy to apply to end-to-end transport-layer connections,
-because the identification and the marking of the packets on the fly by the network
-nodes can be prevented because of the encrypted transport-layer headers (e.g. QUIC,
-TCP with TLS).<a href="#section-1-4" class="pilcrow">¶</a></p>
+applying <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> to end-to-end transport-layer connections is not easy
+because packet identification and marking by network nodes is prevented when
+encrypted transport-layer headers (e.g. QUIC, TCP with TLS) are being used.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">This document defines Explicit Host-to-Network Flow Measurement Techniques, which
 are specifically designed for encrypted transport protocols. According to the
 definitions of <span>[<a href="#IPPM-METHODS" class="cite xref">IPPM-METHODS</a>]</span>, these measurement methods can be classified as
@@ -1669,15 +1668,15 @@ calculating an effective <code>T_Max</code>. They should use a predetermined ini
 so that <code>T_Max = T_Max_p</code> (e.g. 1 second) and then, when a valid RTT is
 measured, change <code>T_Max</code> accordingly so that <code>T_Max = T_Max_c</code>. In any case, the
 selected <code>T_Max</code> should be large enough to absorb any possible variations in the
-connection delay. This also helps to avoid that the mechanism fails because the
-observer cannot recognize possible sudden changes of RTT to more than T_max.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
+connection delay. This also helps to prevent the mechanism from failing when the
+observer cannot recognize sudden changes in RTT exceeding T_max.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
 <p id="section-2.2.3-5"><code>T_Max_c</code> could be computed as two times the measured <code>RTT</code> plus a fixed amount
 of time (<code>100ms</code>) to prevent low <code>T_Max</code> values in case of very small RTTs.
 The resulting formula is: <code>T_Max_c = 2RTT + 100ms</code>. If <code>T_Max_c</code> is greater than
 <code>T_Max_p</code> then <code>T_Max_c</code> is forced to <code>T_Max_p</code> value.
-Note that the value of 100ms is just an example and it may be chosen differently
-depending on the scenarios. For example an implementer may consider to use possible
-existing protocol specific values if appropriate.<a href="#section-2.2.3-5" class="pilcrow">¶</a></p>
+Note that the value of 100ms is provided as an example, and it may be chosen
+differently depending on the specific scenarios. For instance, an implementer may
+consider using existing protocol-specific values if appropriate.<a href="#section-2.2.3-5" class="pilcrow">¶</a></p>
 <p id="section-2.2.3-6">Note that the observer's <code>T_Max</code> should always be less than or equal to the
 client's <code>T_Max</code> to avoid considering as a valid measurement what is actually
 the client's <code>T_Max</code>. To obtain this result, the client waits for two
@@ -1840,9 +1839,9 @@ be used to measure the observer-client half-RTT or the observer-server
 half-RTT, according to the direction of the last delay sample observed.<a href="#section-2.2.5-5.1" class="pilcrow">¶</a>
 </li>
           </ul>
-<p id="section-2.2.5-6">Note that, depending on what the observer can observe, there is an impact on
-the accuracy. But the type of measurement is also different, as
-described in the previous sections.<a href="#section-2.2.5-6" class="pilcrow">¶</a></p>
+<p id="section-2.2.5-6">Note that the accuracy can be influenced by what the observer is capable of
+observing. Additionally, the type of measurement differs, as described in the
+previous sections.<a href="#section-2.2.5-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="two-bits-delay-measurement-spin-bit-delay-bit">
@@ -2070,7 +2069,7 @@ train.<a href="#section-3.1.2-4.4" class="pilcrow">¶</a>
 <p id="section-3.1.2-5">The generation token counter should be capped to limit the effects of a
 subsequent sudden reduction in the other endpoint's packet rate that could
 prevent that endpoint from reflecting collected packets. It is recommended a
-cap value is <code>1</code>.<a href="#section-3.1.2-5" class="pilcrow">¶</a></p>
+cap value of <code>1</code>.<a href="#section-3.1.2-5" class="pilcrow">¶</a></p>
 <p id="section-3.1.2-6">A server maintains a "marking counter" that starts at zero and is incremented
 every time a marked packet arrives. When the server transmits a packet and the
 "marking counter" is positive, the server marks the packet and decrements the
@@ -2746,9 +2745,9 @@ information about downstream CE-marking rate. Presence of E bits along with L
 bits, however, can somewhat confound precise estimates of upstream and
 downstream CE-markings in case the flow contains packets that are not
 ECN-capable.<a href="#section-3.5.2-3" class="pilcrow">¶</a></p>
-<p id="section-3.5.2-4">It is worth noting that <span>[<a href="#RFC9331" class="cite xref">RFC9331</a>]</span> introduces Low Latency, Low Loss, and
-Scalable throughput (L4S) that uses an ECN scheme that generates CE marks at a
-much higher rate. An implementation  may handle the two types of CE markings
+<p id="section-3.5.2-4">It is worth noting that <span>[<a href="#RFC9331" class="cite xref">RFC9331</a>]</span>, which introduces Low Latency, Low Loss, and
+Scalable throughput (L4S), uses an ECN scheme that generates CE marks at a
+much higher rate. An implementation may handle both types of CE markings
 to improve the E bit mechanism.<a href="#section-3.5.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2892,9 +2891,8 @@ packet header, leaving two reserved bits for future use.<a href="#section-6-1" c
 <p id="section-6-2">The additional signals discussed in this document were implemented and
 experimented in QUIC and TCP. The application scenarios can allow to monitor
 the interconnections inside a data center (Intra-DC) or between data centers
-(Inter-DC) for large scale data transfers up to the end user. It is assumed
-that the paths taken by flows are stable and traverse the same measurement
-points.<a href="#section-6-2" class="pilcrow">¶</a></p>
+(Inter-DC) for large scale data transfers up to the end user. It is assumed that
+the flows follow stable paths and traverse the same measurement points.<a href="#section-6-2" class="pilcrow">¶</a></p>
 <p id="section-6-3">This document provides different methods to perform measurements, but not all
 of which need to be implemented at once. Indeed, some of the methods described
 are also utilized in <span>[<a href="#I-D.ietf-core-coap-pm" class="cite xref">I-D.ietf-core-coap-pm</a>]</span>.<a href="#section-6-3" class="pilcrow">¶</a></p>
@@ -2907,8 +2905,8 @@ are also utilized in <span>[<a href="#I-D.ietf-core-coap-pm" class="cite xref">I
       </h2>
 <p id="section-7-1">The methods described in this document are transport agnostic and potentially
 applicable to any transport-layer protocol, especially valuable for encrypted
-protocols. In theory, these methods can be applied to both limited domains and
-Internet, depending on the specific protocol application.<a href="#section-7-1" class="pilcrow">¶</a></p>
+protocols. These methods can be applied to both limited domains and Internet,
+depending on the specific protocol application.<a href="#section-7-1" class="pilcrow">¶</a></p>
 <p id="section-7-2">Passive loss and delay observations have been a part of the network operations
 for a long time, so exposing loss and delay information to the network does not
 add new security concerns for protocols that are currently observable.<a href="#section-7-2" class="pilcrow">¶</a></p>
@@ -2931,7 +2929,7 @@ into the packets. But it is worth mentioning that it may be possible to use this
 information as a covert channel.<a href="#section-7-6" class="pilcrow">¶</a></p>
 <p id="section-7-7">The current document does not define a specific application and the described
 techniques can generally apply to different communication protocols operating in
-different security environments. A specification that defines a specific protocol
+different security environments. A specification defining a specific protocol
 application is expected to address the respective security considerations and
 must consider specifics of the protocol and its expected operating environment.
 For example, security considerations for QUIC, discussed in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>
@@ -3017,10 +3015,11 @@ destination or with a different Connection ID.<a href="#section-8-2" class="pilc
 <p id="section-8-3">It is also worth highlighting that, if these techniques are not widely deployed,
 an endpoint that uses them may be fingerprinted based on their usage.
 But, since there is no release of user data, the techniques seem unlikely to
-substantially increase the existing privacy risks.
-Additionally, if there is some experimental traffic over the network with those
-bit sets, a network operator could put this marked traffic in a priority queue
-to deliver a better service and so mislead an experiment that would benchmark.<a href="#section-8-3" class="pilcrow">¶</a></p>
+substantially increase the existing privacy risks.<a href="#section-8-3" class="pilcrow">¶</a></p>
+<p id="section-8-4">Furthermore, if there is experimental traffic with these bit set on the network,
+a network operator could potentially prioritize this marked traffic by placing it
+in a priority queue. This may result in the delivery of better service, which
+could potentially mislead an experiment intended to benchmark the network.<a href="#section-8-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
