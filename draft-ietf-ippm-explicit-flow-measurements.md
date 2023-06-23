@@ -149,10 +149,9 @@ But, as mentioned in {{IPv6AltMark}}, it mainly applies to a network layer
 controlled domain managed with a Network Management System (NMS), where the
 CPE or the PE routers are the starting or the ending nodes. {{AltMark}} provides
 measurement within a controlled domain in which the packets are marked. Therefore,
-applying {{AltMark}} to end-to-end transport-layer connections is not easy due to
-the potential prevention of packet identification and marking by network nodes.
-This prevention can occur because of encrypted transport-layer headers (e.g. QUIC,
-TCP with TLS).
+applying {{AltMark}} to end-to-end transport-layer connections is not easy
+because packet identification and marking by network nodes is prevented when
+encrypted transport-layer headers (e.g. QUIC, TCP with TLS) are being used.
 
 This document defines Explicit Host-to-Network Flow Measurement Techniques, which
 are specifically designed for encrypted transport protocols. According to the
@@ -1584,9 +1583,8 @@ substantially increase the existing privacy risks.
 
 Furthermore, if there is experimental traffic with these bit set on the network,
 a network operator could potentially prioritize this marked traffic by placing it
-in a priority queue. This prioritization could result in the delivery of better
-service, which could potentially mislead an experiment intended to benchmark the
-network.
+in a priority queue. This may result in the delivery of better service, which
+could potentially mislead an experiment intended to benchmark the network.
 
 
 # IANA Considerations
