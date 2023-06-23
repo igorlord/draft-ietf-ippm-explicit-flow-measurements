@@ -124,47 +124,57 @@ document.
 
 Packet loss and delay are hard and pervasive problems of day-to-day network
 operation. Proactively detecting, measuring, and locating them is crucial to
-maintaining high QoS and timely resolution of crippling end-to-end throughput
-issues. To this effect, network operators have been heavily relying on
-information present in the clear in transport-layer headers (e.g. TCP sequence
-and acknowledgment numbers) to allow for quantitative estimation of packet loss
-and delay by passive on-path observation. With encrypted protocols, the
-transport-layer headers are encrypted and passive packet loss and delay
-observations are not possible, as also noted in {{TRANSPORT-ENCRYPT}}.
+maintaining high QoS and timely resolution of end-to-end throughput issues.
+To this effect, network operators have been heavily relying on information
+present in the clear in transport-layer headers (e.g. TCP sequence and
+acknowledgment numbers) to allow for quantitative estimation of packet loss
+and delay by passive on-path observation. Additionally, the problem can be
+quickly identified in the network path by moving the passive observer around.
 
+With encrypted protocols, the transport-layer headers are encrypted and passive
+packet loss and delay observations are not possible, as also noted in
+{{TRANSPORT-ENCRYPT}}.
+
+Measuring loss and delay between similar endpoints cannot be relied upon to
+evaluate encrypted protocol loss and delay. Different protocols could be routed
+by the network differently. Therefore it is necessary to measure packet loss
+and delay experienced by encrypted protocol users directly.
 Nevertheless, the accurate measurement of packet loss and delay experienced by
-encrypted transport-layer protocols is highly desired. In this regard, the
-Alternate-Marking method {{AltMark}} defines a consolidated method to perform
-packet loss, delay, and jitter measurements on live traffic. But, as mentioned in
-{{IPv6AltMark}}, it mainly applies to a network layer controlled domain managed
-with a Network Management System (NMS), where the CPE or the PE routers are the
-starting or the ending nodes. {{AltMark}} provides measurement within a
-controlled domain in which the packets are marked. Therefore, {{AltMark}} is not
-easy to apply to end-to-end transport-layer connections, because the
-identification and the marking of the packets on the fly by the network nodes can
-be prevented because of the encrypted transport-layer headers (e.g. QUIC, TCP).
+encrypted transport-layer protocols is highly desired especially by network
+operators that own or control the infrastructure between client and server.
+
+In this regard, the Alternate-Marking method {{AltMark}} defines a consolidated
+method to perform packet loss, delay, and jitter measurements on live traffic.
+But, as mentioned in {{IPv6AltMark}}, it mainly applies to a network layer
+controlled domain managed with a Network Management System (NMS), where the
+CPE or the PE routers are the starting or the ending nodes. {{AltMark}} provides
+measurement within a controlled domain in which the packets are marked. Therefore,
+{{AltMark}} is not easy to apply to end-to-end transport-layer connections,
+because the identification and the marking of the packets on the fly by the network
+nodes can be prevented because of the encrypted transport-layer headers (e.g. QUIC,
+TCP with TLS).
 
 This document defines Explicit Host-to-Network Flow Measurement Techniques, which
-are specifically designed for encrypted transport protocols. These hybrid
-measurement methods (see {{IPPM-METHODS}}) are to be embedded into a
-transport-layer protocol and are explicitly intended for exposing delay and loss
-rate information to on-path measurement devices. Unlike {{AltMark}}, most of
-these methods require collaborative endpoints. Since these measurement techniques
-make performance information directly visible to the path, they do not rely
-on an external NMS.
+are specifically designed for encrypted transport protocols. According to the
+definitions of {{IPPM-METHODS}}, these measurement methods can be classified as
+Hybrid. They are to be embedded into a transport-layer protocol and are
+explicitly intended for exposing delay and loss rate information to on-path
+measurement devices. Unlike {{AltMark}}, most of these methods require
+collaborative endpoint nodes. Since these measurement techniques make performance
+information directly visible to the path, they do not rely on an external NMS.
 
 The Explicit Host-to-Network Flow Measurement Techniques described in this
-document are applicable to any transport-layer protocol, and, as an example, this
-document describes QUIC and TCP bindings. The different methods can be used alone
-or in combination. Each technique uses a small number of bits and exposes a
-specific measurement.
+document are applicable to any transport-layer protocol. The different methods can
+be used alone or in combination. Each technique uses few bits and exposes a
+specific measurement. It is assumed that the endpoints are collaborative in the
+sense of the measurements, indeed both client and server needs to cooperate.
 
 Following the recommendation in {{!RFC8558}} of making path signals explicit,
-this document proposes adding a small number of dedicated measurement bits to
-the clear portion of the transport protocol headers. These bits can be added to
-an unencrypted portion of a transport-layer header, e.g. UDP surplus space (see
-{{UDP-OPTIONS}} and {{UDP-SURPLUS}}) or reserved bits in a QUIC v1 header, as
-already done with the latency Spin bit (see {{QUIC-TRANSPORT}}).
+this document proposes adding some dedicated measurement bits to the clear portion
+of the transport protocol headers. These bits can be added to an unencrypted portion
+of a transport-layer header, e.g. UDP surplus space (see {{UDP-OPTIONS}} and
+{{UDP-SURPLUS}}) or reserved bits in a QUIC v1 header, as already done with the
+latency Spin bit (see {{QUIC-TRANSPORT}}).
 
 The Spin bit, Delay bit and loss bits explained in this document are inspired by
 {{AltMark}}, {{QUIC-MANAGEABILITY}}, {{QUIC-SPIN}}, {{?I-D.trammell-tsvwg-spin}}
@@ -223,7 +233,7 @@ The computed spin value is used by the endpoints for setting the spin
 bit on outgoing packets.  This mechanism allows the endpoints
 to generate a square wave such that, by measuring the distance in time
 between pairs of consecutive edges observed in the same direction, a
-passive on-path observer can compute the round trip delay of that
+passive on-path observer can compute the round trip network delay of that
 network flow.
 
 Spin bit enables round trip latency measurement by observing a single direction
@@ -258,8 +268,8 @@ An observer placed at an intermediate point, observing a single direction of
 traffic, tracking the delay sample and the relative timestamp, can measure the
 round trip delay of the connection.
 
-The delay sample lifetime is comprised of two phases: initialization and
-reflection.  The initialization is the generation of the delay sample, while the
+The delay sample lifetime comprises two phases: initialization and reflection.
+The initialization is the generation of the delay sample, while the
 reflection realizes the bounce behavior of this single packet between the two
 endpoints.
 
@@ -368,7 +378,7 @@ observer to reject a measure and start a new one.
 
 In other words, if the difference in time between two delay samples is greater
 or equal than `T_Max`, then these cannot be used to produce a delay measure.
-Therefore the value of `T_Max` must also be known to the on-path network probes.
+Therefore, the value of `T_Max` must also be known to the on-path network probes.
 
 There are two alternatives to select the `T_Max` value so that both client and
 observers know it. The first one requires that `T_Max` is known a priori
@@ -382,12 +392,16 @@ calculating an effective `T_Max`. They should use a predetermined initial value
 so that `T_Max = T_Max_p` (e.g. 1 second) and then, when a valid RTT is
 measured, change `T_Max` accordingly so that `T_Max = T_Max_c`. In any case, the
 selected `T_Max` should be large enough to absorb any possible variations in the
-connection delay.
+connection delay. This also helps to avoid that the mechanism fails because the
+observer cannot recognize possible sudden changes of RTT to more than T_max.
 
 `T_Max_c` could be computed as two times the measured `RTT` plus a fixed amount
 of time (`100ms`) to prevent low `T_Max` values in case of very small RTTs.
 The resulting formula is: `T_Max_c = 2RTT + 100ms`. If `T_Max_c` is greater than
 `T_Max_p` then `T_Max_c` is forced to `T_Max_p` value.
+Note that the value of 100ms is just an example and it may be chosen differently
+depending on the scenarios. For example an implementer may consider to use possible
+existing protocol specific values if appropriate.
 
 Note that the observer's `T_Max` should always be less than or equal to the
 client's `T_Max` to avoid considering as a valid measurement what is actually
@@ -500,9 +514,11 @@ between the two computed upstream (or downstream) RTT components.
 ### Observer's Algorithm
 
 An on-path observer maintains an internal per-flow variable to keep track of
-time at which the last delay sample has been observed.
+time at which the last delay sample has been observed. The flow characterization
+should be part of the protocol.
 
-A unidirectional observer, upon detecting a delay sample:
+A unidirectional observer or in case of asymmetric routing, upon detecting a
+delay sample:
 
 * if a delay sample was also detected previously in the same direction and the
   distance in time between them is less than `T_Max - K`, then the two delay
@@ -518,6 +534,10 @@ observing the connection handshake), upon detecting a delay sample:
   in time between them is less than `T_Max - K`, then the two delay samples can
   be used to measure the observer-client half-RTT or the observer-server
   half-RTT, according to the direction of the last delay sample observed.
+
+Note that, depending on what the observer can observe, there is an impact on
+the accuracy. But the type of measurement is also different, as
+described in the previous sections.
 
 ### Two Bits Delay Measurement: Spin Bit + Delay Bit
 
@@ -569,8 +589,8 @@ on-path observer, observing either direction, can count and compare the number
 of marked packets seen during the two reflections, estimating the loss rate
 experienced by the connection. The overall exchange comprises:
 
-*  the client selects, generates and consequently transmits
-   a first train of packets, by setting the T bit to 1;
+*  the client selects and consequently sets the T bit to 1 in order to identify
+   a first train of packets;
 
 *  the server, upon receiving each packet included in the first train, reflects
    to the client a respective second train of packets of the same size as the
@@ -716,7 +736,7 @@ according to the algorithm:
 
 The generation token counter should be capped to limit the effects of a
 subsequent sudden reduction in the other endpoint's packet rate that could
-prevent that endpoint from reflecting collected packets. The most conservative
+prevent that endpoint from reflecting collected packets. It is recommended a
 cap value is `1`.
 
 A server maintains a "marking counter" that starts at zero and is incremented
@@ -913,7 +933,7 @@ The Loss Event bit uses an Unreported Loss counter maintained by the protocol
 that implements the marking mechanism. To use the Loss Event bit, the protocol
 must allow the sender to identify lost packets. This is true of protocols such
 as QUIC, partially true for TCP and SCTP (losses of pure ACKs are not detected)
-and is not true of protocols such as UDP and IP/IPv6.
+and is not true of protocols such as UDP and IPv4/IPv6.
 
 The Unreported Loss counter is initialized to 0, and L bit of every outgoing
 packet indicates whether the Unreported Loss counter is positive (L=1 if the
@@ -925,8 +945,9 @@ with L=1 is sent.
 The value of the Unreported Loss counter is incremented for every packet that
 the protocol declares lost, using whatever loss detection machinery the protocol
 employs. If the protocol is able to rescind the loss determination later, a
-positive Unreported Loss counter may be decremented due to the rescission, but
-it should not become negative due to the rescission.
+positive Unreported Loss counter may be decremented due to the rescission.
+In general, it should not become negative due to the rescission, but it can happen
+in few cases.
 
 This loss signaling is similar to loss signaling in {{ConEx}}, except the Loss
 Event bit is reporting the exact number of lost packets, whereas Echo Loss bit
@@ -946,7 +967,7 @@ upstream endpoint, by counting packets in this direction with the L bit equal to
 
 The Loss Event bit allows an observer to estimate the end-to-end loss rate by
 counting packets with L bit value of 0 and 1 for a given flow. The end-to-end
-loss rate is the fraction of packets with L=1.
+loss ratio is the fraction of packets with L=1.
 
 The assumption here is that upstream loss affects packets with L=0 and L=1
 equally. If some loss is caused by tail-drop in a network device, this may be a
@@ -1274,7 +1295,7 @@ For the latter, `dloss=(hrtloss-uloss_opposite)/(1-uloss_opposite)`.
 
 ## E Bit -- ECN-Echo Event Bit
 
-While the primary focus of this draft is on exposing packet loss and
+While the primary focus of this document is on exposing packet loss and
 delay, modern networks can report congestion before they are forced to
 drop packets, as described in [ECN].  When transport protocols keep
 ECN-Echo feedback under encryption, this signal cannot be observed by
@@ -1306,7 +1327,7 @@ A network observer can count packets with CE codepoint and determine the
 upstream CE-marking rate directly.
 
 Observation points can also estimate ECN-reported end-to-end congestion by
-counting packets in this direction with a E bit equal to 1.
+counting packets in this direction with an E bit equal to 1.
 
 The upstream CE-marking rate and end-to-end ECN-reported congestion can provide
 information about downstream CE-marking rate. Presence of E bits along with L
@@ -1314,10 +1335,15 @@ bits, however, can somewhat confound precise estimates of upstream and
 downstream CE-markings in case the flow contains packets that are not
 ECN-capable.
 
+It is worth noting that {{?RFC9331}} introduces Low Latency, Low Loss, and
+Scalable throughput (L4S) that uses an ECN scheme that generates CE marks at a
+much higher rate. An implementation  may handle the two types of CE markings
+to improve the E bit mechanism.
+
 
 # Summary of Delay and Loss Marking Methods
 
-This section summarizes the marking methods described in this draft.
+This section summarizes the marking methods described in this document.
 
 For the Delay measurement, it is possible to use the Spin bit and/or the delay
 bit. A unidirectional or bidirectional observer can be used.
@@ -1349,7 +1375,7 @@ bit. A unidirectional or bidirectional observer can be used.
 For the Loss measurement, each row in the table of {{fig_summary_L}}
 represents a loss marking method. For each method the table specifies
 the number of bits required in the header, the available metrics using
-an unidirectional or bidirectional observer, applicable protocols,
+a unidirectional or bidirectional observer, applicable protocols,
 measurement fidelity and delay.
 
 ~~~~
@@ -1397,7 +1423,7 @@ measurement fidelity and delay.
 
 By combining the information of the two tables above, it can be deduced that the
 solutions with 3 bits, i.e. QL or QR + S or D, or 4 bits, i.e. QL or QR + SD,
-allow to have more complete and resilient measurements.
+allow having more complete and resilient measurements.
 
 The methodologies described in the previous sections are transport agnostic and
 can be applied in various situations. The choice of the the methods also depends
@@ -1407,7 +1433,7 @@ viable solution.
 
 # Protocol Ossification Considerations  {#ossification}
 
-Accurate loss and delay information is not critical to the operation of any protocol,
+Accurate loss and delay information is relevant for the operation of any protocol,
 though its presence for a sufficient number of flows is important for the
 operation of networks.
 
@@ -1423,75 +1449,27 @@ than the expected signal.
 
 # Examples of Application
 
-## QUIC
-
 The binding of a delay signal to QUIC is partially described in
 {{QUIC-TRANSPORT}}, which adds the Spin bit to the first byte of the short
 packet header, leaving two reserved bits for future use.
 
-To implement the additional signals discussed in this document, the
-first byte of the short packet header can be modified as follows:
+The additional signals discussed in this document were implemented and
+experimented in QUIC and TCP. The application scenarios can allow to monitor
+the interconnections inside a data center (Intra-DC) or between data centers
+(Inter-DC) for large scale data transfers up to the end user. It is assumed
+that the paths taken by flows are stable and traverse the same measurement
+points.
 
-*  the Delay bit (D) can be placed in the first reserved bit (i.e. the fourth
-   most significant bit _0x10_) while the round trip loss bit (T) in the second
-   reserved bit (i.e. the fifth most significant bit _0x08_); the proposed
-   scheme is:
-
-~~~~
-          0 1 2 3 4 5 6 7
-         +-+-+-+-+-+-+-+-+
-         |0|1|S|D|T|K|P|P|
-         +-+-+-+-+-+-+-+-+
-~~~~
-{: title="Scheme 1"}
-
-*  alternatively, a two bits loss signal (QL or QR) can be placed in both
-   reserved bits; the proposed schemes, in this case, are:
-
-~~~~
-          0 1 2 3 4 5 6 7
-         +-+-+-+-+-+-+-+-+
-         |0|1|S|Q|L|K|P|P|
-         +-+-+-+-+-+-+-+-+
-~~~~
-{: title="Scheme 2A"}
-
-~~~~
-          0 1 2 3 4 5 6 7
-         +-+-+-+-+-+-+-+-+
-         |0|1|S|Q|R|K|P|P|
-         +-+-+-+-+-+-+-+-+
-~~~~
-{: title="Scheme 2B"}
-
-A further option would be to substitute the Spin bit with the Delay bit,
-leaving the two reserved bits for loss detection. The proposed schemes
-are:
-
-~~~~
-          0 1 2 3 4 5 6 7
-         +-+-+-+-+-+-+-+-+
-         |0|1|D|Q|L|K|P|P|
-         +-+-+-+-+-+-+-+-+
-~~~~
-{: title="Scheme 3A"}
-
-~~~~
-          0 1 2 3 4 5 6 7
-         +-+-+-+-+-+-+-+-+
-         |0|1|D|Q|R|K|P|P|
-         +-+-+-+-+-+-+-+-+
-~~~~
-{: title="Scheme 3B"}
-
-## TCP
-
-The signals can be added to TCP by defining bit 4 of byte 13 of the TCP header
-to carry the Spin bit or the Delay bit, and possibly bits 5 and 6 to carry
-additional information, like the Delay bit and the round-trip loss bit (DT), or
-a two bits loss signal (QL or QR).
+This document provides different methods to perform measurements, but not all
+of which need to be implemented at once. Indeed, some of the methods described
+are also utilized in {{?I-D.ietf-core-coap-pm}}.
 
 # Security Considerations
+
+The methods described in this document are transport agnostic and potentially
+applicable to any transport-layer protocol, especially valuable for encrypted
+protocols. In theory, these methods can be applied to both limited domains and
+Internet, depending on the specific protocol application.
 
 Passive loss and delay observations have been a part of the network operations
 for a long time, so exposing loss and delay information to the network does not
@@ -1502,7 +1480,7 @@ information that cannot be observed by simply counting packets transiting a
 network path. In the presence of packet loss, Q and R bits will disclose
 the loss, but this is information about the environment and not the endpoint
 state. The L bit signal discloses internal state of the protocol's loss
-detection machinery, but this state can often be gleamed by timing packets and
+detection machinery, but this state can often be gleaned by timing packets and
 observing congestion controller response.
 
 The measurements described in this document do not imply new packets injected
@@ -1514,13 +1492,18 @@ used where appropriate to guard against these traffic attacks.
 Hence, loss bits do not provide a viable new mechanism to attack data integrity
 and secrecy.
 
-The described techniques can generally apply to different communication
-protocols operating in different security environments. An implementation of
-these techniques for a particular protocol must consider specifics of the
-protocol and its expected operating environment. For example, security
-considerations for QUIC, discussed in {{QUIC-TRANSPORT}} and {{QUIC-TLS}},
-consider a possibility of active and passive attackers in the network as well
-as attacks on specific QUIC mechanisms.
+The measurement fields introduced in this document are intended to be included
+into the packets. But it is worth mentioning that it may be possible to use this
+information as a covert channel.
+
+The current document does not define a specific application and the described
+techniques can generally apply to different communication protocols operating in
+different security environments. A specification that defines a specific protocol
+application is expected to address the respective security considerations and
+must consider specifics of the protocol and its expected operating environment.
+For example, security considerations for QUIC, discussed in {{QUIC-TRANSPORT}}
+and {{QUIC-TLS}}, consider a possibility of active and passive attackers in the
+network as well as attacks on specific QUIC mechanisms.
 
 ## Optimistic ACK Attack
 
@@ -1599,6 +1582,9 @@ It is also worth highlighting that, if these techniques are not widely deployed,
 an endpoint that uses them may be fingerprinted based on their usage.
 But, since there is no release of user data, the techniques seem unlikely to
 substantially increase the existing privacy risks.
+Additionally, if there is some experimental traffic over the network with those
+bit sets, a network operator could put this marked traffic in a priority queue
+to deliver a better service and so mislead an experiment that would benchmark.
 
 # IANA Considerations
 
