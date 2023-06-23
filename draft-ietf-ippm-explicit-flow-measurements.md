@@ -136,12 +136,12 @@ packet loss and delay observations are not possible, as also noted in
 {{TRANSPORT-ENCRYPT}}.
 
 Measuring loss and delay between similar endpoints cannot be relied upon to
-evaluate encrypted protocol loss and delay. Different protocols could be routed
-by the network differently. Therefore it is necessary to measure packet loss
-and delay experienced by encrypted protocol users directly.
-Nevertheless, the accurate measurement of packet loss and delay experienced by
-encrypted transport-layer protocols is highly desired especially by network
-operators that own or control the infrastructure between client and server.
+evaluate encrypted protocol loss and delay. Different protocols may be routed
+differently by the network. Therefore, it is necessary to directly measure the
+packet loss and delay experienced by users of encrypted protocols.
+Nevertheless, accurate measurement of packet loss and delay experienced by
+encrypted transport-layer protocols is highly desired, especially by network
+operators who own or control the infrastructure between client and server.
 
 In this regard, the Alternate-Marking method {{AltMark}} defines a consolidated
 method to perform packet loss, delay, and jitter measurements on live traffic.
@@ -149,10 +149,9 @@ But, as mentioned in {{IPv6AltMark}}, it mainly applies to a network layer
 controlled domain managed with a Network Management System (NMS), where the
 CPE or the PE routers are the starting or the ending nodes. {{AltMark}} provides
 measurement within a controlled domain in which the packets are marked. Therefore,
-{{AltMark}} is not easy to apply to end-to-end transport-layer connections,
-because the identification and the marking of the packets on the fly by the network
-nodes can be prevented because of the encrypted transport-layer headers (e.g. QUIC,
-TCP with TLS).
+applying {{AltMark}} to end-to-end transport-layer connections is not easy
+because packet identification and marking by network nodes is prevented when
+encrypted transport-layer headers (e.g. QUIC, TCP with TLS) are being used.
 
 This document defines Explicit Host-to-Network Flow Measurement Techniques, which
 are specifically designed for encrypted transport protocols. According to the
@@ -392,16 +391,16 @@ calculating an effective `T_Max`. They should use a predetermined initial value
 so that `T_Max = T_Max_p` (e.g. 1 second) and then, when a valid RTT is
 measured, change `T_Max` accordingly so that `T_Max = T_Max_c`. In any case, the
 selected `T_Max` should be large enough to absorb any possible variations in the
-connection delay. This also helps to avoid that the mechanism fails because the
-observer cannot recognize possible sudden changes of RTT to more than T_max.
+connection delay. This also helps to prevent the mechanism from failing when the
+observer cannot recognize sudden changes in RTT exceeding T_max.
 
 `T_Max_c` could be computed as two times the measured `RTT` plus a fixed amount
 of time (`100ms`) to prevent low `T_Max` values in case of very small RTTs.
 The resulting formula is: `T_Max_c = 2RTT + 100ms`. If `T_Max_c` is greater than
 `T_Max_p` then `T_Max_c` is forced to `T_Max_p` value.
-Note that the value of 100ms is just an example and it may be chosen differently
-depending on the scenarios. For example an implementer may consider to use possible
-existing protocol specific values if appropriate.
+Note that the value of 100ms is provided as an example, and it may be chosen
+differently depending on the specific scenarios. For instance, an implementer may
+consider using existing protocol-specific values if appropriate.
 
 Note that the observer's `T_Max` should always be less than or equal to the
 client's `T_Max` to avoid considering as a valid measurement what is actually
@@ -535,9 +534,9 @@ observing the connection handshake), upon detecting a delay sample:
   be used to measure the observer-client half-RTT or the observer-server
   half-RTT, according to the direction of the last delay sample observed.
 
-Note that, depending on what the observer can observe, there is an impact on
-the accuracy. But the type of measurement is also different, as
-described in the previous sections.
+Note that the accuracy can be influenced by what the observer is capable of
+observing. Additionally, the type of measurement differs, as described in the
+previous sections.
 
 ### Two Bits Delay Measurement: Spin Bit + Delay Bit
 
@@ -737,7 +736,7 @@ according to the algorithm:
 The generation token counter should be capped to limit the effects of a
 subsequent sudden reduction in the other endpoint's packet rate that could
 prevent that endpoint from reflecting collected packets. It is recommended a
-cap value is `1`.
+cap value of `1`.
 
 A server maintains a "marking counter" that starts at zero and is incremented
 every time a marked packet arrives. When the server transmits a packet and the
@@ -1335,9 +1334,9 @@ bits, however, can somewhat confound precise estimates of upstream and
 downstream CE-markings in case the flow contains packets that are not
 ECN-capable.
 
-It is worth noting that {{?RFC9331}} introduces Low Latency, Low Loss, and
-Scalable throughput (L4S) that uses an ECN scheme that generates CE marks at a
-much higher rate. An implementation  may handle the two types of CE markings
+It is worth noting that {{?RFC9331}}, which introduces Low Latency, Low Loss, and
+Scalable throughput (L4S), uses an ECN scheme that generates CE marks at a
+much higher rate. An implementation may handle both types of CE markings
 to improve the E bit mechanism.
 
 
@@ -1456,9 +1455,8 @@ packet header, leaving two reserved bits for future use.
 The additional signals discussed in this document were implemented and
 experimented in QUIC and TCP. The application scenarios can allow to monitor
 the interconnections inside a data center (Intra-DC) or between data centers
-(Inter-DC) for large scale data transfers up to the end user. It is assumed
-that the paths taken by flows are stable and traverse the same measurement
-points.
+(Inter-DC) for large scale data transfers up to the end user. It is assumed that
+the flows follow stable paths and traverse the same measurement points.
 
 This document provides different methods to perform measurements, but not all
 of which need to be implemented at once. Indeed, some of the methods described
@@ -1468,8 +1466,8 @@ are also utilized in {{?I-D.ietf-core-coap-pm}}.
 
 The methods described in this document are transport agnostic and potentially
 applicable to any transport-layer protocol, especially valuable for encrypted
-protocols. In theory, these methods can be applied to both limited domains and
-Internet, depending on the specific protocol application.
+protocols. These methods can be applied to both limited domains and Internet,
+depending on the specific protocol application.
 
 Passive loss and delay observations have been a part of the network operations
 for a long time, so exposing loss and delay information to the network does not
@@ -1498,7 +1496,7 @@ information as a covert channel.
 
 The current document does not define a specific application and the described
 techniques can generally apply to different communication protocols operating in
-different security environments. A specification that defines a specific protocol
+different security environments. A specification defining a specific protocol
 application is expected to address the respective security considerations and
 must consider specifics of the protocol and its expected operating environment.
 For example, security considerations for QUIC, discussed in {{QUIC-TRANSPORT}}
@@ -1582,9 +1580,12 @@ It is also worth highlighting that, if these techniques are not widely deployed,
 an endpoint that uses them may be fingerprinted based on their usage.
 But, since there is no release of user data, the techniques seem unlikely to
 substantially increase the existing privacy risks.
-Additionally, if there is some experimental traffic over the network with those
-bit sets, a network operator could put this marked traffic in a priority queue
-to deliver a better service and so mislead an experiment that would benchmark.
+
+Furthermore, if there is experimental traffic with these bit set on the network,
+a network operator could potentially prioritize this marked traffic by placing it
+in a priority queue. This may result in the delivery of better service, which
+could potentially mislead an experiment intended to benchmark the network.
+
 
 # IANA Considerations
 
