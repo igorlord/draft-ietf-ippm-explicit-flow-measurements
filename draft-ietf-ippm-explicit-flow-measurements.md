@@ -151,8 +151,8 @@ CPE or the PE routers are the starting or the ending nodes. {{AltMark}} provides
 measurement within a controlled domain in which the packets are marked. Therefore,
 applying {{AltMark}} to end-to-end transport-layer connections is not easy due to
 the potential prevention of packet identification and marking by network nodes.
-This prevention can occur because of encrypted transport-layer headers, such as
-QUIC and TCP with TLS.
+This prevention can occur because of encrypted transport-layer headers (e.g. QUIC,
+TCP with TLS).
 
 This document defines Explicit Host-to-Network Flow Measurement Techniques, which
 are specifically designed for encrypted transport protocols. According to the
