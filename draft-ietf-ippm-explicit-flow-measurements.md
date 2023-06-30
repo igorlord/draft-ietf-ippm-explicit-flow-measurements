@@ -115,8 +115,8 @@ and require collaborative client and server. Both endpoints cooperate by marking
 and, possibly, mirroring information back and forward on the round-trip
 connection. The techniques are especially valuable when applied to protocols that
 encrypt transport headers, since they enable loss and delay measurements by passive
-on-path network devices.  Different techniques are considered within this
-document.
+on-path network devices. This document considers different techniques that can be
+used separately, partly or all together depending on the case.
 
 --- middle
 
@@ -125,23 +125,24 @@ document.
 Packet loss and delay are hard and pervasive problems of day-to-day network
 operation. Proactively detecting, measuring, and locating them is crucial to
 maintaining high QoS and timely resolution of end-to-end throughput issues.
-To this effect, network operators have been heavily relying on information
-present in the clear in transport-layer headers (e.g. TCP sequence and
-acknowledgment numbers) to allow for quantitative estimation of packet loss
-and delay by passive on-path observation. Additionally, the problem can be
-quickly identified in the network path by moving the passive observer around.
+To this effect, network operators wishing to perform passive quantitative
+measurement of loss and delay have been heavily relying on information present
+in the clear in transport-layer headers (e.g. TCP sequence and acknowledgment
+numbers). Additionally, the problem can be quickly identified in the network
+path through a passive observer and by moving it around.
 
 With encrypted protocols, the transport-layer headers are encrypted and passive
 packet loss and delay observations are not possible, as also noted in
 {{TRANSPORT-ENCRYPT}}.
 
-Measuring loss and delay between similar endpoints cannot be relied upon to
-evaluate encrypted protocol loss and delay. Different protocols may be routed
-differently by the network. Therefore, it is necessary to directly measure the
-packet loss and delay experienced by users of encrypted protocols.
-Nevertheless, accurate measurement of packet loss and delay experienced by
-encrypted transport-layer protocols is highly desired, especially by network
-operators who own or control the infrastructure between client and server.
+The measurement of loss and delay of an encrypted protocol on a client-server
+connection cannot be based on the same or similar endpoints connected through
+another unencrypted protocol, since different protocols may be routed differently
+by the network. Therefore, it is necessary to directly measure the packet loss
+and delay experienced by users of encrypted protocols.
+Hence, accurate measurement of packet loss and delay experienced by encrypted
+transport-layer protocols is highly desired, especially by network operators who
+own or control the infrastructure between client and server.
 
 In this regard, the Alternate-Marking method {{AltMark}} defines a consolidated
 method to perform packet loss, delay, and jitter measurements on live traffic.
@@ -163,10 +164,14 @@ collaborative endpoint nodes. Since these measurement techniques make performanc
 information directly visible to the path, they do not rely on an external NMS.
 
 The Explicit Host-to-Network Flow Measurement Techniques described in this
-document are applicable to any transport-layer protocol. The different methods can
-be used alone or in combination. Each technique uses few bits and exposes a
-specific measurement. It is assumed that the endpoints are collaborative in the
-sense of the measurements, indeed both client and server needs to cooperate.
+document are applicable to any transport-layer protocol connecting a client and a
+server. In this document the client and the server are also referred to as the
+endpoints of the transport-layer protocol.
+
+The different methods described in this document can be used alone or in
+combination. Each technique uses few bits and exposes a specific measurement.
+It is assumed that the endpoints are collaborative in the sense of the
+measurements, indeed both client and server needs to cooperate.
 
 Following the recommendation in {{!RFC8558}} of making path signals explicit,
 this document proposes adding some dedicated measurement bits to the clear portion
@@ -1342,7 +1347,9 @@ to improve the E bit mechanism.
 
 # Summary of Delay and Loss Marking Methods
 
-This section summarizes the marking methods described in this document.
+This section summarizes the marking methods described in this document, which
+proposes a toolkit of techniques that can be used separately, partly or all
+together depending on the need.
 
 For the Delay measurement, it is possible to use the Spin bit and/or the delay
 bit. A unidirectional or bidirectional observer can be used.
@@ -1453,14 +1460,21 @@ The binding of a delay signal to QUIC is partially described in
 packet header, leaving two reserved bits for future use.
 
 The additional signals discussed in this document were implemented and
-experimented in QUIC and TCP. The application scenarios can allow to monitor
-the interconnections inside a data center (Intra-DC) or between data centers
-(Inter-DC) for large scale data transfers up to the end user. It is assumed that
-the flows follow stable paths and traverse the same measurement points.
+experimented with in QUIC and TCP; the choice and use of bits for the
+experimental implementations is out of scope for this document. The application
+scenarios can allow monitoring of the interconnections inside data center
+(Intra-DC) or between data centers (Inter-DC) for large scale data transfers up
+to the end user. It is assumed that the flows follow stable paths and traverse
+the same measurement points.
 
 This document provides different methods to perform measurements, but not all
 of which need to be implemented at once. Indeed, some of the methods described
 are also utilized in {{?I-D.ietf-core-coap-pm}}.
+
+Note that the specific implementation details are out of scope for this document.
+A specification defining the specific protocol application is expected to discuss
+the implementation details depending on which bits will be implemented in the
+protocol, e.g. {{?I-D.ietf-core-coap-pm}}.
 
 # Security Considerations
 
