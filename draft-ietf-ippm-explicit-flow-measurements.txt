@@ -5,7 +5,7 @@
 IPPM                                                         M. Cociglio
 Internet-Draft                                      Telecom Italia - TIM
 Intended status: Informational                               A. Ferrieux
-Expires: 1 January 2024                                      Orange Labs
+Expires: 7 January 2024                                      Orange Labs
                                                              G. Fioccola
                                                      Huawei Technologies
                                                              I. Lubashev
@@ -17,7 +17,7 @@ Expires: 1 January 2024                                      Orange Labs
                                                              Orange Labs
                                                                 R. Sisto
                                                    Politecnico di Torino
-                                                            30 June 2023
+                                                             6 July 2023
 
 
          Explicit Host-to-Network Flow Measurements Techniques
@@ -64,7 +64,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 January 2024.
+   This Internet-Draft will expire on 7 January 2024.
 
 Copyright Notice
 
@@ -1540,27 +1540,27 @@ Table of Contents
 
 6.  Examples of Application
 
-   The binding of a delay signal to QUIC is partially described in
-   [QUIC-TRANSPORT], which adds the Spin bit to the first byte of the
-   short packet header, leaving two reserved bits for future use.
-
-   The additional signals discussed in this document were implemented
-   and experimented with in QUIC and TCP; the choice and use of bits for
-   the experimental implementations is out of scope for this document.
-   The application scenarios can allow monitoring of the
-   interconnections inside data center (Intra-DC) or between data
-   centers (Inter-DC) for large scale data transfers up to the end user.
-   It is assumed that the flows follow stable paths and traverse the
-   same measurement points.
-
    This document provides different methods to perform measurements, but
-   not all of which need to be implemented at once.  Indeed, some of the
-   methods described are also utilized in [I-D.ietf-core-coap-pm].
+   not all of which need to be implemented at once.  For example, only
+   some of the methods described in this document (i.e. sQuare bit and
+   Spin bit) are utilized in [I-D.ietf-core-coap-pm].  Also, the binding
+   of a delay signal to QUIC is partially described in [QUIC-TRANSPORT],
+   which adds only the Spin bit to the first byte of the short packet
+   header, leaving two reserved bits for future use.
 
-   Note that the specific implementation details are out of scope for
-   this document.  A specification defining the specific protocol
-   application is expected to discuss the implementation details
-   depending on which bits will be implemented in the protocol, e.g.
+   All the signals discussed in this document have been implemented and
+   experimented in both QUIC and TCP.  The application scenarios
+   considered can allow the monitoring of the interconnections inside
+   data center (Intra-DC) or between data centers (Inter-DC) for large
+   scale data transfers up to the end user.  For the application of the
+   methods described in this document, it is assumed that the monitored
+   flows follow stable paths and traverse the same measurement points.
+
+   The specific implementation details and the choice of the bits used
+   for the experiments with QUIC and TCP are out of scope for this
+   document.  A specification defining the specific protocol application
+   is expected to discuss the implementation details depending on which
+   bits will be implemented in the protocol, e.g.
    [I-D.ietf-core-coap-pm].
 
 7.  Security Considerations
