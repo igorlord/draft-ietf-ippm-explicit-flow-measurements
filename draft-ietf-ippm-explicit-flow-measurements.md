@@ -1452,26 +1452,25 @@ instead, the bits would be set to arbitrary values. The observers would need to 
 ready to ignore flows with delay and loss information more resembling noise
 than the expected signal.
 
-
 # Examples of Application
 
-The binding of a delay signal to QUIC is partially described in
-{{QUIC-TRANSPORT}}, which adds the Spin bit to the first byte of the short
-packet header, leaving two reserved bits for future use.
-
-The additional signals discussed in this document were implemented and
-experimented with in QUIC and TCP; the choice and use of bits for the
-experimental implementations is out of scope for this document. The application
-scenarios can allow monitoring of the interconnections inside data center
-(Intra-DC) or between data centers (Inter-DC) for large scale data transfers up
-to the end user. It is assumed that the flows follow stable paths and traverse
-the same measurement points.
-
 This document provides different methods to perform measurements, but not all
-of which need to be implemented at once. Indeed, some of the methods described
-are also utilized in {{?I-D.ietf-core-coap-pm}}.
+of which need to be implemented at once. For example, only some of the methods
+described in this document (i.e. sQuare bit and Spin bit) are utilized in
+{{?I-D.ietf-core-coap-pm}}. Also, the binding of a delay signal to QUIC is
+partially described in {{QUIC-TRANSPORT}}, which adds only the Spin bit to the
+first byte of the short packet header, leaving two reserved bits for future use.
 
-Note that the specific implementation details are out of scope for this document.
+All the signals discussed in this document have been implemented and experimented
+in both QUIC and TCP. The application scenarios considered can allow the monitoring
+of the interconnections inside data center (Intra-DC) or between data centers
+(Inter-DC) for large scale data transfers up to the end user.
+For the application of the methods described in this document, it is assumed
+that the monitored flows follow stable paths and traverse the same measurement
+points.
+
+The specific implementation details and the choice of the bits used for the
+experiments with QUIC and TCP are out of scope for this document.
 A specification defining the specific protocol application is expected to discuss
 the implementation details depending on which bits will be implemented in the
 protocol, e.g. {{?I-D.ietf-core-coap-pm}}.
