@@ -31,7 +31,7 @@ Abstract
    employ just a few marking bits inside the header of each packet for
    performance measurements and require collaborative client and server.
    Both endpoints cooperate by marking packets and, possibly, mirroring
-   the marks on the round-trip connection.  The techniques are
+   the markings on the round-trip connection.  The techniques are
    especially valuable when applied to protocols that encrypt transport
    headers, since they enable loss and delay measurements by passive on-
    path network devices.  This document describes several methods that
