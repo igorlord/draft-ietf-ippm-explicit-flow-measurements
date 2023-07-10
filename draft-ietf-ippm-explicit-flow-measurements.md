@@ -186,11 +186,14 @@ It is assumed that the endpoints are collaborative in the sense of the
 measurements, indeed both client and server needs to cooperate.
 
 Following the recommendation in {{!RFC8558}} of making path signals explicit,
-this document proposes adding some dedicated measurement bits to the clear portion
-of the transport protocol headers. These bits can be added to an unencrypted portion
-of a transport-layer header, e.g. UDP surplus space (see {{UDP-OPTIONS}} and
-{{UDP-SURPLUS}}) or reserved bits in a QUIC v1 header, as already done with the
-latency Spin bit (see Section 17.4 of {{QUIC-TRANSPORT}}).
+this document proposes adding some dedicated measurement bits to the clear
+portion of the transport protocol headers. These bits can be added to an
+unencrypted portion of a transport-layer header, e.g. UDP surplus space (see
+{{UDP-OPTIONS}} and {{UDP-SURPLUS}}) or reserved bits in a QUIC v1 header, as
+already done with the latency Spin bit (see Section 17.4 of
+{{QUIC-TRANSPORT}}). Note that this document does not recommend the use of any
+specific bits, as these would need to be chosen by the specific protocol
+implementations (see {{applications}}).
 
 The Spin bit, Delay bit and loss bits explained in this document are inspired by
 {{AltMark}}, {{QUIC-MANAGEABILITY}}, {{QUIC-SPIN}}, {{?I-D.trammell-tsvwg-spin}}
@@ -1353,11 +1356,12 @@ bits, however, can somewhat confound precise estimates of upstream and
 downstream CE-markings in case the flow contains packets that are not
 ECN-capable.
 
-It is worth noting that {{?RFC9331}}, which introduces Low Latency, Low Loss, and
-Scalable throughput (L4S), uses an ECN scheme that generates CE marks at a
-much higher rate. An implementation may handle both types of CE markings
-to improve the E bit mechanism.
+### Multiple E Bits
 
+Some protocols, such as QUIC, support separate ECN-Echo counters. For example,
+Section 13.4.1 of {{QUIC-TRANSPORT}} describes separate counters for ECT(0),
+ECT(1), and ECN-CE. To better support such protocols, multiple E bits can be
+used, one per a corresponding ECN-Echo counter.
 
 # Summary of Delay and Loss Marking Methods
 
@@ -1451,7 +1455,7 @@ on the specific protocol, for example QL is a good combination, but, in the case
 of a protocol which does not support or cannot set the L bit, QR is the only
 viable solution.
 
-# Examples of Application
+# Examples of Application  {#applications}
 
 This document describes several measurement methods, but it is not expected that
 all methods will be implemented together. For example, only some of the methods
@@ -1461,12 +1465,12 @@ partially described in Section 17.4 of {{QUIC-TRANSPORT}}, which adds only the
 Spin bit to the first byte of the short packet header, leaving two reserved bits
 for future use (see Section 17.2.2 of {{QUIC-TRANSPORT}}).
 
-All signals discussed in this document have been implemented and experimented
-in both QUIC and TCP. The application scenarios considered can allow the monitoring
-of the interconnections inside data center (Intra-DC) or between data centers
-(Inter-DC) for large scale data transfers up to the end user.
-For the application of the methods described in this document, it is assumed
-that the monitored flows follow stable paths and traverse the same measurement
+All signals discussed in this document have been implemented in succesful
+experiments for both QUIC and TCP. The application scenarios considered allow
+the monitoring of the interconnections inside data center (Intra-DC), between
+data centers (Inter-DC), as well as end-to-end large scale data transfers.  For
+the application of the methods described in this document, it is assumed that
+the monitored flows follow stable paths and traverse the same measurement
 points.
 
 The specific implementation details and the choice of the bits used for the
