@@ -112,11 +112,13 @@ Host-to-Network Flow Measurement Techniques that can be applicable to
 transport-layer protocols between client and server. These methods employ just a
 few marking bits inside the header of each packet for performance measurements
 and require collaborative client and server. Both endpoints cooperate by marking
-and, possibly, mirroring information back and forward on the round-trip
-connection. The techniques are especially valuable when applied to protocols that
-encrypt transport headers, since they enable loss and delay measurements by passive
-on-path network devices. This document considers different techniques that can be
-used separately, partly or all together depending on the case.
+packets and, possibly, mirroring the markings on the round-trip connection. The
+techniques are especially valuable when applied to protocols that encrypt
+transport headers, since they enable loss and delay measurements by passive
+on-path network devices. This document describes several methods that can be
+used separately or jointly, depending of the availability of marking bits,
+desired measurements, and properties of the protocol to which the methods are
+applied.
 
 --- middle
 
@@ -125,36 +127,46 @@ used separately, partly or all together depending on the case.
 Packet loss and delay are hard and pervasive problems of day-to-day network
 operation. Proactively detecting, measuring, and locating them is crucial to
 maintaining high QoS and timely resolution of end-to-end throughput issues.
-To this effect, network operators wishing to perform passive quantitative
-measurement of loss and delay have been heavily relying on information present
-in the clear in transport-layer headers (e.g. TCP sequence and acknowledgment
-numbers). Additionally, the problem can be quickly identified in the network
-path through a passive observer and by moving it around.
+
+Detecting and measuring packet loss and delay allows network operators to
+independently confirm trouble reports and, ideally, be proactively notified of
+developing problems on the network. Locating the cause of packet loss or
+excessive delay is the first step to resolving problems and restoring QoS.
+
+Traditionally, network operators wishing to perform quantitative measurement of
+packet loss and delay have been heavily relying on information present in the
+clear in transport-layer headers (e.g. TCP sequence and acknowledgment
+numbers). By passively observing a network path at multiple points within one's
+network, operators have been able to either quickly locate the source the
+problem within their network or to reliably attribute it to an upstream or
+downstream network.
 
 With encrypted protocols, the transport-layer headers are encrypted and passive
 packet loss and delay observations are not possible, as also noted in
-{{TRANSPORT-ENCRYPT}}.
+{{TRANSPORT-ENCRYPT}}. Nevertheless, accurate measurement of packet loss and
+delay experienced by encrypted transport-layer protocols is highly desired,
+especially by network operators who own or control the infrastructure between
+client and server.
 
-The measurement of loss and delay of an encrypted protocol on a client-server
-connection cannot be based on the same or similar endpoints connected through
-another unencrypted protocol, since different protocols may be routed differently
-by the network. Therefore, it is necessary to directly measure the packet loss
-and delay experienced by users of encrypted protocols.
-Hence, accurate measurement of packet loss and delay experienced by encrypted
-transport-layer protocols is highly desired, especially by network operators who
-own or control the infrastructure between client and server.
+The measurement of loss and delay experienced by connections using an encrypted
+protocol cannot be based on a measurement of loss and delay experienced by
+connections between the same or similar endpoints that use an unencrypted
+protocol, since different protocols may utilize the network differently and be
+routed differently by the network. Therefore, it is necessary to directly
+measure the packet loss and delay experienced by users of encrypted protocols.
 
-In this regard, the Alternate-Marking method {{AltMark}} defines a consolidated
-method to perform packet loss, delay, and jitter measurements on live traffic.
-But, as mentioned in {{IPv6AltMark}}, it mainly applies to a network layer
-controlled domain managed with a Network Management System (NMS), where the
-CPE or the PE routers are the starting or the ending nodes. {{AltMark}} provides
-measurement within a controlled domain in which the packets are marked. Therefore,
-applying {{AltMark}} to end-to-end transport-layer connections is not easy
-because packet identification and marking by network nodes is prevented when
-encrypted transport-layer headers (e.g. QUIC, TCP with TLS) are being used.
+The Alternate-Marking method {{AltMark}} defines a consolidated method to
+perform packet loss, delay, and jitter measurements on live traffic. However,
+as mentioned in {{IPv6AltMark}}, {{AltMark}} mainly applies to a network layer
+controlled domain managed with a Network Management System (NMS), where the CPE
+or the PE routers are the starting or the ending nodes. {{AltMark}} provides
+measurement within a controlled domain in which the packets are
+marked. Therefore, applying {{AltMark}} to end-to-end transport-layer
+connections is not easy because packet identification and marking by network
+nodes is prevented when encrypted transport-layer headers (e.g. QUIC, TCP with
+TLS) are being used.
 
-This document defines Explicit Host-to-Network Flow Measurement Techniques, which
+This document defines Explicit Host-to-Network Flow Measurement Techniques that
 are specifically designed for encrypted transport protocols. According to the
 definitions of {{IPPM-METHODS}}, these measurement methods can be classified as
 Hybrid. They are to be embedded into a transport-layer protocol and are
