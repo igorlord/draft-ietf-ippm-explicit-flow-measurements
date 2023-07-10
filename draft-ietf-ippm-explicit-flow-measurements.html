@@ -19,11 +19,13 @@ Host-to-Network Flow Measurement Techniques that can be applicable to
 transport-layer protocols between client and server. These methods employ just a
 few marking bits inside the header of each packet for performance measurements
 and require collaborative client and server. Both endpoints cooperate by marking
-and, possibly, mirroring information back and forward on the round-trip
-connection. The techniques are especially valuable when applied to protocols that
-encrypt transport headers, since they enable loss and delay measurements by passive
-on-path network devices. This document considers different techniques that can be
-used separately, partly or all together depending on the case. 
+packets and, possibly, mirroring the markings on the round-trip connection. The
+techniques are especially valuable when applied to protocols that encrypt
+transport headers, since they enable loss and delay measurements by passive
+on-path network devices. This document describes several methods that can be
+used separately or jointly, depending of the availability of marking bits,
+desired measurements, and properties of the protocol to which the methods are
+applied. 
     " name="description">
 <meta content="xml2rfc 3.17.4" name="generator">
 <meta content="Internet-Draft" name="keyword">
@@ -1053,7 +1055,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Cociglio, et al.</td>
-<td class="center">Expires 7 January 2024</td>
+<td class="center">Expires 11 January 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,12 +1068,12 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-ippm-explicit-flow-measurements-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-07-06" class="published">6 July 2023</time>
+<time datetime="2023-07-10" class="published">10 July 2023</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-01-07">7 January 2024</time></dd>
+<dd class="expires"><time datetime="2024-01-11">11 January 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1117,11 +1119,13 @@ Host-to-Network Flow Measurement Techniques that can be applicable to
 transport-layer protocols between client and server. These methods employ just a
 few marking bits inside the header of each packet for performance measurements
 and require collaborative client and server. Both endpoints cooperate by marking
-and, possibly, mirroring information back and forward on the round-trip
-connection. The techniques are especially valuable when applied to protocols that
-encrypt transport headers, since they enable loss and delay measurements by passive
-on-path network devices. This document considers different techniques that can be
-used separately, partly or all together depending on the case.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+packets and, possibly, mirroring the markings on the round-trip connection. The
+techniques are especially valuable when applied to protocols that encrypt
+transport headers, since they enable loss and delay measurements by passive
+on-path network devices. This document describes several methods that can be
+used separately or jointly, depending of the availability of marking bits,
+desired measurements, and properties of the protocol to which the methods are
+applied.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-discussion-venues">
@@ -1153,7 +1157,7 @@ used separately, partly or all together depending on the case.<a href="#section-
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 7 January 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 11 January 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1335,6 +1339,9 @@ used separately, partly or all together depending on the case.<a href="#section-
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.2">
                     <p id="section-toc.1-1.3.2.5.2.2.1"><a href="#section-3.5.2" class="auto internal xref">3.5.2</a>.  <a href="#name-using-e-bit-for-passive-ecn" class="internal xref">Using E Bit for Passive ECN-Reported Congestion Measurement</a></p>
 </li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.3">
+                    <p id="section-toc.1-1.3.2.5.2.3.1"><a href="#section-3.5.3" class="auto internal xref">3.5.3</a>.  <a href="#name-multiple-e-bits" class="internal xref">Multiple E Bits</a></p>
+</li>
                 </ul>
 </li>
             </ul>
@@ -1348,10 +1355,10 @@ used separately, partly or all together depending on the case.<a href="#section-
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-protocol-ossification-consi" class="internal xref">Protocol Ossification Considerations</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-examples-of-application" class="internal xref">Examples of Application</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-examples-of-application" class="internal xref">Examples of Application</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-protocol-ossification-consi" class="internal xref">Protocol Ossification Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
@@ -1401,59 +1408,70 @@ used separately, partly or all together depending on the case.<a href="#section-
       </h2>
 <p id="section-1-1">Packet loss and delay are hard and pervasive problems of day-to-day network
 operation. Proactively detecting, measuring, and locating them is crucial to
-maintaining high QoS and timely resolution of end-to-end throughput issues.
-To this effect, network operators wishing to perform passive quantitative
-measurement of loss and delay have been heavily relying on information present
-in the clear in transport-layer headers (e.g. TCP sequence and acknowledgment
-numbers). Additionally, the problem can be quickly identified in the network
-path through a passive observer and by moving it around.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">With encrypted protocols, the transport-layer headers are encrypted and passive
+maintaining high QoS and timely resolution of end-to-end throughput issues.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Detecting and measuring packet loss and delay allows network operators to
+independently confirm trouble reports and, ideally, be proactively notified of
+developing problems on the network. Locating the cause of packet loss or
+excessive delay is the first step to resolving problems and restoring QoS.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">Traditionally, network operators wishing to perform quantitative measurement of
+packet loss and delay have been heavily relying on information present in the
+clear in transport-layer headers (e.g. TCP sequence and acknowledgment
+numbers). By passively observing a network path at multiple points within one's
+network, operators have been able to either quickly locate the source the
+problem within their network or to reliably attribute it to an upstream or
+downstream network.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">With encrypted protocols, the transport-layer headers are encrypted and passive
 packet loss and delay observations are not possible, as also noted in
-<span>[<a href="#TRANSPORT-ENCRYPT" class="cite xref">TRANSPORT-ENCRYPT</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">The measurement of loss and delay of an encrypted protocol on a client-server
-connection cannot be based on the same or similar endpoints connected through
-another unencrypted protocol, since different protocols may be routed differently
-by the network. Therefore, it is necessary to directly measure the packet loss
-and delay experienced by users of encrypted protocols.
-Hence, accurate measurement of packet loss and delay experienced by encrypted
-transport-layer protocols is highly desired, especially by network operators who
-own or control the infrastructure between client and server.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">In this regard, the Alternate-Marking method <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> defines a consolidated
-method to perform packet loss, delay, and jitter measurements on live traffic.
-But, as mentioned in <span>[<a href="#IPv6AltMark" class="cite xref">IPv6AltMark</a>]</span>, it mainly applies to a network layer
-controlled domain managed with a Network Management System (NMS), where the
-CPE or the PE routers are the starting or the ending nodes. <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> provides
-measurement within a controlled domain in which the packets are marked. Therefore,
-applying <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> to end-to-end transport-layer connections is not easy
-because packet identification and marking by network nodes is prevented when
-encrypted transport-layer headers (e.g. QUIC, TCP with TLS) are being used.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">This document defines Explicit Host-to-Network Flow Measurement Techniques, which
+<span>[<a href="#TRANSPORT-ENCRYPT" class="cite xref">TRANSPORT-ENCRYPT</a>]</span>. Nevertheless, accurate measurement of packet loss and
+delay experienced by encrypted transport-layer protocols is highly desired,
+especially by network operators who own or control the infrastructure between
+client and server.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">The measurement of loss and delay experienced by connections using an encrypted
+protocol cannot be based on a measurement of loss and delay experienced by
+connections between the same or similar endpoints that use an unencrypted
+protocol, since different protocols may utilize the network differently and be
+routed differently by the network. Therefore, it is necessary to directly
+measure the packet loss and delay experienced by users of encrypted protocols.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">The Alternate-Marking method <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> defines a consolidated method to
+perform packet loss, delay, and jitter measurements on live traffic. However,
+as mentioned in <span>[<a href="#IPv6AltMark" class="cite xref">IPv6AltMark</a>]</span>, <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> mainly applies to a network layer
+controlled domain managed with a Network Management System (NMS), where the CPE
+or the PE routers are the starting or the ending nodes. <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> provides
+measurement within a controlled domain in which the packets are
+marked. Therefore, applying <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> to end-to-end transport-layer
+connections is not easy because packet identification and marking by network
+nodes is prevented when encrypted transport-layer headers (e.g. QUIC, TCP with
+TLS) are being used.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">This document defines Explicit Host-to-Network Flow Measurement Techniques that
 are specifically designed for encrypted transport protocols. According to the
 definitions of <span>[<a href="#IPPM-METHODS" class="cite xref">IPPM-METHODS</a>]</span>, these measurement methods can be classified as
 Hybrid. They are to be embedded into a transport-layer protocol and are
 explicitly intended for exposing delay and loss rate information to on-path
 measurement devices. Unlike <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span>, most of these methods require
 collaborative endpoint nodes. Since these measurement techniques make performance
-information directly visible to the path, they do not rely on an external NMS.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">The Explicit Host-to-Network Flow Measurement Techniques described in this
+information directly visible to the path, they do not rely on an external NMS.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-8">The Explicit Host-to-Network Flow Measurement Techniques described in this
 document are applicable to any transport-layer protocol connecting a client and a
 server. In this document the client and the server are also referred to as the
-endpoints of the transport-layer protocol.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">The different methods described in this document can be used alone or in
+endpoints of the transport-layer protocol.<a href="#section-1-8" class="pilcrow">¶</a></p>
+<p id="section-1-9">The different methods described in this document can be used alone or in
 combination. Each technique uses few bits and exposes a specific measurement.
 It is assumed that the endpoints are collaborative in the sense of the
-measurements, indeed both client and server needs to cooperate.<a href="#section-1-7" class="pilcrow">¶</a></p>
-<p id="section-1-8">Following the recommendation in <span>[<a href="#RFC8558" class="cite xref">RFC8558</a>]</span> of making path signals explicit,
-this document proposes adding some dedicated measurement bits to the clear portion
-of the transport protocol headers. These bits can be added to an unencrypted portion
-of a transport-layer header, e.g. UDP surplus space (see <span>[<a href="#UDP-OPTIONS" class="cite xref">UDP-OPTIONS</a>]</span> and
-<span>[<a href="#UDP-SURPLUS" class="cite xref">UDP-SURPLUS</a>]</span>) or reserved bits in a QUIC v1 header, as already done with the
-latency Spin bit (see <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>).<a href="#section-1-8" class="pilcrow">¶</a></p>
-<p id="section-1-9">The Spin bit, Delay bit and loss bits explained in this document are inspired by
+measurements, indeed both client and server needs to cooperate.<a href="#section-1-9" class="pilcrow">¶</a></p>
+<p id="section-1-10">Following the recommendation in <span>[<a href="#RFC8558" class="cite xref">RFC8558</a>]</span> of making path signals explicit,
+this document proposes adding some dedicated measurement bits to the clear
+portion of the transport protocol headers. These bits can be added to an
+unencrypted portion of a transport-layer header, e.g. UDP surplus space (see
+<span>[<a href="#UDP-OPTIONS" class="cite xref">UDP-OPTIONS</a>]</span> and <span>[<a href="#UDP-SURPLUS" class="cite xref">UDP-SURPLUS</a>]</span>) or reserved bits in a QUIC v1 header, as
+already done with the latency Spin bit (see Section 17.4 of
+<span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>). Note that this document does not recommend the use of any
+specific bits, as these would need to be chosen by the specific protocol
+implementations (see <a href="#applications" class="auto internal xref">Section 5</a>).<a href="#section-1-10" class="pilcrow">¶</a></p>
+<p id="section-1-11">The Spin bit, Delay bit and loss bits explained in this document are inspired by
 <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span>, <span>[<a href="#QUIC-MANAGEABILITY" class="cite xref">QUIC-MANAGEABILITY</a>]</span>, <span>[<a href="#QUIC-SPIN" class="cite xref">QUIC-SPIN</a>]</span>, <span>[<a href="#I-D.trammell-tsvwg-spin" class="cite xref">I-D.trammell-tsvwg-spin</a>]</span>
-and <span>[<a href="#I-D.trammell-ippm-spin" class="cite xref">I-D.trammell-ippm-spin</a>]</span>.<a href="#section-1-9" class="pilcrow">¶</a></p>
-<p id="section-1-10">Additional details about the Performance Measurements for QUIC are described in
-the paper <span>[<a href="#ANRW19-PM-QUIC" class="cite xref">ANRW19-PM-QUIC</a>]</span>.<a href="#section-1-10" class="pilcrow">¶</a></p>
+and <span>[<a href="#I-D.trammell-ippm-spin" class="cite xref">I-D.trammell-ippm-spin</a>]</span>.<a href="#section-1-11" class="pilcrow">¶</a></p>
+<p id="section-1-12">Additional details about the Performance Measurements for QUIC are described in
+the paper <span>[<a href="#ANRW19-PM-QUIC" class="cite xref">ANRW19-PM-QUIC</a>]</span>.<a href="#section-1-12" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="latency-bits">
@@ -1465,11 +1483,12 @@ the paper <span>[<a href="#ANRW19-PM-QUIC" class="cite xref">ANRW19-PM-QUIC</a>]
 measurements.  Whenever this section of the specification refers to packets, it
 is referring only to packets with protocol headers that include the latency
 bits.<a href="#section-2-1" class="pilcrow">¶</a></p>
-<p id="section-2-2"><span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> introduces an explicit per-flow transport-layer signal for
-hybrid measurement of RTT.  This signal consists of a Spin bit that toggles once
-per RTT. <span>[<a href="#QUIC-SPIN" class="cite xref">QUIC-SPIN</a>]</span> discusses an additional two-bit Valid Edge Counter (VEC)
-to compensate for loss and reordering of the Spin bit and increase fidelity
-of the signal in less than ideal network conditions.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-2">In section 17.4, <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> introduces an explicit per-flow
+transport-layer signal for hybrid measurement of RTT.  This signal consists of a
+Spin bit that toggles once per RTT. Section 4 of <span>[<a href="#QUIC-SPIN" class="cite xref">QUIC-SPIN</a>]</span> discusses an
+additional two-bit Valid Edge Counter (VEC) to compensate for loss and
+reordering of the Spin bit and increase fidelity of the signal in less than
+ideal network conditions.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">This document introduces a stand-alone single-bit delay signal that can be used
 by passive observers to measure the RTT of a network flow, avoiding the Spin bit
 ambiguities that arise as soon as network conditions deteriorate.<a href="#section-2-3" class="pilcrow">¶</a></p>
@@ -1479,7 +1498,8 @@ ambiguities that arise as soon as network conditions deteriorate.<a href="#secti
 <a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-spin-bit" class="section-name selfRef">Spin Bit</a>
         </h3>
 <p id="section-2.1-1">This section is a small recap of the Spin bit working mechanism. For a
-comprehensive explanation of the algorithm, please see <span>[<a href="#QUIC-MANAGEABILITY" class="cite xref">QUIC-MANAGEABILITY</a>]</span>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+comprehensive explanation of the algorithm, see Section 3.8.2 of
+<span>[<a href="#QUIC-MANAGEABILITY" class="cite xref">QUIC-MANAGEABILITY</a>]</span>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.1-2">The Spin bit is an Alternate-Marking <span>[<a href="#AltMark" class="cite xref">AltMark</a>]</span> generated signal, where the
 size of the alternation changes with the flight size each RTT.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
 <p id="section-2.1-3">The latency Spin bit is a single bit signal that toggles once per RTT,
@@ -2195,7 +2215,7 @@ loss measurement if N is too large (see <a href="#upstreamloss" class="auto inte
 <p id="section-3.2.1-3">The value of N should be at least 64 and be a power of 2. This requirement allows
 an Observer to infer the Q Block length by observing one period of the square
 signal. It also allows the Observer to identify flows that set the loss bits to
-arbitrary values (see <a href="#ossification" class="auto internal xref">Section 5</a>).<a href="#section-3.2.1-3" class="pilcrow">¶</a></p>
+arbitrary values (see <a href="#ossification" class="auto internal xref">Section 6</a>).<a href="#section-3.2.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.2.1-4">If the sender does not have sufficient information to make an informed decision
 about Q Block length, the sender should use N=64, since this value has been
 extensively tried in large-scale field tests and yielded good results.
@@ -2749,10 +2769,17 @@ information about downstream CE-marking rate. Presence of E bits along with L
 bits, however, can somewhat confound precise estimates of upstream and
 downstream CE-markings in case the flow contains packets that are not
 ECN-capable.<a href="#section-3.5.2-3" class="pilcrow">¶</a></p>
-<p id="section-3.5.2-4">It is worth noting that <span>[<a href="#RFC9331" class="cite xref">RFC9331</a>]</span>, which introduces Low Latency, Low Loss, and
-Scalable throughput (L4S), uses an ECN scheme that generates CE marks at a
-much higher rate. An implementation may handle both types of CE markings
-to improve the E bit mechanism.<a href="#section-3.5.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="multiple-e-bits">
+<section id="section-3.5.3">
+          <h4 id="name-multiple-e-bits">
+<a href="#section-3.5.3" class="section-number selfRef">3.5.3. </a><a href="#name-multiple-e-bits" class="section-name selfRef">Multiple E Bits</a>
+          </h4>
+<p id="section-3.5.3-1">Some protocols, such as QUIC, support separate ECN-Echo counters. For example,
+Section 13.4.1 of <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> describes separate counters for ECT(0),
+ECT(1), and ECN-CE. To better support such protocols, multiple E bits can be
+used, one per a corresponding ECN-Echo counter.<a href="#section-3.5.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2861,54 +2888,61 @@ solutions with 3 bits, i.e. QL or QR + S or D, or 4 bits, i.e. QL or QR + SD,
 allow having more complete and resilient measurements.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">The methodologies described in the previous sections are transport agnostic and
 can be applied in various situations. The choice of the the methods also depends
-on the specific protocol, for example QL is a good combination but, in the case
+on the specific protocol, for example QL is a good combination, but, in the case
 of a protocol which does not support or cannot set the L bit, QR is the only
 viable solution.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
-<div id="ossification">
+<div id="applications">
 <section id="section-5">
-      <h2 id="name-protocol-ossification-consi">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-protocol-ossification-consi" class="section-name selfRef">Protocol Ossification Considerations</a>
-      </h2>
-<p id="section-5-1">Accurate loss and delay information is relevant for the operation of any protocol,
-though its presence for a sufficient number of flows is important for the
-operation of networks.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">The delay and loss bits are amenable to "greasing" described in <span>[<a href="#RFC8701" class="cite xref">RFC8701</a>]</span>, if
-the protocol designers are not ready to dedicate (and ossify) bits used for loss
-reporting to this function. The greasing could be accomplished similarly to the
-Latency Spin bit greasing in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>. Namely, implementations could
-decide that a fraction of flows should not encode loss and delay information and,
-instead, the bits would be set to arbitrary values. The observers would need to be
-ready to ignore flows with delay and loss information more resembling noise
-than the expected signal.<a href="#section-5-2" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="examples-of-application">
-<section id="section-6">
       <h2 id="name-examples-of-application">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-examples-of-application" class="section-name selfRef">Examples of Application</a>
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-examples-of-application" class="section-name selfRef">Examples of Application</a>
       </h2>
-<p id="section-6-1">This document provides different methods to perform measurements, but not all
-of which need to be implemented at once. For example, only some of the methods
+<p id="section-5-1">This document describes several measurement methods, but it is not expected that
+all methods will be implemented together. For example, only some of the methods
 described in this document (i.e. sQuare bit and Spin bit) are utilized in
 <span>[<a href="#I-D.ietf-core-coap-pm" class="cite xref">I-D.ietf-core-coap-pm</a>]</span>. Also, the binding of a delay signal to QUIC is
-partially described in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>, which adds only the Spin bit to the
-first byte of the short packet header, leaving two reserved bits for future use.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">All the signals discussed in this document have been implemented and experimented
-in both QUIC and TCP. The application scenarios considered can allow the monitoring
-of the interconnections inside data center (Intra-DC) or between data centers
-(Inter-DC) for large scale data transfers up to the end user.
-For the application of the methods described in this document, it is assumed
-that the monitored flows follow stable paths and traverse the same measurement
-points.<a href="#section-6-2" class="pilcrow">¶</a></p>
-<p id="section-6-3">The specific implementation details and the choice of the bits used for the
-experiments with QUIC and TCP are out of scope for this document.
-A specification defining the specific protocol application is expected to discuss
+partially described in Section 17.4 of <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>, which adds only the
+Spin bit to the first byte of the short packet header, leaving two reserved bits
+for future use (see Section 17.2.2 of <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>).<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">All signals discussed in this document have been implemented in succesful
+experiments for both QUIC and TCP. The application scenarios considered allow
+the monitoring of the interconnections inside data center (Intra-DC), between
+data centers (Inter-DC), as well as end-to-end large scale data transfers.  For
+the application of the methods described in this document, it is assumed that
+the monitored flows follow stable paths and traverse the same measurement
+points.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">The specific implementation details and the choice of the bits used for the
+experiments with QUIC and TCP are out of scope for this document.  A
+specification defining the specific protocol application is expected to discuss
 the implementation details depending on which bits will be implemented in the
-protocol, e.g. <span>[<a href="#I-D.ietf-core-coap-pm" class="cite xref">I-D.ietf-core-coap-pm</a>]</span>.<a href="#section-6-3" class="pilcrow">¶</a></p>
+protocol, e.g. <span>[<a href="#I-D.ietf-core-coap-pm" class="cite xref">I-D.ietf-core-coap-pm</a>]</span>. If bits used for specific
+measurements can also be used for other purposes by a protocol, the
+specification is expected to address ways for on-path observers to disambiguate
+the signals or to discuss limitations on the conditions under which the
+observers can expect a valid signal.<a href="#section-5-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="ossification">
+<section id="section-6">
+      <h2 id="name-protocol-ossification-consi">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-protocol-ossification-consi" class="section-name selfRef">Protocol Ossification Considerations</a>
+      </h2>
+<p id="section-6-1">Accurate loss and delay information is not required for the operation of any
+protocol, though its presence for a sufficient number of flows is important for
+the operation of networks.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">The delay and loss bits are amenable to "greasing" described in <span>[<a href="#RFC8701" class="cite xref">RFC8701</a>]</span>, if
+the protocol designers are not ready to dedicate (and ossify) bits used for loss
+reporting to this function. The greasing could be accomplished similarly to the
+Latency Spin bit greasing in Section 17.4 of <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>. For example,
+the protocol designers could decide that a fraction of flows should not encode
+loss and delay information and, instead, the bits would be set to arbitrary
+values. Setting any of the bits described in this document to arbitrary values
+would make the corresponding delay and loss information resemble noise rather
+than the expected signal for the flow, and the observers would need to be ready
+to ignore such flows.<a href="#section-6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="security-considerations">
@@ -2940,24 +2974,25 @@ and secrecy.<a href="#section-7-5" class="pilcrow">¶</a></p>
 <p id="section-7-6">The measurement fields introduced in this document are intended to be included
 into the packets. But it is worth mentioning that it may be possible to use this
 information as a covert channel.<a href="#section-7-6" class="pilcrow">¶</a></p>
-<p id="section-7-7">The current document does not define a specific application and the described
+<p id="section-7-7">The current document does not define a specific application, and the described
 techniques can generally apply to different communication protocols operating in
 different security environments. A specification defining a specific protocol
 application is expected to address the respective security considerations and
 must consider specifics of the protocol and its expected operating environment.
-For example, security considerations for QUIC, discussed in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>
-and <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>, consider a possibility of active and passive attackers in the
-network as well as attacks on specific QUIC mechanisms.<a href="#section-7-7" class="pilcrow">¶</a></p>
+For example, security considerations for QUIC, discussed in Section 21 of
+<span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> and Section 9 of <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>, consider a possibility of
+active and passive attackers in the network as well as attacks on specific QUIC
+mechanisms.<a href="#section-7-7" class="pilcrow">¶</a></p>
 <div id="optimistic-ack-attack">
 <section id="section-7.1">
         <h3 id="name-optimistic-ack-attack">
 <a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-optimistic-ack-attack" class="section-name selfRef">Optimistic ACK Attack</a>
         </h3>
-<p id="section-7.1-1">A defense against an Optimistic ACK Attack, described in <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>,
-involves a sender randomly skipping packet numbers to detect a receiver
-acknowledging packet numbers that have never been received. The Q bit signal may
-inform the attacker which packet numbers were skipped on purpose and which had
-been actually lost (and are, therefore, safe for the attacker to
+<p id="section-7.1-1">A defense against an Optimistic ACK Attack, described in Section 21.4 of
+<span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>, involves a sender randomly skipping packet numbers to detect
+a receiver acknowledging packet numbers that have never been received. The Q bit
+signal may inform the attacker which packet numbers were skipped on purpose and
+which had been actually lost (and are, therefore, safe for the attacker to
 acknowledge). To use the Q bit for this purpose, the attacker must first receive
 at least an entire Q Block of packets, which renders the attack ineffective
 against a delay-sensitive congestion controller.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
@@ -3020,11 +3055,11 @@ loss signal -- a preferred way to share information per <span>[<a href="#RFC8558
 ensure that loss information does not compromise those privacy goals. For
 example, <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span> allows changing Connection IDs in the middle of a
 connection to reduce the likelihood of a passive observer linking old and new
-sub-flows to the same device. A QUIC implementation would need to reset all
-counters when it changes the destination (IP address or UDP port) or the
-Connection ID used for outgoing packets. It would also need to avoid
-incrementing Unreported Loss counter for loss of packets sent to a different
-destination or with a different Connection ID.<a href="#section-8-2" class="pilcrow">¶</a></p>
+sub-flows to the same device (see Section 5.1 of <span>[<a href="#QUIC-TRANSPORT" class="cite xref">QUIC-TRANSPORT</a>]</span>). A QUIC
+implementation would need to reset all counters when it changes the destination
+(IP address or UDP port) or the Connection ID used for outgoing packets. It
+would also need to avoid incrementing Unreported Loss counter for loss of
+packets sent to a different destination or with a different Connection ID.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-8-3">It is also worth highlighting that, if these techniques are not widely deployed,
 an endpoint that uses them may be fingerprinted based on their usage.
 But, since there is no release of user data, the techniques seem unlikely to
@@ -3158,10 +3193,6 @@ providing constructive reviews and helpful suggestions.<a href="#section-11-1" c
 <dt id="RFC8701">[RFC8701]</dt>
         <dd>
 <span class="refAuthor">Benjamin, D.</span>, <span class="refTitle">"Applying Generate Random Extensions And Sustain Extensibility (GREASE) to TLS Extensibility"</span>, <span class="seriesInfo">RFC 8701</span>, <span class="seriesInfo">DOI 10.17487/RFC8701</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8701">https://www.rfc-editor.org/rfc/rfc8701</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC9331">[RFC9331]</dt>
-        <dd>
-<span class="refAuthor">De Schepper, K.</span> and <span class="refAuthor">B. Briscoe, Ed.</span>, <span class="refTitle">"The Explicit Congestion Notification (ECN) Protocol for Low Latency, Low Loss, and Scalable Throughput (L4S)"</span>, <span class="seriesInfo">RFC 9331</span>, <span class="seriesInfo">DOI 10.17487/RFC9331</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9331">https://www.rfc-editor.org/rfc/rfc9331</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RTT-PRIVACY">[RTT-PRIVACY]</dt>
         <dd>
