@@ -190,7 +190,7 @@ this document proposes adding some dedicated measurement bits to the clear porti
 of the transport protocol headers. These bits can be added to an unencrypted portion
 of a transport-layer header, e.g. UDP surplus space (see {{UDP-OPTIONS}} and
 {{UDP-SURPLUS}}) or reserved bits in a QUIC v1 header, as already done with the
-latency Spin bit (see {{QUIC-TRANSPORT}}).
+latency Spin bit (see Section 17.4 of {{QUIC-TRANSPORT}}).
 
 The Spin bit, Delay bit and loss bits explained in this document are inspired by
 {{AltMark}}, {{QUIC-MANAGEABILITY}}, {{QUIC-SPIN}}, {{?I-D.trammell-tsvwg-spin}}
@@ -206,11 +206,12 @@ measurements.  Whenever this section of the specification refers to packets, it
 is referring only to packets with protocol headers that include the latency
 bits.
 
-{{QUIC-TRANSPORT}} introduces an explicit per-flow transport-layer signal for
-hybrid measurement of RTT.  This signal consists of a Spin bit that toggles once
-per RTT. {{QUIC-SPIN}} discusses an additional two-bit Valid Edge Counter (VEC)
-to compensate for loss and reordering of the Spin bit and increase fidelity
-of the signal in less than ideal network conditions.
+In section 17.4, {{QUIC-TRANSPORT}} introduces an explicit per-flow
+transport-layer signal for hybrid measurement of RTT.  This signal consists of a
+Spin bit that toggles once per RTT. Section 4 of {{QUIC-SPIN}} discusses an
+additional two-bit Valid Edge Counter (VEC) to compensate for loss and
+reordering of the Spin bit and increase fidelity of the signal in less than
+ideal network conditions.
 
 This document introduces a stand-alone single-bit delay signal that can be used
 by passive observers to measure the RTT of a network flow, avoiding the Spin bit
@@ -220,7 +221,8 @@ ambiguities that arise as soon as network conditions deteriorate.
 ## Spin Bit   {#spinbit}
 
 This section is a small recap of the Spin bit working mechanism. For a
-comprehensive explanation of the algorithm, please see {{QUIC-MANAGEABILITY}}.
+comprehensive explanation of the algorithm, see Section 3.8.2 of
+{{QUIC-MANAGEABILITY}}.
 
 The Spin bit is an Alternate-Marking {{AltMark}} generated signal, where the
 size of the alternation changes with the flight size each RTT.
@@ -1445,35 +1447,21 @@ allow having more complete and resilient measurements.
 
 The methodologies described in the previous sections are transport agnostic and
 can be applied in various situations. The choice of the the methods also depends
-on the specific protocol, for example QL is a good combination but, in the case
+on the specific protocol, for example QL is a good combination, but, in the case
 of a protocol which does not support or cannot set the L bit, QR is the only
 viable solution.
 
-# Protocol Ossification Considerations  {#ossification}
-
-Accurate loss and delay information is relevant for the operation of any protocol,
-though its presence for a sufficient number of flows is important for the
-operation of networks.
-
-The delay and loss bits are amenable to "greasing" described in {{?RFC8701}}, if
-the protocol designers are not ready to dedicate (and ossify) bits used for loss
-reporting to this function. The greasing could be accomplished similarly to the
-Latency Spin bit greasing in {{QUIC-TRANSPORT}}. Namely, implementations could
-decide that a fraction of flows should not encode loss and delay information and,
-instead, the bits would be set to arbitrary values. The observers would need to be
-ready to ignore flows with delay and loss information more resembling noise
-than the expected signal.
-
 # Examples of Application
 
-This document provides different methods to perform measurements, but not all
-of which need to be implemented at once. For example, only some of the methods
+This document describes several measurement methods, but it is not expected that
+all methods will be implemented together. For example, only some of the methods
 described in this document (i.e. sQuare bit and Spin bit) are utilized in
 {{?I-D.ietf-core-coap-pm}}. Also, the binding of a delay signal to QUIC is
-partially described in {{QUIC-TRANSPORT}}, which adds only the Spin bit to the
-first byte of the short packet header, leaving two reserved bits for future use.
+partially described in Section 17.4 of {{QUIC-TRANSPORT}}, which adds only the
+Spin bit to the first byte of the short packet header, leaving two reserved bits
+for future use (see Section 17.2.2 of {{QUIC-TRANSPORT}}).
 
-All the signals discussed in this document have been implemented and experimented
+All signals discussed in this document have been implemented and experimented
 in both QUIC and TCP. The application scenarios considered can allow the monitoring
 of the interconnections inside data center (Intra-DC) or between data centers
 (Inter-DC) for large scale data transfers up to the end user.
@@ -1482,10 +1470,31 @@ that the monitored flows follow stable paths and traverse the same measurement
 points.
 
 The specific implementation details and the choice of the bits used for the
-experiments with QUIC and TCP are out of scope for this document.
-A specification defining the specific protocol application is expected to discuss
+experiments with QUIC and TCP are out of scope for this document.  A
+specification defining the specific protocol application is expected to discuss
 the implementation details depending on which bits will be implemented in the
-protocol, e.g. {{?I-D.ietf-core-coap-pm}}.
+protocol, e.g. {{?I-D.ietf-core-coap-pm}}. If bits used for specific
+measurements can also be used for other purposes by a protocol, the
+specification is expected to address ways for on-path observers to disambiguate
+the signals or to discuss limitations on the conditions under which the
+observers can expect a valid signal.
+
+# Protocol Ossification Considerations  {#ossification}
+
+Accurate loss and delay information is not required for the operation of any
+protocol, though its presence for a sufficient number of flows is important for
+the operation of networks.
+
+The delay and loss bits are amenable to "greasing" described in {{?RFC8701}}, if
+the protocol designers are not ready to dedicate (and ossify) bits used for loss
+reporting to this function. The greasing could be accomplished similarly to the
+Latency Spin bit greasing in Section 17.4 of {{QUIC-TRANSPORT}}. For example,
+the protocol designers could decide that a fraction of flows should not encode
+loss and delay information and, instead, the bits would be set to arbitrary
+values. Setting any of the bits described in this document to arbitrary values
+would make the corresponding delay and loss information resemble noise rather
+than the expected signal for the flow, and the observers would need to be ready
+to ignore such flows.
 
 # Security Considerations
 
@@ -1519,22 +1528,23 @@ The measurement fields introduced in this document are intended to be included
 into the packets. But it is worth mentioning that it may be possible to use this
 information as a covert channel.
 
-The current document does not define a specific application and the described
+The current document does not define a specific application, and the described
 techniques can generally apply to different communication protocols operating in
 different security environments. A specification defining a specific protocol
 application is expected to address the respective security considerations and
 must consider specifics of the protocol and its expected operating environment.
-For example, security considerations for QUIC, discussed in {{QUIC-TRANSPORT}}
-and {{QUIC-TLS}}, consider a possibility of active and passive attackers in the
-network as well as attacks on specific QUIC mechanisms.
+For example, security considerations for QUIC, discussed in Section 21 of
+{{QUIC-TRANSPORT}} and Section 9 of {{QUIC-TLS}}, consider a possibility of
+active and passive attackers in the network as well as attacks on specific QUIC
+mechanisms.
 
 ## Optimistic ACK Attack
 
-A defense against an Optimistic ACK Attack, described in {{QUIC-TRANSPORT}},
-involves a sender randomly skipping packet numbers to detect a receiver
-acknowledging packet numbers that have never been received. The Q bit signal may
-inform the attacker which packet numbers were skipped on purpose and which had
-been actually lost (and are, therefore, safe for the attacker to
+A defense against an Optimistic ACK Attack, described in Section 21.4 of
+{{QUIC-TRANSPORT}}, involves a sender randomly skipping packet numbers to detect
+a receiver acknowledging packet numbers that have never been received. The Q bit
+signal may inform the attacker which packet numbers were skipped on purpose and
+which had been actually lost (and are, therefore, safe for the attacker to
 acknowledge). To use the Q bit for this purpose, the attacker must first receive
 at least an entire Q Block of packets, which renders the attack ineffective
 against a delay-sensitive congestion controller.
@@ -1595,11 +1605,11 @@ New protocols commonly have specific privacy goals, and loss reporting must
 ensure that loss information does not compromise those privacy goals. For
 example, {{QUIC-TRANSPORT}} allows changing Connection IDs in the middle of a
 connection to reduce the likelihood of a passive observer linking old and new
-sub-flows to the same device. A QUIC implementation would need to reset all
-counters when it changes the destination (IP address or UDP port) or the
-Connection ID used for outgoing packets. It would also need to avoid
-incrementing Unreported Loss counter for loss of packets sent to a different
-destination or with a different Connection ID.
+sub-flows to the same device (see Section 5.1 of {{QUIC-TRANSPORT}}). A QUIC
+implementation would need to reset all counters when it changes the destination
+(IP address or UDP port) or the Connection ID used for outgoing packets. It
+would also need to avoid incrementing Unreported Loss counter for loss of
+packets sent to a different destination or with a different Connection ID.
 
 It is also worth highlighting that, if these techniques are not widely deployed,
 an endpoint that uses them may be fingerprinted based on their usage.
