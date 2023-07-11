@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-07-09T01:14:15.008934+00:00",
+  "timestamp": "2023-07-11T01:03:10.176649+00:00",
   "repo": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
   "labels": [
     {
@@ -1009,6 +1009,34 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 28,
+      "id": "PR_kwDOEPipus5VC863",
+      "title": "Igor's feedback edits",
+      "url": "https://github.com/igorlord/draft-ietf-ippm-explicit-flow-measurements/pull/28",
+      "state": "MERGED",
+      "author": "igorlord",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Edits for the feedback received from ippm",
+      "createdAt": "2023-07-10T05:50:02Z",
+      "updatedAt": "2023-07-10T10:56:13Z",
+      "baseRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "baseRefName": "master",
+      "baseRefOid": "d91a8f72e26c2c213b016166083ae8d359f9d713",
+      "headRepository": "igorlord/draft-ietf-ippm-explicit-flow-measurements",
+      "headRefName": "igor/feedback-edits",
+      "headRefOid": "555dce438c6912dee44bae1f775df02ef83b7f2c",
+      "closedAt": "2023-07-10T10:56:12Z",
+      "mergedAt": "2023-07-10T10:56:12Z",
+      "mergedBy": "giuseppefioccola",
+      "mergeCommit": {
+        "oid": "da4db0de4a59fa5374622a7963e77aa672ad69bb"
+      },
+      "comments": [],
+      "reviews": []
     }
   ]
 }
